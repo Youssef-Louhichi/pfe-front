@@ -1,0 +1,28 @@
+.side_container{
+    background-color: #004B91;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 15px 15px 0;
+    padding-left: 20px;
+    padding-top: 25px;
+    padding-bottom: 35px;
+}
+
+.name{
+    font-size: 16px;
+    font-weight: bold;
+    color: #EFEFEF;
+    font-family: "Open Sans";
+}
+
+.email{
+    font-size: 14px;
+    color: #C0BFBD;
+    font-family: "Open Sans";
+}
+
+.navbar{
+    margin-top: 40px;
+    list-style: none;
+}
