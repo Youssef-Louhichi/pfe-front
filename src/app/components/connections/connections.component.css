@@ -1,0 +1,31 @@
+.container{
+    margin: auto;
+    width: 99%;
+    padding-top: 50px;
+}
+
+.title{
+    font-weight: bold;
+    font-size: 45px;
+    margin-left: 10%;
+
+}
+
+
+
+
+.db_form{
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+
+.list_db{
+    margin-right: 40px;
+}
+
+.list_db ul{
+    list-style: none;
+}

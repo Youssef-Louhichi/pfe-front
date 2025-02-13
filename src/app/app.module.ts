@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { MainComponent } from './components/main/main.component';
+import { ConnectionsComponent } from './components/connections/connections.component';
 
 
 @NgModule({
@@ -12,6 +13,7 @@ import { MainComponent } from './components/main/main.component';
     AppComponent,
     NavbarComponent,
     MainComponent,
+    ConnectionsComponent,
     
   ],
   imports: [
