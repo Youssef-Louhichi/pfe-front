@@ -6,9 +6,8 @@
 .nav{
     position: fixed;
     height: 100vh;
-    bottom: 0;
     left: 0;
     top: 0;
-    width: 249px;
+    width: 250px;
 
 }
