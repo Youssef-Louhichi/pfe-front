@@ -14,6 +14,8 @@
 
 
 
+
+
 .db_form{
     display: flex;
     width: 100%;
@@ -28,4 +30,13 @@
 
 .list_db ul{
     list-style: none;
+}
+
+
+.vertical-line{
+    height: 75px;
+    width: 1px;
+    border-left: 1px solid gray;
+    margin-right: 40px;
+
 }
