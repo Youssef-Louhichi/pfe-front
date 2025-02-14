@@ -7,4 +7,12 @@ import { Component } from '@angular/core';
 })
 export class ConnectionsComponent {
 
+  db_index : number= 1;
+
+
+  changeIndex(i: number){
+    this.db_index = i
+  }
+
+
 }
