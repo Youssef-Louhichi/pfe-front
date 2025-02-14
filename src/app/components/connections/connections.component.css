@@ -42,7 +42,7 @@
 }
 
 .vertical-line{
-    height: 75px;
+    height: 200px;
     width: 1px;
     border-left: 1px solid gray;
     margin-right: 40px;
