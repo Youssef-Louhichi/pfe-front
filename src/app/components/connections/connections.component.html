@@ -1,62 +1,62 @@
-<div class="container">
+<div class="container1">
 
 
     <div class="title">
-        Connecter à la base 
+        Connecter à la base
     </div>
 
-<hr>
+    <hr>
 
     <div class="db_form">
 
-    <div class="list_db">
-    <ul>
-        <li (click)="changeIndex(1)"><i class="fas fa-database"></i> Base de données MySQL</li>
-        <li (click)="changeIndex(2)"><i class="fas fa-database"></i> Base de données Oracle</li>
-    </ul>
+        <div class="list_db">
+            <ul>
+                <li (click)="changeIndex(1)"><i class="fas fa-database"></i> Base de données MySQL</li>
+                <li (click)="changeIndex(2)"><i class="fas fa-database"></i> Base de données Oracle</li>
+            </ul>
 
-    </div>
-    <div class="vertical-line">
+        </div>
+        <div class="vertical-line">
 
-    </div>
-    <div *ngIf="db_index == 1">
-        <h2>MySQL Database</h2>
-        <form action="" class="formulaire">
-        <label class="port_label" >
-        Port : <input type="text">
-        </label>
-        <label class="host_label">
-        Host : <input type="text">
-        </label>
-        <label class="user_label">
-        User : <input type="text"> 
-        </label>
-        <label class="password_label">
-        Password : <input type="text">
-        </label>
-        <label class="schema_label">
-        Schema : <input type="text">
-        </label>
-        </form>
-    </div>
+        </div>
+        <div *ngIf="db_index == 1">
+            <h2>MySQL Database</h2>
+            <form action="" class="formulaire">
+                <label class="port_label">
+                    Port : <input type="text">
+                </label>
+                <label class="host_label">
+                    Host : <input type="text">
+                </label>
+                <label class="user_label">
+                    User : <input type="text">
+                </label>
+                <label class="password_label">
+                    Password : <input type="text">
+                </label>
+                <label class="schema_label">
+                    Schema : <input type="text">
+                </label>
+            </form>
+        </div>
 
-    <div *ngIf="db_index == 2">
-        <h2>Oracle Database</h2>
-        <form action="" class="formulaire">
-        <label class="port_label" >
-        Port : <input type="text">
-        </label>
-        <label class="host_label">
-        Host : <input type="text">
-        </label>
-        <label class="user_label">
-        User : <input type="text"> 
-        </label>
-        <label class="password_label">
-        Password : <input type="text">
-        </label>
-        </form>
-    </div>
+        <div *ngIf="db_index == 2">
+            <h2>Oracle Database</h2>
+            <form action="" class="formulaire">
+                <label class="port_label">
+                    Port : <input type="text">
+                </label>
+                <label class="host_label">
+                    Host : <input type="text">
+                </label>
+                <label class="user_label">
+                    User : <input type="text">
+                </label>
+                <label class="password_label">
+                    Password : <input type="text">
+                </label>
+            </form>
+        </div>
 
     </div>
 
