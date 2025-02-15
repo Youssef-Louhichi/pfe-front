@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { MainComponent } from './components/main/main.component';
 import { ConnectionsComponent } from './components/connections/connections.component';
 import { UsersComponent } from './components/users/users.component';
+import { HomeComponent } from './components/home/home.component';
 
 const routes: Routes = [
   {path:"main",title:"EasySql",component:MainComponent,children:[
@@ -10,6 +11,7 @@ const routes: Routes = [
     {path:"connections",component:ConnectionsComponent},
     {path:"users",component:UsersComponent}
   ]},
+  {path:"home",title:"EasySql",component:HomeComponent},
   {path:"",redirectTo:"main",pathMatch:'full'}
 ];
 
