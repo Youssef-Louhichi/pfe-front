@@ -1,0 +1,30 @@
+<form (submit)="addUser($event)">
+    <input type="email" [(ngModel)]="newUser.email" name="email" placeholder="Email" required>
+    <input type="password" [(ngModel)]="newUser.pass" name="password" placeholder="Password" required>
+    <input type="text" [(ngModel)]="newUser.role" name="role" placeholder="Role" required>
+    <input type="submit" value="Add User">
+  </form>
+  
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users; let i = index">
+        <td>{{ user.id }}</td>
+        <td>{{ user.email }}</td>
+        <td class="password">••••••••</td>
+        <td>{{ user.role }}</td>
+        <td>
+          <button (click)="deleteUser(i)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
