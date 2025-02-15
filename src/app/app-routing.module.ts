@@ -12,7 +12,7 @@ const routes: Routes = [
     {path:"users",component:UsersComponent}
   ]},
   {path:"home",title:"EasySql",component:HomeComponent},
-  {path:"",redirectTo:"main",pathMatch:'full'}
+  {path:"",redirectTo:"home",pathMatch:'full'}
 ];
 
 @NgModule({
