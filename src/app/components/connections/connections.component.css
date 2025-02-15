@@ -1,0 +1,105 @@
+.container{
+    margin: auto;
+    width: 99%;
+    padding-top: 50px;
+}
+
+.title{
+    font-weight: bold;
+    font-size: 45px;
+    margin-left: 10%;
+
+}
+
+
+
+
+
+
+.db_form{
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+
+.list_db{
+    margin-right: 40px;
+}
+
+.list_db ul{
+    list-style: none;
+}
+
+.list_db li{
+    cursor: pointer;
+}
+
+.list_db li:hover{
+    background-color: gray;
+    color: aliceblue;
+}
+
+.vertical-line{
+    height: 200px;
+    width: 1px;
+    border-left: 1px solid gray;
+    margin-right: 40px;
+
+}
+
+.formulaire{
+    width: 750px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.port_label{
+    width: 50%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.host_label{
+    width: 49%;
+    display: flex;
+    justify-content: space-between;
+    margin-left: 2px;
+
+
+}
+
+.user_label{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+
+}
+
+.password_label{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+
+}
+
+.schema_label{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+
+}
+
+input{
+    width: 600px;
+}
+
+.port_label input,.host_label input{
+    width: 80%;
+}

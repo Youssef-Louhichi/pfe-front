@@ -7,7 +7,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { MainComponent } from './components/main/main.component';
 import { HomeComponent } from './components/home/home.component';
 import { UsersComponent } from './components/users/users.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';import { ConnectionsComponent } from './components/connections/connections.component';
+
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { FormsModule } from '@angular/forms';
     MainComponent,
     HomeComponent,
     UsersComponent,
+    ConnectionsComponent,
     
   ],
   imports: [
