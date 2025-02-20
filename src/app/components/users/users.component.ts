@@ -1,43 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user';
+import { UsersService } from 'src/app/services/users.service';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent {
+export class UsersComponent implements OnInit{
 
 
-   users: User[] = [
-    new User(1, 'user1@example.com', 'password123', 'admin'),
-    new User(2, 'user2@example.com', 'password456', 'user'),
-    new User(3, 'user3@example.com', 'password789', 'moderator')
-  ];
+  users: User[] = [];
 
-
-
-  newUser = { email: '', pass: '', role: '' };
-
-  addUser(event: Event) {
-    event.preventDefault(); // Prevents page reload
-
-    if (!this.newUser.email || !this.newUser.pass || !this.newUser.role) return;
-
-    const newId = this.users.length > 0 ? this.users[this.users.length - 1].id + 1 : 1;
-
-    this.users.push({
-      id: newId,
-      email: this.newUser.email,
-      pass: this.newUser.pass,
-      role: this.newUser.role
-    });
-
-    // Reset form fields
-    this.newUser = { email: '', pass: '', role: '' };
+  constructor(private userservice : UsersService){}
+  ngOnInit(): void {
+    
+    this.getUsers();
+  }
+  getUsers()
+  {
+    this.userservice.getUsers().subscribe(data => {this.users=data;console.log(this.users)});
   }
 
-  deleteUser(index: number) {
-    this.users.splice(index, 1);
-  }
+
 }
