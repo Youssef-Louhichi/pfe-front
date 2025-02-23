@@ -9,7 +9,8 @@ import { HomeComponent } from './components/home/home.component';
 import { UsersComponent } from './components/users/users.component';
 import { FormsModule } from '@angular/forms';import { ConnectionsComponent } from './components/connections/connections.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDialogModule } from '@angular/material/dialog'; 
+import { MatDialogModule } from '@angular/material/dialog';
+import { DashboardComponent } from './components/dashboard/dashboard.component'; 
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     HomeComponent,
     UsersComponent,
     ConnectionsComponent,
+    DashboardComponent,
     
   ],
   imports: [

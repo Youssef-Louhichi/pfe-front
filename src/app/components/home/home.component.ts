@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Connexion } from 'src/app/models/connexion';
 import { UsersService } from 'src/app/services/users.service';
 import { ConnectionsComponent } from '../connections/connections.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +12,7 @@ import { ConnectionsComponent } from '../connections/connections.component';
 })
 export class HomeComponent implements OnInit{
 
-  constructor(private userService:UsersService,private dialog: MatDialog){}
+  constructor(private userService:UsersService,private dialog: MatDialog,private router:Router){}
 
   connexions:Connexion[]
 
@@ -29,6 +30,13 @@ export class HomeComponent implements OnInit{
     });
 
     
+  }
+
+
+  openConnection(id:number){
+    localStorage.removeItem("idConnection")
+    localStorage.setItem("idConnection",id.toString())
+    this.router.navigate(["/main"])
   }
 
 

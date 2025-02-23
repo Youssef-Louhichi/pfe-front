@@ -50,7 +50,7 @@
           <div class="project_inside">
             <i class="fas fa-user"></i>
             <div class="username">{{c.username}}</div> 
-            <button routerLink="/main">Open</button>
+            <button (click)="openConnection(c.id)">Open</button>
           </div>
         </div>
       
