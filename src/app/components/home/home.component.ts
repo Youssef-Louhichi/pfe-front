@@ -29,6 +29,8 @@ export class HomeComponent implements OnInit{
       height:'450px',        
     });
 
+    dialogRef.afterClosed().subscribe((data) => {this.connexions.push(data)})
+
     
   }
 

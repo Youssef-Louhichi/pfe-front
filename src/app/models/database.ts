@@ -2,8 +2,8 @@ import { User } from "./user";
 import { Connexion } from "./connexion";
 
 export enum DatabaseType {
-    MYSQL = "MYSQL",
-    ORACLE = "ORACLE",
+    MYSQL = "MySQL",
+    ORACLE = "Oracle",
 }
 
 export class Database {

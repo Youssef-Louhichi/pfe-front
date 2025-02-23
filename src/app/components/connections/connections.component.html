@@ -19,42 +19,28 @@
         <div class="vertical-line">
 
         </div>
-        <div *ngIf="db_index == 1">
-            <h2>MySQL Database</h2>
-            <form action="" class="formulaire">
+        <div >
+            <h2>{{db_type}} Database informations</h2>
+            <form action="" class="formulaire" [formGroup]="form" (ngSubmit)="insertConnection()">
                 <label class="port_label">
-                    Port : <input type="text">
+                    Port : <input type="text" formControlName="port">
                 </label>
                 <label class="host_label">
-                    Host : <input type="text">
+                    Host : <input type="text" formControlName="host">
                 </label>
                 <label class="user_label">
-                    Username : <input type="text">
+                    Username : <input type="text" formControlName="username">
                 </label>
                 <label class="password_label">
-                    Password : <input type="text">
+                    Password : <input type="text" formControlName="password">
                 </label>
+
+                <button type="submit">Insert</button>
                
             </form>
         </div>
 
-        <div *ngIf="db_index == 2">
-            <h2>Oracle Database</h2>
-            <form action="" class="formulaire">
-                <label class="port_label">
-                    Port : <input type="text">
-                </label>
-                <label class="host_label">
-                    Host : <input type="text">
-                </label>
-                <label class="user_label">
-                    Username : <input type="text">
-                </label>
-                <label class="password_label">
-                    Password : <input type="text">
-                </label>
-            </form>
-        </div>
+        
 
     </div>
 

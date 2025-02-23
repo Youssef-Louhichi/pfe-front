@@ -7,7 +7,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { MainComponent } from './components/main/main.component';
 import { HomeComponent } from './components/home/home.component';
 import { UsersComponent } from './components/users/users.component';
-import { FormsModule } from '@angular/forms';import { ConnectionsComponent } from './components/connections/connections.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';import { ConnectionsComponent } from './components/connections/connections.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DashboardComponent } from './components/dashboard/dashboard.component'; 
@@ -30,6 +30,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     MatDialogModule 
   ],
   providers: [],
