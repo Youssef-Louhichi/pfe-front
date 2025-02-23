@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Connexion } from 'src/app/models/connexion';
 import { UsersService } from 'src/app/services/users.service';
+import { ConnectionsComponent } from '../connections/connections.component';
 
 @Component({
   selector: 'app-home',
@@ -9,7 +11,7 @@ import { UsersService } from 'src/app/services/users.service';
 })
 export class HomeComponent implements OnInit{
 
-  constructor(private userService:UsersService){}
+  constructor(private userService:UsersService,private dialog: MatDialog){}
 
   connexions:Connexion[]
 
@@ -18,6 +20,15 @@ export class HomeComponent implements OnInit{
       //console.log(data)
       this.connexions = data
     })
+  }
+
+  openPopup(): void {
+    const dialogRef = this.dialog.open(ConnectionsComponent, {
+      width: '1200px',
+      height:'450px',        
+    });
+
+    
   }
 
 
