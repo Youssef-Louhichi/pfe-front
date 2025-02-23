@@ -105,6 +105,10 @@ h2{
     color: #000000;
 }
 
+
+.username{
+    font-size: 20px;
+}
 .project_inside button{
     width: 100px;
     height: 40px;
