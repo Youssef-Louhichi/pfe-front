@@ -1,4 +1,4 @@
 export class User {
-    constructor(public identif:number,public mail:String,public pass:String){}
+    constructor(public mail:String,public password:String,public identif?:number){}
 
 }

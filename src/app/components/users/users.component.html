@@ -1,5 +1,23 @@
 
-  
+<div class="form-container">
+  <h2>Add New User</h2>
+  <form (ngSubmit)="onSubmit()">
+    <!-- Email Input -->
+    <div class="form-group">
+      <label for="mail">Email:</label>
+      <input type="email" id="email" [(ngModel)]="useradd.mail" name="mail" required />
+    </div>
+
+    <!-- Password Input -->
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" [(ngModel)]="useradd.password" name="password" required />
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="submit-btn">Add User</button>
+  </form>
+</div>
   <table class="user-table">
     <thead>
       <tr>
@@ -17,7 +35,8 @@
         <td class="password">••••••••</td>
         
         <td>
-          <button ><i class="fa-solid fa-trash"></i></button>
+          <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-trash"></i></button>
+          <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-pen"></i></button>
         </td>
       </tr>
     </tbody>
