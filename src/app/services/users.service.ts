@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../models/user';
+import { Connexion } from '../models/connexion';
 
 @Injectable({
   providedIn: 'root'
@@ -38,5 +39,11 @@ export class UsersService {
   // Delete a user by ID
   deleteUser(id: number): Observable<void> {
     return this.httpclient.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  getUsersConnexions(id: number): Observable<Connexion[]>
+  {
+    return this.httpclient.get<Connexion[]>(`${this.baseUrl}/${id}/connexions`);
+    
   }
 }
