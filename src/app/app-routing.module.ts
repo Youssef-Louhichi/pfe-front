@@ -9,7 +9,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 const routes: Routes = [
   {path:"main",title:"EasySql",component:MainComponent,children:[
     {path:"dashboard",component:DashboardComponent},
-    {path:"connections",component:ConnectionsComponent},
+    {path:"connection",component:ConnectionsComponent},
     {path:"users",component:UsersComponent},
     {path:"",redirectTo:"dashboard",pathMatch:'full'}
   ]},
