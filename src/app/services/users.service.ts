@@ -46,4 +46,8 @@ export class UsersService {
     return this.httpclient.get<Connexion[]>(`${this.baseUrl}/${id}/connexions`);
     
   }
+
+  login(l:string,p:string):Observable<any>{
+    return this.httpclient.post<User>(this.baseUrl+`/login`,{mail:l,password:p})
+  }
 }

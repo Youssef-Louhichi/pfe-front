@@ -17,7 +17,8 @@ export class HomeComponent implements OnInit{
   connexions:Connexion[]
 
   ngOnInit(): void {
-    this.userService.getUsersConnexions(1).subscribe(data =>{
+    let id = localStorage.getItem("userId")
+    this.userService.getUsersConnexions(Number(id)).subscribe(data =>{
       //console.log(data)
       this.connexions = data
     })
@@ -29,7 +30,10 @@ export class HomeComponent implements OnInit{
       height:'450px',        
     });
 
-    dialogRef.afterClosed().subscribe((data) => {this.connexions.push(data)})
+    dialogRef.afterClosed().subscribe((data) => {
+      if(data)
+        this.connexions.push(data)
+      })
 
     
   }
