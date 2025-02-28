@@ -5,8 +5,10 @@ import { ConnectionsComponent } from './components/connections/connections.compo
 import { UsersComponent } from './components/users/users.component';
 import { HomeComponent } from './components/home/home.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { LoginPageComponent } from './components/login-page/login-page.component';
 
 const routes: Routes = [
+  {path:"login",title:"EasySql",component:LoginPageComponent},
   {path:"main",title:"EasySql",component:MainComponent,children:[
     {path:"dashboard",component:DashboardComponent},
     {path:"connection",component:ConnectionsComponent},

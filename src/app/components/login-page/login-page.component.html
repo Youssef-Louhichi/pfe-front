@@ -1,0 +1,68 @@
+<div class="cont">
+    <div class="layer">
+
+    <div class="title_container">
+        <div class="title">
+            easySQL
+        </div>
+    </div>
+
+    <div class="login-window" [ngClass]="{'turn-off': !switch, 'turn-on': switch}" [formGroup]="logForm">
+        <div class="up-bar">
+            <div class="delete-icon">X</div>
+        </div>
+
+        <div class="login_title">Sign in</div>
+
+        <div class="inputs-container">
+
+            <input type="text" class="inputs" placeholder="Your Email" formControlName="login">
+            <input type="password" class="inputs" placeholder="Your Password" formControlName="pwd">
+
+        </div>
+
+        <div class="remember">
+            <label class="checkbox-label">
+                <input type="checkbox"> Remember me
+            </label>
+            <label class="help-label">
+                <i class="fa-regular fa-circle-question"></i> Need Help
+            </label>
+        </div>
+
+        <div class="btn-container">
+            <button (click)="signIn()">Sign in</button>
+            <button (click)="toggle()">Sign up</button>
+        </div>
+
+    </div>
+
+
+    <div class="signup-window"  [ngClass]="{'turn-off': switch, 'turn-on': !switch}">
+        <div class="up-bar">
+            <div class="delete-icon">X</div>
+        </div>
+
+        <div class="login_title">Sign up</div>
+
+        <div class="inputs-container-sign">
+
+            <input type="text" class="inputs" placeholder="Your Email">
+            <input type="text" class="inputs" placeholder="Your Name">
+            <input type="password" class="inputs" placeholder="Your Password">
+            <input type="password" class="inputs" placeholder="Confirm Password">
+
+
+        </div>
+
+
+
+        <div class="btn-container">
+            <button>Sign up</button>
+            <button (click)="toggle()"> Sign in</button>
+        </div>
+
+    </div>
+
+</div>
+</div>

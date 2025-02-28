@@ -10,7 +10,8 @@ import { UsersComponent } from './components/users/users.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';import { ConnectionsComponent } from './components/connections/connections.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
-import { DashboardComponent } from './components/dashboard/dashboard.component'; 
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { LoginPageComponent } from './components/login-page/login-page.component'; 
 
 
 @NgModule({
@@ -22,6 +23,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     UsersComponent,
     ConnectionsComponent,
     DashboardComponent,
+    LoginPageComponent,
     
   ],
   imports: [
