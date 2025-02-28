@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Database } from 'src/app/models/database';
 import { User } from 'src/app/models/user';
 import { UsersService } from 'src/app/services/users.service';
 
@@ -11,14 +12,25 @@ export class UsersComponent implements OnInit{
 
   user : User;
   users: User[] = [];
-  useradd: User = { mail: '', password: '' };
+  useradd: User ;
+  dbs:Database[] = []
+  selectedDb : Database 
+
   constructor(private userservice : UsersService){}
   ngOnInit(): void {
-    
+    this.getDbs()
     this.getUsers();
   }
+  getDbs() {
+    this.userservice.getUserById(Number(localStorage.getItem("userId"))).subscribe(data => {
+      this.user=data 
+      this.dbs = data.databases
+      this.selectedDb = this.dbs[0]
+    })
+  }
 
-  onSubmit() {
+
+  onSubmit() {/*
     if (this.useradd.mail && this.useradd.password) {
       this.userservice.createUser(this.useradd).subscribe(() => {
         alert('User added successfully!');
@@ -27,7 +39,7 @@ export class UsersComponent implements OnInit{
       });
     } else {
       alert('Please fill in all fields.');
-    }
+    }*/
   }
 
 
@@ -48,4 +60,34 @@ export class UsersComponent implements OnInit{
       });
     }
   }
+
+  
+
+filteredUsers: any[] = [];
+
+filterUsers(mail: string) {
+  if (this.isEmailComplete(mail)) {
+    this.userservice.getUserByMail(mail).subscribe(data => {
+      if (data[0])
+        this.filteredUsers = data
+    })
+  } 
+  else {
+    this.filteredUsers = []; 
+  }
+}
+
+isEmailComplete(mail: string): boolean {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(mail);
+}
+
+
+addUser() {
+  this.userservice.linkDatabaseToUser(this.filteredUsers[0].identif,this.selectedDb.id).subscribe(data =>{
+    console.log(data)
+  })
+}
+
+  
 }

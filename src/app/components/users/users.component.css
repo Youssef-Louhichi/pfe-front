@@ -106,3 +106,12 @@ input {
 .submit-btn:hover {
   background-color: #0056b3;
 }
+
+.cont{
+  width: 80%;
+  margin: auto;
+}
+
+.db-select{
+  margin-top: 10px;
+}

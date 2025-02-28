@@ -47,6 +47,17 @@ export class UsersService {
     
   }
 
+  getUserByMail(mail:string): Observable<User[]> 
+  {
+    return this.httpclient.get<User[]>(`${this.baseUrl}/getmail?mail=${mail}`)
+  }
+
+  linkDatabaseToUser(userId: number, databaseId: number): Observable<string> {
+    const url = `${this.baseUrl}/${userId}/databases/${databaseId}`;
+    return this.httpclient.post<string>(url, {});
+  }
+  
+
   login(l:string,p:string):Observable<any>{
     return this.httpclient.post<User>(this.baseUrl+`/login`,{mail:l,password:p})
   }

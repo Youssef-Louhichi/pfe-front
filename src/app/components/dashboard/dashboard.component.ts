@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Database } from 'src/app/models/database';
 import { ConnexionsService } from 'src/app/services/connexions.service';
+import { UsersService } from 'src/app/services/users.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,15 +10,14 @@ import { ConnexionsService } from 'src/app/services/connexions.service';
 })
 export class DashboardComponent implements OnInit{
 
-  constructor(private connexionService:ConnexionsService){}
+  constructor(private connexionService:ConnexionsService,private userservice:UsersService){}
 
   databases:Database[]
 
   ngOnInit(): void {
-    let idC = Number(localStorage.getItem("idConnection"))
-    let idU = Number(localStorage.getItem("userId"))
-    this.connexionService.getConnexionDatabases(idC).subscribe(data =>{
-      this.databases=data
+    
+    this.userservice.getUserById(Number(localStorage.getItem("userId"))).subscribe(data => {
+      this.databases = data.databases
     })
 
   }

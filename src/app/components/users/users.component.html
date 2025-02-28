@@ -1,39 +1,43 @@
+<div class="cont" *ngIf="selectedDb">
 
-<div class="form-container">
-  <h2>Add New User</h2>
-  <form (ngSubmit)="onSubmit()">
-    <!-- Email Input -->
-    <div class="form-group">
-      <label for="mail">Email:</label>
-      <input type="email" id="email" [(ngModel)]="useradd.mail" name="mail" required />
-    </div>
+  <select class="db-select" [(ngModel)]="selectedDb" >
+    <option *ngFor="let db of dbs" [ngValue]="db">{{ db.name }}</option>
+  </select>
 
-    <!-- Password Input -->
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input type="password" id="password" [(ngModel)]="useradd.password" name="password" required />
-    </div>
-
-    <!-- Submit Button -->
-    <button type="submit" class="submit-btn">Add User</button>
-  </form>
-</div>
+  
+  <div class="form-container">
+    <h2>Add New User</h2>
+    <form (ngSubmit)="onSubmit()">
+      <!-- Email Input -->
+      <div class="form-group">
+        <label for="mail">Email:</label>
+        <input type="email" id="email" name="mail" required (input)="filterUsers(mail.value)" #mail/>
+        <ul class="suggestions" *ngIf="filteredUsers.length > 0">
+          <li *ngFor="let user of filteredUsers" >
+            {{ user.mail }}
+          </li>
+        </ul>
+      </div>
+      <!-- Submit Button -->
+      <button type="button" class="submit-btn" (click)="addUser()">Add User</button>
+    </form>
+  </div>
   <table class="user-table">
     <thead>
       <tr>
         <th>ID</th>
         <th>Email</th>
         <th>Password</th>
-       
+
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let user of users; let i = index">
+      <tr *ngFor="let user of selectedDb.users; let i = index">
         <td>{{ user.identif }}</td>
         <td>{{ user.mail }}</td>
         <td class="password">••••••••</td>
-        
+
         <td>
           <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-trash"></i></button>
           <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-pen"></i></button>
@@ -41,3 +45,4 @@
       </tr>
     </tbody>
   </table>
+</div>

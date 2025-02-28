@@ -11,12 +11,11 @@ const routes: Routes = [
   {path:"login",title:"EasySql",component:LoginPageComponent},
   {path:"main",title:"EasySql",component:MainComponent,children:[
     {path:"dashboard",component:DashboardComponent},
-    {path:"connections",component:ConnectionsComponent},
     {path:"users",component:UsersComponent},
     {path:"",redirectTo:"dashboard",pathMatch:'full'}
   ]},
   {path:"home",title:"EasySql",component:HomeComponent},
-  {path:"",redirectTo:"home",pathMatch:'full'}
+  {path:"",redirectTo:"login",pathMatch:'full'}
 ];
 
 @NgModule({
