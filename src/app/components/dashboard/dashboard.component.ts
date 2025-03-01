@@ -15,9 +15,12 @@ export class DashboardComponent implements OnInit{
   databases:Database[]
 
   ngOnInit(): void {
+
+    let idConnexion = Number(localStorage.getItem("idConnection"))
+    let idUser = Number(localStorage.getItem("userId"))
     
-    this.userservice.getUserById(Number(localStorage.getItem("userId"))).subscribe(data => {
-      this.databases = data.databases
+    this.userservice.getUserById(idUser).subscribe(data => {
+      this.databases = data.databases.filter(db => db.connexion.id == idConnexion)
     })
 
   }

@@ -21,26 +21,19 @@ export class UsersComponent implements OnInit{
     this.getDbs()
     this.getUsers();
   }
+
   getDbs() {
-    this.userservice.getUserById(Number(localStorage.getItem("userId"))).subscribe(data => {
+    let idConnexion = Number(localStorage.getItem("idConnection"))
+    let idUser = Number(localStorage.getItem("userId"))
+
+    this.userservice.getUserById(idUser).subscribe(data => {
       this.user=data 
-      this.dbs = data.databases
+      this.dbs = data.databases.filter(db => db.connexion.id == idConnexion)
       this.selectedDb = this.dbs[0]
     })
   }
 
 
-  onSubmit() {/*
-    if (this.useradd.mail && this.useradd.password) {
-      this.userservice.createUser(this.useradd).subscribe(() => {
-        alert('User added successfully!');
-        this.getUsers();
-        this.useradd = {mail: '', password: '' }; // Reset form
-      });
-    } else {
-      alert('Please fill in all fields.');
-    }*/
-  }
 
 
 
@@ -86,6 +79,8 @@ isEmailComplete(mail: string): boolean {
 addUser() {
   this.userservice.linkDatabaseToUser(this.filteredUsers[0].identif,this.selectedDb.id).subscribe(data =>{
     console.log(data)
+    if(data)
+      this.users.push(this.filterUsers[0])
   })
 }
 
