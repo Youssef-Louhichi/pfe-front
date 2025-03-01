@@ -56,7 +56,7 @@ export class UsersComponent implements OnInit{
 
   
 
-filteredUsers: any[] = [];
+filteredUsers: User[] = [];
 
 filterUsers(mail: string) {
   if (this.isEmailComplete(mail)) {
@@ -77,12 +77,15 @@ isEmailComplete(mail: string): boolean {
 
 
 addUser() {
+
+  if(this.filteredUsers.length != 0){
+  if(this.selectedDb.users.filter(u => u.identif == this.filteredUsers[0].identif).length == 0)
   this.userservice.linkDatabaseToUser(this.filteredUsers[0].identif,this.selectedDb.id).subscribe(data =>{
-    console.log(data)
-    if(data)
-      this.users.push(this.filterUsers[0])
+    if(data.message == "Database linked successfully"){
+      this.selectedDb.users.push(this.filteredUsers[0])
+    }
   })
 }
 
-  
+}
 }

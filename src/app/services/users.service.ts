@@ -52,9 +52,9 @@ export class UsersService {
     return this.httpclient.get<User[]>(`${this.baseUrl}/getmail?mail=${mail}`)
   }
 
-  linkDatabaseToUser(userId: number, databaseId: number): Observable<string> {
+  linkDatabaseToUser(userId: number, databaseId: number): Observable<any> {
     const url = `${this.baseUrl}/${userId}/databases/${databaseId}`;
-    return this.httpclient.post<string>(url, {});
+    return this.httpclient.post<any>(url, {});
   }
   
 
