@@ -83,6 +83,7 @@ addUser() {
   this.userservice.linkDatabaseToUser(this.filteredUsers[0].identif,this.selectedDb.id).subscribe(data =>{
     if(data.message == "Database linked successfully"){
       this.selectedDb.users.push(this.filteredUsers[0])
+      this.filteredUsers = []
     }
   })
 }
