@@ -115,3 +115,23 @@ input {
 .db-select{
   margin-top: 10px;
 }
+
+.user-search{
+  padding: 20px;
+}
+
+.user-row{
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-element{
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+
+}
+
+.button-element{
+  margin-right: 10px;
+}

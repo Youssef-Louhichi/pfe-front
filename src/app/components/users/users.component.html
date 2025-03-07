@@ -24,24 +24,23 @@
   </div>
   <table class="user-table">
     <thead>
-      <tr>
-        <th>ID</th>
-        <th>Email</th>
-        <th>Password</th>
-
-        <th>Actions</th>
+      <tr class="user-search">
+          <input type="text" placeholder="Search user...">
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let user of selectedDb.users; let i = index">
-        <td>{{ user.identif }}</td>
-        <td>{{ user.mail }}</td>
-        <td class="password">••••••••</td>
+        <td class = "user-row">
+          <div class="user-element">
+            <input type="checkbox">
+            <i class="fa-solid fa-user-circle"></i>
+            {{ user.mail }}
+          </div>
 
-        <td>
+          <div class="button-element">
           <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-trash"></i></button>
-          <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-pen"></i></button>
-        </td>
+          </div>
+          </td>
       </tr>
     </tbody>
   </table>
