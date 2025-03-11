@@ -1,8 +1,12 @@
 <div class="cont" *ngIf="selectedDb">
 
-  <select class="db-select" [(ngModel)]="selectedDb" >
-    <option *ngFor="let db of dbs" [ngValue]="db">{{ db.name }}</option>
-  </select>
+  <div>
+    Database :
+    <select class="db-select" [(ngModel)]="selectedDb" >
+      <option *ngFor="let db of dbs" [ngValue]="db">{{ db.name }}</option>
+    </select>
+  </div>
+  
 
   
   <div class="form-container">
