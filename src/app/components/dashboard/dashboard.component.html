@@ -1,3 +1,27 @@
-<ul>
-    <li *ngFor="let db of databases">{{db.name}}</li>
-</ul>
+<head>
+    <div class="where-section"></div>
+    <div class="groupby-section"></div>
+    <div class="filter-section"></div>
+    <div  class="graph-section"></div>
+</head>
+
+<main>
+
+    <div class="page">
+
+    </div>
+
+    <section class="side">
+        <ul class="db-liste">
+            <li *ngFor="let db of databases" class="db-item"> <svg width="7" height="15" viewBox="0 0 20 30">
+                <polygon points="0,0 20,15 0,30" fill="black"/>
+              </svg>
+               {{db.name | titlecase}}</li>
+        </ul>
+    </section>
+
+    
+
+</main>
+
+
