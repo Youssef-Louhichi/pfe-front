@@ -1,3 +1,40 @@
 <ul>
     <li *ngFor="let db of databases">{{db.name}}</li>
 </ul>
+
+<form [formGroup]="queryForm" (ngSubmit)="onSubmit()">
+    <label for="table">Table Name:</label>
+    <input id="table" formControlName="table" type="text" required>
+  
+    <label for="column">Column Name:</label>
+    <input id="column" formControlName="column" type="text" required>
+  
+    <h3>Where Conditions:</h3>
+    <div formArrayName="whereClauses">
+      <div *ngFor="let condition of whereClauses.controls; let i = index" [formGroupName]="i">
+        <label>Column Name:</label>
+        <input type="text" formControlName="columnName" required>
+  
+        <label>Operator:</label>
+        <select formControlName="operator">
+          <option value="=">=</option>
+          <option value="!=">!=</option>
+          <option value="like">LIKE</option>
+          <option value=">">&gt;</option>
+          <option value="&lt">&lt;</option>
+          <option value=">=">&gt;=</option>
+          <option value="&gt=">&lt;=</option>
+          <option value="in">IN</option>
+        </select>
+  
+        <label>Value:</label>
+        <input type="text" formControlName="value" required>
+  
+        <button type="button" (click)="removeWhereCondition(i)">Remove</button>
+      </div>
+    </div>
+    
+    <button type="button" (click)="addWhereCondition()">Add Condition</button>
+    <button type="submit">Fetch Data</button>
+  </form>
+  
