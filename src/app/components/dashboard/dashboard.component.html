@@ -1,27 +1,85 @@
 <head>
-    <div class="where-section"></div>
-    <div class="groupby-section"></div>
-    <div class="filter-section"></div>
-    <div  class="graph-section"></div>
+  <div class="where-section"></div>
+  <div class="groupby-section"></div>
+  <div class="filter-section"></div>
+  <div class="graph-section"></div>
 </head>
 
 <main>
 
-    <div class="page">
+  <div class="page">
 
+    <form [formGroup]="queryForm" (ngSubmit)="onSubmit()">
+      <label for="table">Table Name:</label>
+      <input id="table" formControlName="table" type="text" required>
+
+      <label for="column">Column Name:</label>
+      <!--<input id="column" formControlName="column" type="text" required>-->
+
+      <select name="" id="" formControlName="column">
+        <option value="" selected>Columns</option>
+        <ng-container *ngIf="table">
+          <option value="" *ngFor="let c of table.columns" [value]="c.id" >{{c.name}}</option>
+       </ng-container>
+      </select>
+
+      <h3>Where Conditions:</h3>
+      <div formArrayName="whereClauses">
+        <div *ngFor="let condition of whereClauses.controls; let i = index" [formGroupName]="i">
+          <label>Column Name:</label>
+          <!--<input type="text" formControlName="columnName" required>-->
+          <select name="" id="" formControlName="columnName">
+            <option value="" selected>Columns</option>
+            <ng-container *ngIf="table">
+              <option value="" *ngFor="let c of table.columns" [value]="c.name">{{c.name}}</option>
+           </ng-container>
+          </select>
+
+          <label>Operator:</label>
+          <select formControlName="operator">
+            <option value="=">=</option>
+            <option value="!=">!=</option>
+            <option value="like">LIKE</option>
+            <option value=">">&gt;</option>
+            <option value="&lt">&lt;</option>
+            <option value=">=">&gt;=</option>
+            <option value="&gt=">&lt;=</option>
+            <option value="in">IN</option>
+          </select>
+
+          <label>Value:</label>
+          <input type="text" formControlName="value" required>
+
+          <button type="button" (click)="removeWhereCondition(i)">Remove</button>
+        </div>
+      </div>
+
+      <button type="button" (click)="addWhereCondition()">Add Condition</button>
+      <button type="submit">Fetch Data</button>
+    </form>
+
+    <br>
+    <div>
+      Result : {{result | json}}
     </div>
 
-    <section class="side">
-        <ul class="db-liste">
-            <li *ngFor="let db of databases" class="db-item"> <svg width="7" height="15" viewBox="0 0 20 30">
-                <polygon points="0,0 20,15 0,30" fill="black"/>
-              </svg>
-               {{db.name | titlecase}}</li>
-        </ul>
-    </section>
 
-    
+  </div>
+
+  <section class="side">
+    <ul class="db-liste">
+      <li *ngFor="let db of databases" class="db-item" > <svg width="7" height="15" viewBox="0 0 20 30">
+          <polygon points="0,0 20,15 0,30" fill="black" (click)="toggleDb(db)"/>
+        </svg>
+        {{db.name | titlecase}}
+        <ul *ngIf="showDatabases[db.name]">
+          <li *ngFor="let table of db.tables" (click)="useTable(table)">{{ table.name }}</li>
+        </ul>
+      </li>
+    </ul>
+
+  </section>
+
+
 
 </main>
-
-
