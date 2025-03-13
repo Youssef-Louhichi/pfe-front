@@ -21,21 +21,43 @@ interface WhereClause {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit{
-  http: any;
 
+  constructor(private userservice:UsersService,private fb: FormBuilder,private reqservice : RequeteService){} 
+
+
+  databases:Database[]
+  queryForm: FormGroup;
+  showDatabases: {[key: string]: boolean} = {}
+  http: any;
   table:DbTable = null
   result: any[] 
-  constructor(private connexionService:ConnexionsService,private userservice:UsersService,private fb: FormBuilder,private reqservice : RequeteService){
-    
+
+  ngOnInit(): void {
+
     this.queryForm = this.fb.group({
       table: ['', Validators.required],
       column: ['', Validators.required],
       whereClauses: this.fb.array([])
-    });
-  } 
+    })
+
+    this.getDbs()
+    
+
+  }
+
+  getDbs(){
+    let idConnexion = Number(localStorage.getItem("idConnection"))
+    let idUser = Number(localStorage.getItem("userId"))
+    
+    this.userservice.getUserById(idUser).subscribe(data => {
+      this.databases = data.databases.filter(db => db.connexion.id == idConnexion)
+    })
+  }
+
   get whereClauses(): FormArray {
     return this.queryForm.get('whereClauses') as FormArray;
   }
+
   addWhereCondition() {
     const whereCondition = this.fb.group({
       columnName: ['', Validators.required],
@@ -49,20 +71,13 @@ export class DashboardComponent implements OnInit{
     this.whereClauses.removeAt(index);
   }
 
+  toggleDb(db: Database) {
+    this.showDatabases[db.name] = !this.showDatabases[db.name]
+  }
 
-
-
-  databases:Database[]
-  queryForm: FormGroup;
-  ngOnInit(): void {
-
-    let idConnexion = Number(localStorage.getItem("idConnection"))
-    let idUser = Number(localStorage.getItem("userId"))
-    
-    this.userservice.getUserById(idUser).subscribe(data => {
-      this.databases = data.databases.filter(db => db.connexion.id == idConnexion)
-    })
-
+  useTable(t:DbTable){
+    this.table = t
+    this.queryForm.get("table").setValue(t.name)
   }
 
   onSubmit() {
@@ -86,7 +101,7 @@ export class DashboardComponent implements OnInit{
           content: "Fetching data"
         },
         tableId: this.table.id,
-        columnId: [formData.column], // Selecting only one column
+        columnId: [formData.column], 
         groupByColumns: [],
         aggregations: [],
         filters: whereConditions
@@ -102,18 +117,8 @@ export class DashboardComponent implements OnInit{
 
 
 
-  showDatabases: {[key: string]: boolean} = {}
 
-  toggleDb(db: Database) {
-    this.showDatabases[db.name] = !this.showDatabases[db.name]
-  }
-
-  useTable(t:DbTable){
-
-    this.table = t
-    this.queryForm.get("table").setValue(t.name)
-
-  }
+ 
 
 
 }
