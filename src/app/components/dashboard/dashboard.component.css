@@ -68,3 +68,7 @@ main{
 svg{
     cursor: pointer;
 }
+.container {
+  background-color: aqua; height: 20%;
+  }
+  

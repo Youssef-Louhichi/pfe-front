@@ -7,34 +7,43 @@
 
 <main>
 
-  <div class="page">
+  <div class="page" cdkDropListGroup>
+
+    <div name="column" id="">
+      <ul cdkDropList [cdkDropListData]="table.columns" *ngIf="table" (cdkDropListDropped)="drop($event)">
+      
+
+        <li *ngFor="let c of table.columns" [value]="c.id" cdkDrag>{{c.name}}</li>
+     
+    </ul>
+    </div>
 
     <form [formGroup]="queryForm" (ngSubmit)="onSubmit()">
       <label for="table">Table Name:</label>
       <input id="table" formControlName="table" type="text" required>
-
+    
       <label for="column">Column Name:</label>
-      <!--<input id="column" formControlName="column" type="text" required>-->
-
-      <select name="" id="" formControlName="column">
-        <option value="" selected>Columns</option>
-        <ng-container *ngIf="table">
-          <option value="" *ngFor="let c of table.columns" [value]="c.id" >{{c.name}}</option>
-       </ng-container>
-      </select>
-
+    
+      <!-- Drag and Drop List -->
+      <ul class="container" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="columns">
+        7ot lenna
+        <li *ngFor="let c of columns" cdkDrag>{{ c.name }}</li>
+      </ul>
+    
+      <!-- Hidden input to store selected columns in the form -->
+      <input type="hidden" formControlName="column">
+    
       <h3>Where Conditions:</h3>
       <div formArrayName="whereClauses">
         <div *ngFor="let condition of whereClauses.controls; let i = index" [formGroupName]="i">
           <label>Column Name:</label>
-          <!--<input type="text" formControlName="columnName" required>-->
-          <select name="" id="" formControlName="columnName">
+          <select formControlName="columnName">
             <option value="" selected>Columns</option>
             <ng-container *ngIf="table">
-              <option value="" *ngFor="let c of table.columns" [value]="c.name">{{c.name}}</option>
-           </ng-container>
+              <option *ngFor="let c of allColumns" [value]="c.name">{{c.name}}</option>
+            </ng-container>
           </select>
-
+    
           <label>Operator:</label>
           <select formControlName="operator">
             <option value="=">=</option>
@@ -46,25 +55,44 @@
             <option value="&gt=">&lt;=</option>
             <option value="in">IN</option>
           </select>
-
+    
           <label>Value:</label>
           <input type="text" formControlName="value" required>
-
+    
           <button type="button" (click)="removeWhereCondition(i)">Remove</button>
         </div>
       </div>
-
+    
       <button type="button" (click)="addWhereCondition()">Add Condition</button>
       <button type="submit">Fetch Data</button>
     </form>
+    
 
     <br>
-    <div>
-      Result : {{result | json}}
+
+    <div>{{result | json}}</div>
+   
+   <div class="result-table" *ngIf="result && result.length">
+      <table>
+        <thead>
+          <tr>
+            <th *ngFor="let col of columns">{{ col.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of result">
+            <td *ngFor="let col of columns">lenna fama 3asba</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-
   </div>
+
+
+  
+    
+
+
 
   <section class="side">
     <ul class="db-liste">

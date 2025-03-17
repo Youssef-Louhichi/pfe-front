@@ -12,7 +12,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginPageComponent } from './components/login-page/login-page.component'; 
-
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -33,7 +33,8 @@ import { LoginPageComponent } from './components/login-page/login-page.component
     HttpClientModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
-    MatDialogModule 
+    MatDialogModule ,
+    DragDropModule
   ],
   providers: [],
   bootstrap: [AppComponent]
