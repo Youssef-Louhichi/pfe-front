@@ -71,4 +71,9 @@ svg{
 .container {
   background-color: aqua; height: 20%;
   }
+
+
   
+.tabdata tr,td,th {
+    border:1px solid black;
+}

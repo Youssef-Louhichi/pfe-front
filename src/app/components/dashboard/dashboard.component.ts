@@ -31,7 +31,8 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem,CdkDropList  } from '@a
     showDatabases: {[key: string]: boolean} = {}
     http: any;
     table:DbTable = null
-    result: any[] 
+    tableData: any[] = [];
+    tableHeaders: string[] = [];
     columns : Column[] = [];
     columns2 : Column[] = [];
     allColumns: Column[]=[];
@@ -133,7 +134,13 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem,CdkDropList  } from '@a
         console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
 
         this.reqservice.fetchTableData(requestPayload).subscribe(
-          response => this.result = response,
+          response => {
+            this.tableData = response
+            console.log(response)
+            if (this.tableData.length > 0) {
+              this.tableHeaders = Object.keys(this.tableData[0]);
+            }
+          },
           error => console.error('Error fetching data:', error)
         );
       }

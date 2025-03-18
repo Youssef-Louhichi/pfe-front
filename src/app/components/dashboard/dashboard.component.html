@@ -70,21 +70,22 @@
 
     <br>
 
-    <div>{{result | json}}</div>
+    <div>{{tableData | json}}</div>
    
-   <div class="result-table" *ngIf="result && result.length">
-      <table>
-        <thead>
-          <tr>
-            <th *ngFor="let col of columns">{{ col.name }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of result">
-            <td *ngFor="let col of columns">lenna fama 3asba</td>
-          </tr>
-        </tbody>
-      </table>
+   <div class="result-table" *ngIf="tableData && tableData.length">
+    <table class="tabdata">
+      <thead>
+        <tr>
+          <th *ngFor="let key of tableHeaders">{{ key }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of tableData">
+          <td *ngFor="let key of tableHeaders">{{ row[key] }}</td>
+        </tr>
+      </tbody>
+    </table>
+    
     </div>
   </div>
 
