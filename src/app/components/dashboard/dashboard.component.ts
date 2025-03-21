@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Column } from 'src/app/models/column';
@@ -8,6 +8,8 @@ import { ConnexionsService } from 'src/app/services/connexions.service';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, CdkDropList } from '@angular/cdk/drag-drop';
+import { Chart, registerables } from 'chart.js'
+Chart.register(...registerables)
 
 interface WhereClause {
   columnName: string;
@@ -22,7 +24,9 @@ interface WhereClause {
 })
 export class DashboardComponent implements OnInit {
 
-  constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService) { }
+  constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService,
+    private cdRef: ChangeDetectorRef, private el: ElementRef
+  ) { }
 
   databases: Database[];
   queryForm: FormGroup;
@@ -39,6 +43,7 @@ export class DashboardComponent implements OnInit {
   
   // Track which columns have been selected
   selectedColumnIds: Set<number> = new Set();
+  workspaceTables: any[] =  [];
 
   ngOnInit(): void {
     this.queryForm = this.fb.group({
@@ -202,4 +207,98 @@ export class DashboardComponent implements OnInit {
       );
     }
   }
+
+  addTableToWorkspace() {
+    if (this.tableData.length) {
+      this.workspaceTables.push({
+        headers: [...this.tableHeaders],
+        data: [...this.tableData],
+        id: Date.now() ,
+        format:"table"
+      });
+    }
+  }
+
+
+  resizingTable: any = null;
+  resizingSwitcher = null;
+
+
+  
+
+  dragToResiz(id:any){
+    if(this.resizingSwitcher == id )
+      this.resizingSwitcher = null
+    else
+      this.resizingSwitcher = id
+  }
+
+  startResize(event: MouseEvent, table: any): void {
+    event.stopPropagation(); 
+    event.preventDefault();
+    
+    this.resizingTable = table;
+    document.addEventListener('mousemove', this.resizeTable);
+    document.addEventListener('mouseup', this.stopResize);
+  }
+  
+  
+
+  resizeTable = (event: MouseEvent): void => {
+    if (this.resizingTable) {
+      this.resizingTable.width = Math.max(100, event.clientX - this.resizingTable.startX + this.resizingTable.startWidth);
+      this.resizingTable.height = Math.max(50, event.clientY - this.resizingTable.startY + this.resizingTable.startHeight);
+      this.cdRef.detectChanges();
+    }
+  };
+  
+
+
+stopResize = (): void => {
+  this.resizingTable = null;
+  document.removeEventListener('mousemove', this.resizeTable);
+  document.removeEventListener('mouseup', this.stopResize);
+};
+
+
+
+changeFormat(table:any){
+  table.format = table.format === 'table' ? 'chart' : 'table';
+  if (table.format === 'chart') {
+    setTimeout(() => this.createChart(table), 0);  }
+
+}
+
+createChart(table: any): void {
+
+  const canvas = this.el.nativeElement.querySelector(`#chartCanvas-${table.id}`);
+
+  if (canvas) {
+
+  new Chart(`chartCanvas-${table.id}`, {
+    type: 'bar',
+    data: {
+      labels: table.headers,
+      datasets: [
+        {
+          label: 'Dataset',
+          data: table.data[0], 
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+}
+  
 }

@@ -46,7 +46,7 @@
         
         <div class="form-group">
           <label for="table">Table:</label>
-          <input id="table" formControlName="table" type="text" required class="form-control">
+          <input id="table" formControlName="table" type="text" required class="form-control" readonly>
         </div>
         
         <div class="form-group">
@@ -95,6 +95,7 @@
           <div class="form-actions">
             <button type="button" class="btn-add" (click)="addWhereCondition()">Add Condition</button>
             <button type="submit" class="btn-primary">Execute Query</button>
+            <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Data</button>
           </div>
         </div>
       </form>
@@ -117,6 +118,39 @@
           </table>
         </div>
       </div>
+      
     </div>
   </div>
+
+  <div class="workspace">
+    <div *ngFor="let table of workspaceTables" cdkDrag cdkDragBoundary=".workspace" class="workspace-table"
+    (dblclick)="dragToResiz(table.id)"
+    [style.width.px]="table.width" 
+    [style.height.px]="table.height"
+    [cdkDragDisabled]="resizingSwitcher == table.id">
+    <div class="resize-handle" (mousedown)="startResize($event, table)" [hidden]="resizingSwitcher != table.id"></div>
+    <div class="change-handle" (click)="changeFormat(table)" [hidden]="resizingSwitcher != table.id"></div>
+    
+      <table class="tab" *ngIf="table.format == 'table'">
+        <thead>
+          <tr>
+            <th *ngFor="let header of table.headers">{{ header }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of table.data">
+            <td *ngFor="let key of table.headers">{{ row[key] }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+        <canvas id="chartCanvas-{{table.id}}" class="charts" *ngIf="table.format === 'chart'"></canvas>
+
+
+
+    </div>
+  </div>
+  
+  
+
 </main>
