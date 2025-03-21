@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Column } from 'src/app/models/column';
@@ -215,52 +215,89 @@ export class DashboardComponent implements OnInit {
         data: [...this.tableData],
         id: Date.now() ,
         format:"table",
-        width:100,
-        height:50
+        width:300,
+        height:200,
+        top:100,
+        left:100
       });
     }
   }
 
 
+  draggingTable: any = null;
   resizingTable: any = null;
-  resizingSwitcher = null;
-
-
+  offsetX = 0;
+  offsetY = 0;
   
+  @ViewChild('workspace') workspaceRef!: ElementRef;
 
-  dragToResiz(id:any){
-    if(this.resizingSwitcher == id )
-      this.resizingSwitcher = null
-    else
-      this.resizingSwitcher = id
+  startDrag(event: MouseEvent, table: any, workspace: HTMLElement): void {
+    this.draggingTable = table;
+    this.offsetX = event.clientX - table.left;
+    this.offsetY = event.clientY - table.top;
+
+    document.addEventListener('mousemove', this.dragTable);
+    document.addEventListener('mouseup', this.stopDrag);
   }
+
+  dragTable = (event: MouseEvent): void => {
+    if (this.draggingTable) {
+      const workspaceBounds = this.workspaceRef.nativeElement.getBoundingClientRect();
+      const newLeft = Math.max(0, Math.min(event.clientX - this.offsetX, workspaceBounds.width - this.draggingTable.width));
+      const newTop = Math.max(0, Math.min(event.clientY - this.offsetY, workspaceBounds.height - this.draggingTable.height));
+
+      this.draggingTable.left = newLeft;
+      this.draggingTable.top = newTop;
+    }
+  };
+
+  stopDrag = (): void => {
+    this.draggingTable = null;
+    document.removeEventListener('mousemove', this.dragTable);
+    document.removeEventListener('mouseup', this.stopDrag);
+  };
 
   startResize(event: MouseEvent, table: any): void {
-    event.stopPropagation(); 
-    event.preventDefault();
-    
-    this.resizingTable = table;
+    this.resizingTable = {
+      ref: table,
+      startX: event.clientX,
+      startY: event.clientY,
+      startWidth: table.width,
+      startHeight: table.height
+    };
+  
     document.addEventListener('mousemove', this.resizeTable);
     document.addEventListener('mouseup', this.stopResize);
+    event.stopPropagation();
+    event.preventDefault();
   }
-  
   
 
   resizeTable = (event: MouseEvent): void => {
     if (this.resizingTable) {
-      this.resizingTable.width = Math.max(100, event.clientX - this.resizingTable.startX + this.resizingTable.startWidth);
-      this.resizingTable.height = Math.max(50, event.clientY - this.resizingTable.startY + this.resizingTable.startHeight);
-      this.cdRef.detectChanges();
+      event.preventDefault();
+  
+      const { ref, startX, startY, startWidth, startHeight } = this.resizingTable;
+      const workspaceBounds = this.workspaceRef.nativeElement.getBoundingClientRect();
+  
+      let newWidth = startWidth + (event.clientX - startX);
+      let newHeight = startHeight + (event.clientY - startY);
+  
+      newWidth = Math.min(newWidth, workspaceBounds.width - ref.left);
+      newHeight = Math.min(newHeight, workspaceBounds.height - ref.top);
+  
+      ref.width = Math.max(10, newWidth);
+      ref.height = Math.max(10, newHeight);
     }
   };
   
+  
 
-
-stopResize = (): void => {
-  this.resizingTable = null;
-  document.removeEventListener('mousemove', this.resizeTable);
-  document.removeEventListener('mouseup', this.stopResize);
-};
+  stopResize = (): void => {
+    this.resizingTable = null;
+    document.removeEventListener('mousemove', this.resizeTable);
+    document.removeEventListener('mouseup', this.stopResize);
+  };
 
 
 
@@ -276,15 +313,19 @@ createChart(table: any): void {
   const canvas = this.el.nativeElement.querySelector(`#chartCanvas-${table.id}`);
 
   if (canvas) {
+    
+    let tabX = table.data.map(row => row[table.headers[0]]); 
+    let tabY = table.data.map(row => row[table.headers[1]]); 
+
 
   new Chart(`chartCanvas-${table.id}`, {
     type: 'bar',
     data: {
-      labels: table.data[0],
+      labels: tabY,
       datasets: [
         {
           label: 'Dataset',
-          data: table.data[1], 
+          data: tabX, 
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
           borderColor: 'rgba(255, 99, 132, 1)',
           borderWidth: 1

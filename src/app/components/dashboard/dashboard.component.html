@@ -63,7 +63,6 @@
         </div>
         
         <div class="where-conditions">
-          <h3>Where Conditions:</h3>
           <div formArrayName="whereClauses" class="conditions-list">
             <div *ngFor="let condition of whereClauses.controls; let i = index" [formGroupName]="i" class="condition-row">
               <select formControlName="columnName" class="form-control">
@@ -122,14 +121,18 @@
     </div>
   </div>
 
-  <div class="workspace">
-    <div *ngFor="let table of workspaceTables" cdkDrag cdkDragBoundary=".workspace" class="workspace-table"
-    (dblclick)="dragToResiz(table.id)"
+  <div class="workspace" #workspace>
+    <div 
+    *ngFor="let table of workspaceTables" 
+    class="draggable resizable-table" 
     [style.width.px]="table.width" 
     [style.height.px]="table.height"
-    [cdkDragDisabled]="resizingSwitcher == table.id">
-    <div class="resize-handle" (mousedown)="startResize($event, table)" [hidden]="resizingSwitcher != table.id"></div>
-    <div class="change-handle" (click)="changeFormat(table)" [hidden]="resizingSwitcher != table.id"></div>
+    [style.top.px]="table.top"
+    [style.left.px]="table.left"
+    (mousedown)="startDrag($event, table, workspace)"
+  >
+    <div class="resize-handle" (mousedown)="startResize($event, table)"></div>
+    <div class="change-handle" (click)="changeFormat(table)" ></div>
     
       <table class="tab" *ngIf="table.format == 'table'">
         <thead>
