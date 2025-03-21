@@ -214,7 +214,9 @@ export class DashboardComponent implements OnInit {
         headers: [...this.tableHeaders],
         data: [...this.tableData],
         id: Date.now() ,
-        format:"table"
+        format:"table",
+        width:100,
+        height:50
       });
     }
   }
@@ -278,11 +280,11 @@ createChart(table: any): void {
   new Chart(`chartCanvas-${table.id}`, {
     type: 'bar',
     data: {
-      labels: table.headers,
+      labels: table.data[0],
       datasets: [
         {
           label: 'Dataset',
-          data: table.data[0], 
+          data: table.data[1], 
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
           borderColor: 'rgba(255, 99, 132, 1)',
           borderWidth: 1
