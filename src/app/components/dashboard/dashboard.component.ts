@@ -57,7 +57,8 @@ export class DashboardComponent implements OnInit {
         left:100,
         columnX:null,
         columnY:null,
-        color:null
+        color:null, 
+        chartType:null
     }
   ];
 
@@ -339,6 +340,9 @@ createChart(table: any): void {
 
     if(!table.color)
       table.color = '#004B91'
+
+    if(!table.chartType)
+      table.chartType = "bar"
     
     let tabX = table.data.map(row => row[table.columnX]); 
     let tabY = table.data.map(row => row[table.columnY]); 
@@ -350,14 +354,14 @@ createChart(table: any): void {
 
 
     this.charts[table.id] = new Chart(`chartCanvas-${table.id}`, {
-    type: 'bar',
+    type: table.chartType,
     data: {
       labels: tabY,
       datasets: [
         {
           label: 'Dataset',
           data: tabX, 
-          backgroundColor: table.color,
+          backgroundColor: [table.color],
           borderWidth: 1
         }
       ]
@@ -378,6 +382,7 @@ selectedX: string = '';
   selectedY: string = '';
   selectedTable:any
   selectedColor: string = '#FFFFFF'; 
+  selectedChartType: string = ""
 
 useTools(table:any){
   if(table.format=="chart"){
@@ -385,6 +390,7 @@ useTools(table:any){
     this.selectedY = table.columnY
     this.selectedTable=table
     this.selectedColor = table.color
+    this.selectedChartType=table.chartType
   }
 }
 
@@ -401,9 +407,9 @@ switchAxes(){
 
 updateChart() {
   if (this.charts[this.selectedTable.id]) {
-    this.charts[this.selectedTable.id].data.datasets[0].backgroundColor = this.selectedColor;
-    this.charts[this.selectedTable.id].update();
     this.selectedTable.color = this.selectedColor
+    this.selectedTable.chartType = this.selectedChartType
+    this.createChart(this.selectedTable)
   }
 
 }

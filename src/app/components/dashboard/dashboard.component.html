@@ -122,19 +122,40 @@
   </div>
 
   <div class="workspace">
-  <div class="tool-bar">
+  <div class="tool-bar" [ngClass]="{'disabled-tool-bar': !selectedTable}">
 
     <div class="chart-axes">
-      <div>
+      <div class="chart-axes-inputs">
       <input type="text" readonly [value]="selectedX">
       <input type="text" readonly [value]="selectedY">
       </div>
-      <button (click)="switchAxes()">Switch</button>
+      <button (click)="switchAxes()"><i class="fas fa-exchange-alt" style="transform: rotate(90deg);"></i>
+      </button>
     </div>
 
+    <div class="vertical-line"></div>
 
-    <input type="color" [(ngModel)]="selectedColor" (change)="updateChart()">
 
+    <div class="color-contanier">
+      <select [(ngModel)]="selectedChartType" (change)="updateChart()">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+        <option value="pie">Pie</option>
+        <option value="doughnut">Doughnut</option>
+        <option value="polarArea">Polar Area</option>
+        <option value="radar">Radar</option>
+        <!--<option value="scatter">scatter</option>
+        <option value="bubble">bubble</option>-->
+      </select>
+      <input type="color" [(ngModel)]="selectedColor" (change)="updateChart()">
+     </div> 
+
+     <div class="vertical-line"></div>
+
+
+     <div class="chart-type">
+      
+     </div> 
   </div>
 
   <div class="page" #page>
