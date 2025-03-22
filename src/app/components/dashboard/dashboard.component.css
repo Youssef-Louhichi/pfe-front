@@ -109,7 +109,7 @@ main {
   }
   
   /* Content Area */
-  .page {
+  .query-area {
     overflow-y: auto;
     padding: 20px;
   }
@@ -347,18 +347,39 @@ main {
     text-align: center;
   }
 
-
   .workspace{
-    position: relative;
     width: 700px;
     height: 600px;
     margin-top:20px ;
     margin-left: 10px;
+    margin-bottom: 20px;
+
+  }
+
+  .tool-bar{
+    width: 100%;
+    height: 100px;
     background-color: #fff;
     border-radius: 6px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-bottom: 20px;
+
+  }
+
+  .chart-axes{
+    display: flex;
+    width: 100px;
+  }
+
+  .page{
+    position: relative;
+    width: 100%;
+    height: 600px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
   }
 
   
@@ -373,7 +394,6 @@ main {
 
   .draggable {
     position: absolute;
-    cursor: grab;
     border: 1px solid #333;
     background: white;
     min-width: 100px;
@@ -395,6 +415,8 @@ main {
     bottom: 0;
     right: 0;
     cursor: nwse-resize;
+    
+    
   }
 
   .change-handle {

@@ -43,7 +43,23 @@ export class DashboardComponent implements OnInit {
   
   // Track which columns have been selected
   selectedColumnIds: Set<number> = new Set();
-  workspaceTables: any[] =  [];
+  workspaceTables: any[] =  [
+    {
+      id: 1,
+      headers: ['Month', 'price'],
+      data: [
+        { Month: "January",price: 65},{ Month : "February",price: 20}
+      ],
+      format:"table",
+        width:300,
+        height:200,
+        top:100,
+        left:100,
+        columnX:null,
+        columnY:null,
+        color:null
+    }
+  ];
 
   ngOnInit(): void {
     this.queryForm = this.fb.group({
@@ -229,9 +245,9 @@ export class DashboardComponent implements OnInit {
   offsetX = 0;
   offsetY = 0;
   
-  @ViewChild('workspace') workspaceRef!: ElementRef;
+  @ViewChild('page')pageRef!: ElementRef;
 
-  startDrag(event: MouseEvent, table: any, workspace: HTMLElement): void {
+  startDrag(event: MouseEvent, table: any, page: HTMLElement): void {
     this.draggingTable = table;
     this.offsetX = event.clientX - table.left;
     this.offsetY = event.clientY - table.top;
@@ -242,7 +258,7 @@ export class DashboardComponent implements OnInit {
 
   dragTable = (event: MouseEvent): void => {
     if (this.draggingTable) {
-      const workspaceBounds = this.workspaceRef.nativeElement.getBoundingClientRect();
+      const workspaceBounds = this.pageRef.nativeElement.getBoundingClientRect();
       const newLeft = Math.max(0, Math.min(event.clientX - this.offsetX, workspaceBounds.width - this.draggingTable.width));
       const newTop = Math.max(0, Math.min(event.clientY - this.offsetY, workspaceBounds.height - this.draggingTable.height));
 
@@ -278,7 +294,7 @@ export class DashboardComponent implements OnInit {
       event.preventDefault();
   
       const { ref, startX, startY, startWidth, startHeight } = this.resizingTable;
-      const workspaceBounds = this.workspaceRef.nativeElement.getBoundingClientRect();
+      const workspaceBounds = this.pageRef.nativeElement.getBoundingClientRect();
   
       let newWidth = startWidth + (event.clientX - startX);
       let newHeight = startHeight + (event.clientY - startY);
@@ -308,17 +324,32 @@ changeFormat(table:any){
 
 }
 
+charts: { [key: string]: Chart } = {};
+
 createChart(table: any): void {
 
   const canvas = this.el.nativeElement.querySelector(`#chartCanvas-${table.id}`);
 
-  if (canvas) {
+  if (canvas && table.headers.length == 2 ) {
+
+    if(!table.columnX || !table.columnY){
+      table.columnX = table.headers[0]
+      table.columnY = table.headers[1]
+    }
+
+    if(!table.color)
+      table.color = '#004B91'
     
-    let tabX = table.data.map(row => row[table.headers[0]]); 
-    let tabY = table.data.map(row => row[table.headers[1]]); 
+    let tabX = table.data.map(row => row[table.columnX]); 
+    let tabY = table.data.map(row => row[table.columnY]); 
 
 
-  new Chart(`chartCanvas-${table.id}`, {
+    if (this.charts[table.id]) {
+      this.charts[table.id].destroy();
+    }
+
+
+    this.charts[table.id] = new Chart(`chartCanvas-${table.id}`, {
     type: 'bar',
     data: {
       labels: tabY,
@@ -326,8 +357,7 @@ createChart(table: any): void {
         {
           label: 'Dataset',
           data: tabX, 
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: table.color,
           borderWidth: 1
         }
       ]
@@ -342,6 +372,40 @@ createChart(table: any): void {
     }
   });
 }
+}
+
+selectedX: string = '';
+  selectedY: string = '';
+  selectedTable:any
+  selectedColor: string = '#FFFFFF'; 
+
+useTools(table:any){
+  if(table.format=="chart"){
+    this.selectedX = table.columnX
+    this.selectedY = table.columnY
+    this.selectedTable=table
+    this.selectedColor = table.color
+  }
+}
+
+switchAxes(){
+ let aux = this.selectedTable.columnX
+ this.selectedTable.columnX = this.selectedTable.columnY
+ this.selectedTable.columnY = aux
+
+ this.selectedX = this.selectedTable.columnX
+ this.selectedY = this.selectedTable.columnY
+
+ this.createChart(this.selectedTable)
+}
+
+updateChart() {
+  if (this.charts[this.selectedTable.id]) {
+    this.charts[this.selectedTable.id].data.datasets[0].backgroundColor = this.selectedColor;
+    this.charts[this.selectedTable.id].update();
+    this.selectedTable.color = this.selectedColor
+  }
+
 }
   
 }

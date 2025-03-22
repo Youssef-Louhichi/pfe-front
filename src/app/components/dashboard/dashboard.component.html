@@ -37,7 +37,7 @@
     </div>
   </section>
 
-  <div class="page">
+  <div class="query-area">
     <div class="content-area">
       <form [formGroup]="queryForm" (ngSubmit)="onSubmit()" class="query-form">
         <div class="form-header">
@@ -121,7 +121,23 @@
     </div>
   </div>
 
-  <div class="workspace" #workspace>
+  <div class="workspace">
+  <div class="tool-bar">
+
+    <div class="chart-axes">
+      <div>
+      <input type="text" readonly [value]="selectedX">
+      <input type="text" readonly [value]="selectedY">
+      </div>
+      <button (click)="switchAxes()">Switch</button>
+    </div>
+
+
+    <input type="color" [(ngModel)]="selectedColor" (change)="updateChart()">
+
+  </div>
+
+  <div class="page" #page>
     <div 
     *ngFor="let table of workspaceTables" 
     class="draggable resizable-table" 
@@ -129,7 +145,8 @@
     [style.height.px]="table.height"
     [style.top.px]="table.top"
     [style.left.px]="table.left"
-    (mousedown)="startDrag($event, table, workspace)"
+    (mousedown)="startDrag($event, table, page)"
+    (dblclick)="useTools(table)"
   >
     <div class="resize-handle" (mousedown)="startResize($event, table)"></div>
     <div class="change-handle" (click)="changeFormat(table)" ></div>
@@ -152,6 +169,7 @@
 
 
     </div>
+  </div>
   </div>
   
   
