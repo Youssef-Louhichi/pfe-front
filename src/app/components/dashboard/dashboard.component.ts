@@ -44,7 +44,7 @@ export class DashboardComponent implements OnInit {
   // Track which columns have been selected
   selectedColumnIds: Set<number> = new Set();
   workspaceTables: any[] =  [
-    {
+   /* {
       id: 1,
       headers: ['Month', 'price'],
       data: [
@@ -57,9 +57,9 @@ export class DashboardComponent implements OnInit {
         left:100,
         columnX:null,
         columnY:null,
-        color:null, 
+        colors:null, 
         chartType:null
-    }
+    }*/
   ];
 
   ngOnInit(): void {
@@ -235,7 +235,11 @@ export class DashboardComponent implements OnInit {
         width:300,
         height:200,
         top:100,
-        left:100
+        left:100,
+        columnX:null,
+        columnY:null,
+        colors:null, 
+        chartType:null
       });
     }
   }
@@ -331,22 +335,27 @@ createChart(table: any): void {
 
   const canvas = this.el.nativeElement.querySelector(`#chartCanvas-${table.id}`);
 
-  if (canvas && table.headers.length == 2 ) {
+  if (canvas && table.headers.length >1 ) {
 
     if(!table.columnX || !table.columnY){
       table.columnX = table.headers[0]
       table.columnY = table.headers[1]
     }
 
-    if(!table.color)
-      table.color = '#004B91'
+   
 
-    if(!table.chartType)
-      table.chartType = "bar"
+    
     
     let tabX = table.data.map(row => row[table.columnX]); 
     let tabY = table.data.map(row => row[table.columnY]); 
 
+
+    if(!table.chartType)
+      table.chartType = "bar"
+
+    if (!table.colors) {
+      table.colors = tabY.map(() => '#004B91'); 
+    }
 
     if (this.charts[table.id]) {
       this.charts[table.id].destroy();
@@ -356,12 +365,12 @@ createChart(table: any): void {
     this.charts[table.id] = new Chart(`chartCanvas-${table.id}`, {
     type: table.chartType,
     data: {
-      labels: tabY,
+      labels: tabX,
       datasets: [
         {
           label: 'Dataset',
-          data: tabX, 
-          backgroundColor: [table.color],
+          data: tabY, 
+          backgroundColor: table.colors,
           borderWidth: 1
         }
       ]
@@ -380,16 +389,20 @@ createChart(table: any): void {
 
 selectedX: string = '';
   selectedY: string = '';
-  selectedTable:any
-  selectedColor: string = '#FFFFFF'; 
+  selectedTable:any 
+  selectedColors: string[] = []
   selectedChartType: string = ""
 
 useTools(table:any){
+  console.log(table)
   if(table.format=="chart"){
     this.selectedX = table.columnX
     this.selectedY = table.columnY
     this.selectedTable=table
-    this.selectedColor = table.color
+    if (!this.selectedTable.colors) {
+      this.selectedTable.colors = this.selectedTable.data.map(() => '#004B91')
+    }    
+    this.selectedColors = [...this.selectedTable.colors]
     this.selectedChartType=table.chartType
   }
 }
@@ -405,13 +418,24 @@ switchAxes(){
  this.createChart(this.selectedTable)
 }
 
+updateChartColors() {
+  this.selectedTable.colors = [...this.selectedColors]
+  this.updateChart();
+}
+
 updateChart() {
   if (this.charts[this.selectedTable.id]) {
-    this.selectedTable.color = this.selectedColor
+    this.selectedTable.colors = this.selectedColors
     this.selectedTable.chartType = this.selectedChartType
     this.createChart(this.selectedTable)
   }
 
+}
+
+
+
+show(){
+  console.log(this.workspaceTables)
 }
   
 }

@@ -136,8 +136,8 @@
     <div class="vertical-line"></div>
 
 
-    <div class="color-contanier">
-      <select [(ngModel)]="selectedChartType" (change)="updateChart()">
+    <div class="chart-type">
+      <select [(ngModel)]="selectedChartType" (change)="updateChart()" >
         <option value="bar">Bar</option>
         <option value="line">Line</option>
         <option value="pie">Pie</option>
@@ -147,14 +147,17 @@
         <!--<option value="scatter">scatter</option>
         <option value="bubble">bubble</option>-->
       </select>
-      <input type="color" [(ngModel)]="selectedColor" (change)="updateChart()">
      </div> 
 
      <div class="vertical-line"></div>
 
 
-     <div class="chart-type">
-      
+     <div class="color-contanier">
+      <ul *ngIf="selectedTable">
+        <li *ngFor="let d of selectedTable.data;let i = index">{{ d[selectedTable.columnX] | titlecase}}
+        <input type="color" [(ngModel)]="selectedColors[i]" (change)="updateChartColors()" class="color-input"/>
+      </li>
+      </ul>
      </div> 
   </div>
 
@@ -175,7 +178,7 @@
       <table class="tab" *ngIf="table.format == 'table'">
         <thead>
           <tr>
-            <th *ngFor="let header of table.headers">{{ header }}</th>
+            <th *ngFor="let header of table.headers">{{ header | titlecase}}</th>
           </tr>
         </thead>
         <tbody>
@@ -191,6 +194,7 @@
 
     </div>
   </div>
+  <button (click)="show()">show</button>
   </div>
   
   
