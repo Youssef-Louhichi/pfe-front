@@ -9,6 +9,8 @@ import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, CdkDropList } from '@angular/cdk/drag-drop';
 import { Chart, registerables } from 'chart.js'
+import { Graph } from 'src/app/models/graph';
+import { Rapport } from 'src/app/models/rapport';
 Chart.register(...registerables)
 
 interface WhereClause {
@@ -43,24 +45,8 @@ export class DashboardComponent implements OnInit {
   
   // Track which columns have been selected
   selectedColumnIds: Set<number> = new Set();
-  workspaceTables: any[] =  [
-   /* {
-      id: 1,
-      headers: ['Month', 'price'],
-      data: [
-        { Month: "January",price: 65},{ Month : "February",price: 20}
-      ],
-      format:"table",
-        width:300,
-        height:200,
-        top:100,
-        left:100,
-        columnX:null,
-        columnY:null,
-        colors:null, 
-        chartType:null
-    }*/
-  ];
+
+ 
 
   ngOnInit(): void {
     this.queryForm = this.fb.group({
@@ -225,23 +211,30 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  addTableToWorkspace() {
-    if (this.tableData.length) {
-      this.workspaceTables.push({
-        headers: [...this.tableHeaders],
-        data: [...this.tableData],
-        id: Date.now() ,
-        format:"table",
-        width:300,
-        height:200,
-        top:100,
-        left:100,
-        columnX:null,
-        columnY:null,
-        colors:null, 
-        chartType:null
-      });
-    }
+
+  rapportTables: Graph[] =  [
+    new Graph(
+        1,
+        ['Month', 'price'],
+        [
+         { Month: "January",price: 65},{ Month : "February",price: 20}
+       ],
+       "table",
+         300,
+         200,
+         100,
+         100,
+         null,
+         null,
+         null, 
+         null,
+         null
+    )
+   ];
+
+   onDataAdded(newItem:Graph) {
+    this.rapportTables.push(newItem);
+    console.log(this.rapportTables)
   }
 
 
@@ -252,10 +245,10 @@ export class DashboardComponent implements OnInit {
   
   @ViewChild('page')pageRef!: ElementRef;
 
-  startDrag(event: MouseEvent, table: any, page: HTMLElement): void {
+  startDrag(event: MouseEvent, table: Graph, page: HTMLElement): void {
     this.draggingTable = table;
-    this.offsetX = event.clientX - table.left;
-    this.offsetY = event.clientY - table.top;
+    this.offsetX = event.clientX - table.leftpos;
+    this.offsetY = event.clientY - table.toppos;
 
     document.addEventListener('mousemove', this.dragTable);
     document.addEventListener('mouseup', this.stopDrag);
@@ -267,8 +260,8 @@ export class DashboardComponent implements OnInit {
       const newLeft = Math.max(0, Math.min(event.clientX - this.offsetX, workspaceBounds.width - this.draggingTable.width));
       const newTop = Math.max(0, Math.min(event.clientY - this.offsetY, workspaceBounds.height - this.draggingTable.height));
 
-      this.draggingTable.left = newLeft;
-      this.draggingTable.top = newTop;
+      this.draggingTable.leftpos = newLeft;
+      this.draggingTable.toppos = newTop;
     }
   };
 
@@ -278,7 +271,7 @@ export class DashboardComponent implements OnInit {
     document.removeEventListener('mouseup', this.stopDrag);
   };
 
-  startResize(event: MouseEvent, table: any): void {
+  startResize(event: MouseEvent, table: Graph): void {
     this.resizingTable = {
       ref: table,
       startX: event.clientX,
@@ -304,8 +297,8 @@ export class DashboardComponent implements OnInit {
       let newWidth = startWidth + (event.clientX - startX);
       let newHeight = startHeight + (event.clientY - startY);
   
-      newWidth = Math.min(newWidth, workspaceBounds.width - ref.left);
-      newHeight = Math.min(newHeight, workspaceBounds.height - ref.top);
+      newWidth = Math.min(newWidth, workspaceBounds.width - ref.leftpos);
+      newHeight = Math.min(newHeight, workspaceBounds.height - ref.toppos);
   
       ref.width = Math.max(10, newWidth);
       ref.height = Math.max(10, newHeight);
@@ -322,24 +315,31 @@ export class DashboardComponent implements OnInit {
 
 
 
-changeFormat(table:any){
+changeFormat(table:Graph){
   table.format = table.format === 'table' ? 'chart' : 'table';
   if (table.format === 'chart') {
     setTimeout(() => this.createChart(table), 0);  }
+
 
 }
 
 charts: { [key: string]: Chart } = {};
 
-createChart(table: any): void {
+createChart(table: Graph): void {
 
   const canvas = this.el.nativeElement.querySelector(`#chartCanvas-${table.id}`);
 
+ 
+
+
   if (canvas && table.headers.length >1 ) {
+    
+
 
     if(!table.columnX || !table.columnY){
       table.columnX = table.headers[0]
       table.columnY = table.headers[1]
+
     }
 
    
@@ -361,6 +361,7 @@ createChart(table: any): void {
       this.charts[table.id].destroy();
     }
 
+    console.log(table)
 
     this.charts[table.id] = new Chart(`chartCanvas-${table.id}`, {
     type: table.chartType,
@@ -435,7 +436,6 @@ updateChart() {
 
 
 show(){
-  console.log(this.workspaceTables)
 }
   
 }

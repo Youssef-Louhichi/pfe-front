@@ -1,0 +1,127 @@
+<div class="query-container">
+<section class="side">
+    <!-- Database dropdown selector -->
+    <div class="db-selector">
+        <label for="dbSelect">Select Database:</label>
+        <select id="dbSelect" class="db-select" (change)="toggleDb(databases[selectedDbIndex])"
+            [(ngModel)]="selectedDbIndex">
+            <option *ngFor="let db of databases; let i = index" [value]="i">{{db.name | titlecase}}</option>
+        </select>
+    </div>
+
+    <!-- Tables list for selected database -->
+    <div class="tables-container" *ngIf="selectedDbIndex != null">
+        <h3 class="section-title">Tables</h3>
+        <ul class="tables-list">
+            <li *ngFor="let table of databases[selectedDbIndex]?.tables" class="table-item">
+                <div class="table-header" (click)="toggleTable(table)">
+                    <span class="expander">
+                        <svg width="10" height="10" viewBox="0 0 10 10" [class.expanded]="showColumns[table.name]">
+                            <polygon points="0,0 10,5 0,10" fill="#444" />
+                        </svg>
+                    </span>
+                    <span class="table-name">{{ table.name }}</span>
+                </div>
+
+                <!-- Columns list for selected table -->
+                <div class="columns-container" *ngIf="showColumns[table.name]">
+                    <ul class="columns-list" cdkDropList [cdkDropListData]="table.columns"
+                        (cdkDropListDropped)="drop($event)">
+                        <li *ngFor="let c of table.columns" class="column-item" [value]="c.id" cdkDrag
+                            (cdkDragEnded)="useTable(table)" [ngClass]="{'disabled': isColumnSelected(c.id)}">
+                            <span class="column-name">{{ c.name }}</span>
+                            <span class="column-type" *ngIf="c.type">({{ c.type }})</span>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<div class="query-area">
+    <div class="content-area">
+        <form [formGroup]="queryForm" (ngSubmit)="onSubmit()" class="query-form">
+            <div class="form-header">
+                <h2>Query Builder</h2>
+            </div>
+
+            <div class="form-group">
+                <label for="table">Table:</label>
+                <input id="table" formControlName="table" type="text" required class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="column">Selected Columns:</label>
+                <!-- Drag and Drop target area for columns -->
+                <ul class="selected-columns" cdkDropList (cdkDropListDropped)="drop($event)"
+                    [cdkDropListData]="columns">
+                    <li *ngFor="let c of columns" cdkDrag class="column-tag">
+                        {{ c.name }}
+                        <button type="button" class="remove-column" (click)="removeColumn(c)">×</button>
+                    </li>
+                </ul>
+                <!-- Hidden input to store selected columns in the form -->
+                <input type="hidden" formControlName="column">
+            </div>
+
+            <div class="where-conditions">
+                <div formArrayName="whereClauses" class="conditions-list">
+                    <div *ngFor="let condition of whereClauses.controls; let i = index" [formGroupName]="i"
+                        class="condition-row">
+                        <select formControlName="columnName" class="form-control">
+                            <option value="" selected>Select Column</option>
+                            <ng-container *ngIf="table">
+                                <option *ngFor="let c of allColumns" [value]="c.name">{{c.name}}</option>
+                            </ng-container>
+                        </select>
+
+                        <select formControlName="operator" class="form-control operator">
+                            <option value="=">=</option>
+                            <option value="!=">!=</option>
+                            <option value="like">LIKE</option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                            <option value=">=">&gt;=</option>
+                            <option value="<=">&lt;=</option>
+                            <option value="in">IN</option>
+                        </select>
+
+                        <input type="text" formControlName="value" required class="form-control value">
+
+                        <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-add" (click)="addWhereCondition()">Add Condition</button>
+                    <button type="submit" class="btn-primary">Execute Query</button>
+                    <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Data</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Results Table -->
+        <div class="results-section" *ngIf="tableData && tableData.length">
+            <h3>Query Results</h3>
+            <div class="result-table">
+                <table class="tabdata">
+                    <thead>
+                        <tr>
+                            <th *ngFor="let key of tableHeaders">{{ key }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of tableData">
+                            <td *ngFor="let key of tableHeaders">{{ row[key] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>

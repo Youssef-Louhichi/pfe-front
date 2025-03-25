@@ -1,14 +1,15 @@
 <main cdkDropListGroup>
-  <section class="side">
-    <!-- Database dropdown selector -->
+  <!--<section class="side">
+    Database dropdown selector 
     <div class="db-selector">
       <label for="dbSelect">Select Database:</label>
-      <select id="dbSelect" class="db-select" (change)="toggleDb(databases[selectedDbIndex])" [(ngModel)]="selectedDbIndex">
+      <select id="dbSelect" class="db-select" (change)="toggleDb(databases[selectedDbIndex])"
+        [(ngModel)]="selectedDbIndex">
         <option *ngFor="let db of databases; let i = index" [value]="i">{{db.name | titlecase}}</option>
       </select>
     </div>
 
-    <!-- Tables list for selected database -->
+    <!-- Tables list for selected database 
     <div class="tables-container" *ngIf="selectedDbIndex != null">
       <h3 class="section-title">Tables</h3>
       <ul class="tables-list">
@@ -16,17 +17,17 @@
           <div class="table-header" (click)="toggleTable(table)">
             <span class="expander">
               <svg width="10" height="10" viewBox="0 0 10 10" [class.expanded]="showColumns[table.name]">
-                <polygon points="0,0 10,5 0,10" fill="#444"/>
+                <polygon points="0,0 10,5 0,10" fill="#444" />
               </svg>
             </span>
             <span class="table-name">{{ table.name }}</span>
           </div>
-          
-          <!-- Columns list for selected table -->
+
+          <!-- Columns list for selected table 
           <div class="columns-container" *ngIf="showColumns[table.name]">
             <ul class="columns-list" cdkDropList [cdkDropListData]="table.columns" (cdkDropListDropped)="drop($event)">
-              <li *ngFor="let c of table.columns" class="column-item" [value]="c.id" cdkDrag 
-                  (cdkDragEnded)="useTable(table)" [ngClass]="{'disabled': isColumnSelected(c.id)}">
+              <li *ngFor="let c of table.columns" class="column-item" [value]="c.id" cdkDrag
+                (cdkDragEnded)="useTable(table)" [ngClass]="{'disabled': isColumnSelected(c.id)}">
                 <span class="column-name">{{ c.name }}</span>
                 <span class="column-type" *ngIf="c.type">({{ c.type }})</span>
               </li>
@@ -43,35 +44,36 @@
         <div class="form-header">
           <h2>Query Builder</h2>
         </div>
-        
+
         <div class="form-group">
           <label for="table">Table:</label>
           <input id="table" formControlName="table" type="text" required class="form-control" readonly>
         </div>
-        
+
         <div class="form-group">
           <label for="column">Selected Columns:</label>
-          <!-- Drag and Drop target area for columns -->
+          <!-- Drag and Drop target area for columns 
           <ul class="selected-columns" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="columns">
             <li *ngFor="let c of columns" cdkDrag class="column-tag">
               {{ c.name }}
               <button type="button" class="remove-column" (click)="removeColumn(c)">×</button>
             </li>
           </ul>
-          <!-- Hidden input to store selected columns in the form -->
+          <!-- Hidden input to store selected columns in the form 
           <input type="hidden" formControlName="column">
         </div>
-        
+
         <div class="where-conditions">
           <div formArrayName="whereClauses" class="conditions-list">
-            <div *ngFor="let condition of whereClauses.controls; let i = index" [formGroupName]="i" class="condition-row">
+            <div *ngFor="let condition of whereClauses.controls; let i = index" [formGroupName]="i"
+              class="condition-row">
               <select formControlName="columnName" class="form-control">
                 <option value="" selected>Select Column</option>
                 <ng-container *ngIf="table">
                   <option *ngFor="let c of allColumns" [value]="c.name">{{c.name}}</option>
                 </ng-container>
               </select>
-              
+
               <select formControlName="operator" class="form-control operator">
                 <option value="=">=</option>
                 <option value="!=">!=</option>
@@ -82,15 +84,15 @@
                 <option value="<=">&lt;=</option>
                 <option value="in">IN</option>
               </select>
-              
+
               <input type="text" formControlName="value" required class="form-control value">
-              
+
               <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
                 <span>&times;</span>
               </button>
             </div>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="btn-add" (click)="addWhereCondition()">Add Condition</button>
             <button type="submit" class="btn-primary">Execute Query</button>
@@ -99,7 +101,7 @@
         </div>
       </form>
 
-      <!-- Results Table -->
+      <!-- Results Table 
       <div class="results-section" *ngIf="tableData && tableData.length">
         <h3>Query Results</h3>
         <div class="result-table">
@@ -117,86 +119,81 @@
           </table>
         </div>
       </div>
-      
+
     </div>
-  </div>
+  </div>-->
+
+  <app-query-builder (newItemEvent)="onDataAdded($event)"></app-query-builder>
 
   <div class="workspace">
-  <div class="tool-bar" [ngClass]="{'disabled-tool-bar': !selectedTable}">
+    <div class="tool-bar" [ngClass]="{'disabled-tool-bar': !selectedTable}">
 
-    <div class="chart-axes">
-      <div class="chart-axes-inputs">
-      <input type="text" readonly [value]="selectedX">
-      <input type="text" readonly [value]="selectedY">
+      <div class="chart-axes">
+        <div class="chart-axes-inputs">
+          <input type="text" readonly [value]="selectedX">
+          <input type="text" readonly [value]="selectedY">
+        </div>
+        <button (click)="switchAxes()"><i class="fas fa-exchange-alt" style="transform: rotate(90deg);"></i>
+        </button>
       </div>
-      <button (click)="switchAxes()"><i class="fas fa-exchange-alt" style="transform: rotate(90deg);"></i>
-      </button>
+
+      <div class="vertical-line"></div>
+
+
+      <div class="chart-type">
+        <select [(ngModel)]="selectedChartType" (change)="updateChart()">
+          <option value="bar">Bar</option>
+          <option value="line">Line</option>
+          <option value="pie">Pie</option>
+          <option value="doughnut">Doughnut</option>
+          <option value="polarArea">Polar Area</option>
+          <option value="radar">Radar</option>
+          <!--<option value="scatter">scatter</option>
+        <option value="bubble">bubble</option>-->
+        </select>
+      </div>
+
+      <div class="vertical-line"></div>
+
+
+      <div class="color-contanier">
+        <ul *ngIf="selectedTable">
+          <li *ngFor="let d of selectedTable.data;let i = index">{{ d[selectedTable.columnX] | titlecase}}
+            <input type="color" [(ngModel)]="selectedColors[i]" (change)="updateChartColors()" class="color-input" />
+          </li>
+        </ul>
+      </div>
     </div>
 
-    <div class="vertical-line"></div>
+    <div class="page" #page>
+      <div *ngFor="let table of rapportTables" class="draggable resizable-table" [style.width.px]="table.width"
+        [style.height.px]="table.height" [style.top.px]="table.toppos" [style.left.px]="table.leftpos"
+        (mousedown)="startDrag($event, table, page)" (dblclick)="useTools(table)">
+        <div class="resize-handle" (mousedown)="startResize($event, table)"></div>
+        <div class="change-handle" (click)="changeFormat(table)"></div>
 
-
-    <div class="chart-type">
-      <select [(ngModel)]="selectedChartType" (change)="updateChart()" >
-        <option value="bar">Bar</option>
-        <option value="line">Line</option>
-        <option value="pie">Pie</option>
-        <option value="doughnut">Doughnut</option>
-        <option value="polarArea">Polar Area</option>
-        <option value="radar">Radar</option>
-        <!--<option value="scatter">scatter</option>
-        <option value="bubble">bubble</option>-->
-      </select>
-     </div> 
-
-     <div class="vertical-line"></div>
-
-
-     <div class="color-contanier">
-      <ul *ngIf="selectedTable">
-        <li *ngFor="let d of selectedTable.data;let i = index">{{ d[selectedTable.columnX] | titlecase}}
-        <input type="color" [(ngModel)]="selectedColors[i]" (change)="updateChartColors()" class="color-input"/>
-      </li>
-      </ul>
-     </div> 
-  </div>
-
-  <div class="page" #page>
-    <div 
-    *ngFor="let table of workspaceTables" 
-    class="draggable resizable-table" 
-    [style.width.px]="table.width" 
-    [style.height.px]="table.height"
-    [style.top.px]="table.top"
-    [style.left.px]="table.left"
-    (mousedown)="startDrag($event, table, page)"
-    (dblclick)="useTools(table)"
-  >
-    <div class="resize-handle" (mousedown)="startResize($event, table)"></div>
-    <div class="change-handle" (click)="changeFormat(table)" ></div>
-    
-      <table class="tab" *ngIf="table.format == 'table'">
-        <thead>
-          <tr>
-            <th *ngFor="let header of table.headers">{{ header | titlecase}}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of table.data">
-            <td *ngFor="let key of table.headers">{{ row[key] }}</td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="tab" *ngIf="table.format == 'table'">
+          <thead>
+            <tr>
+              <th *ngFor="let header of table.headers">{{ header | titlecase}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of table.data">
+              <td *ngFor="let key of table.headers">{{ row[key] }}</td>
+            </tr>
+          </tbody>
+        </table>
 
         <canvas id="chartCanvas-{{table.id}}" class="charts" *ngIf="table.format === 'chart'"></canvas>
 
 
 
+      </div>
     </div>
+    <button (click)="show()">show</button>
   </div>
-  <button (click)="show()">show</button>
-  </div>
-  
-  
+
+
 
 </main>
