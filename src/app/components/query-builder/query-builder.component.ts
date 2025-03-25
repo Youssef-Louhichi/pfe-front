@@ -5,9 +5,15 @@ import { Column } from 'src/app/models/column';
 import { Database } from 'src/app/models/database';
 import { DbTable } from 'src/app/models/db-table';
 import { Graph } from 'src/app/models/graph';
-import { WhereClause } from 'src/app/models/where-clause';
+//import { WhereClause } from 'src/app/models/where-clause';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
+
+interface WhereClause {
+  columnName: string;
+  operator: string;
+  value: string;
+}
 
 @Component({
   selector: 'app-query-builder',
@@ -16,8 +22,7 @@ import { UsersService } from 'src/app/services/users.service';
 })
 export class QueryBuilderComponent implements OnInit {
 
-  constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService,
-    private cdRef: ChangeDetectorRef, private el: ElementRef
+  constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService
   ) { }
 
 
