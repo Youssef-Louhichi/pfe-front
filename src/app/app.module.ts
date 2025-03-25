@@ -13,6 +13,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginPageComponent } from './components/login-page/login-page.component'; 
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { QueryBuilderComponent } from './components/query-builder/query-builder.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     ConnectionsComponent,
     DashboardComponent,
     LoginPageComponent,
+    QueryBuilderComponent,
     
   ],
   imports: [

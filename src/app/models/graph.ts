@@ -1,3 +1,4 @@
+import { ChartTypeRegistry } from "chart.js";
 import { Rapport } from "./rapport";
 
 export class Graph {
@@ -5,7 +6,7 @@ export class Graph {
         public height: number,public width: number,
         public leftpos: number,public toppos: number,
         public columnX: string,public columnY: string,
-        public colors: string[],public chartType: string,
+        public colors: string[],public chartType: keyof ChartTypeRegistry,
         public rapport: Rapport
     ) {}
 }
