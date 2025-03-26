@@ -5,12 +5,12 @@
     </div>
     <ul class="navbar">
         <li class="nav-item" routerLink="/main/dashboard"> <i class="fas fa-house nav-icon" ></i>Dashboard</li>
-        <li class="nav-item"> <i class="fas fa-lightbulb nav-icon" ></i>Insight</li>
+        <li class="nav-item"  routerLink="/main/getrapport"> <i class="fas fa-lightbulb nav-icon" ></i>Insight</li>
         <li class="nav-item" routerLink="/main/users"> <i class="fas fa-regular fa-user nav-icon"></i>Users</li>
         <li class="nav-item"> <i class="fas fa-chart-pie nav-icon" ></i>Analytics</li>
         <li class="nav-item" routerLink="/main/connection"> <i class="fas fa-link nav-icon" ></i>Connections</li>
     </ul>
-
+    
     <div class="logout">
         <button (click)="logout()"><i class="fas fa-sign-out-alt nav-icon"></i>Logout</button>
     </div>

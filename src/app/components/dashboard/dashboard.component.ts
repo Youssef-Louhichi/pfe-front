@@ -1,55 +1,55 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { Column } from 'src/app/models/column';
-import { Database } from 'src/app/models/database';
-import { DbTable } from 'src/app/models/db-table';
+import {  Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+
 import { ConnexionsService } from 'src/app/services/connexions.service';
-import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
-import { CdkDragDrop, moveItemInArray, transferArrayItem, CdkDropList } from '@angular/cdk/drag-drop';
 import { Chart, registerables } from 'chart.js'
 import { Graph } from 'src/app/models/graph';
 import { Rapport } from 'src/app/models/rapport';
+import { RapportService } from 'src/app/services/rapport.service';
+import { User } from 'src/app/models/user';
+import { Connexion } from 'src/app/models/connexion';
 Chart.register(...registerables)
 
-interface WhereClause {
-  columnName: string;
-  operator: string;
-  value: string;
-}
+
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent  {
+export class DashboardComponent  implements OnInit{
 
-  constructor( private el: ElementRef
+  constructor( private el: ElementRef,private rapportService: RapportService,
+    private connexionService:ConnexionsService,private userService:UsersService
   ) { }
+
+
+  user:User
+  connexion:Connexion
+  rapport:Rapport = new Rapport(null,"rapport",[],null,null)
+  ngOnInit(): void {
+    this.userService.getUserById(Number(localStorage.getItem("userId"))).subscribe(data =>
+    {
+      this.user = data
+      this.rapport.user = data
+    }
+    )
+
+    this.connexionService.getConnexionById(Number(localStorage.getItem("idConnection"))).subscribe(data =>
+      {
+        this.connexion = data
+        this.rapport.cnxrapport = data
+      }
+      )
+
+
+
+  }
 
   
 
 
-  rapportTables: Graph[] =  [
-    new Graph(
-        1,
-        ['Month', 'price'],
-        [
-         { Month: "January",price: 65},{ Month : "February",price: 20}
-       ],
-       "table",
-         300,
-         200,
-         100,
-         100,
-         null,
-         null,
-         null, 
-         null,
-         null
-    )
+  rapportTables: Graph[] =  [        
    ];
 
    onDataAdded(newItem:Graph) {
@@ -255,7 +255,23 @@ updateChart() {
 
 
 
-show(){
+save(){
+
+
+
+  for(let graph of this.rapportTables){
+    graph.id = null
+  }
+
+
+  this.rapport.graphs = this.rapportTables 
+
+  this.rapportService.createRapport(this.rapport).subscribe(data =>
+  {
+    console.log(data)
+    
+  }
+  )
 }
   
 }

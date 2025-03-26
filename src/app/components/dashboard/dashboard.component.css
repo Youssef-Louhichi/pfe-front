@@ -1,4 +1,10 @@
-
+main {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  justify-content: flex-start;
+}
 
   .workspace{
     width: 700px;
@@ -114,7 +120,7 @@ justify-content: flex-start;
 
   .page{
     position: relative;
-    width: 100%;
+    width: 700px;
     height: 600px;
     background-color: #fff;
     border-radius: 6px;

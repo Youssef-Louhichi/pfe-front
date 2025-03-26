@@ -18,6 +18,10 @@ export class ConnexionsService {
       return this.httpclient.post<Connexion>(this.baseUrl, cnx);
     }
 
+     getConnexionById(id: number): Observable<Connexion> {
+        return this.httpclient.get<Connexion>(`${this.baseUrl}/${id}`);
+      }
+
 
     getConnexionDatabases(id: number): Observable<Database[]>
   {
