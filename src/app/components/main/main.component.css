@@ -1,23 +1,27 @@
-.main_container{
+.main_container {
     display: flex;
     height: 100%;
 }
 
-.nav{
+.nav {
     position: fixed;
     height: 100vh;
     left: 0;
     top: 0;
-    width:200px ;
-
+    width: auto;
+    z-index: 10;
 }
 
+.section {
+    margin-left: 200px;
+    width: calc(100vw - 200px);
+    height: 100vh;
+    bottom: 0;
+    position: fixed;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
 
-.section{
-    margin-left:200px;
-    width: 100vw;
-     height: 100vh;
-     bottom: 0;
-     
-     position: fixed;
+.section-expanded {
+    margin-left: 80px;
+    width: calc(100vw - 80px);
 }

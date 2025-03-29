@@ -1,17 +1,37 @@
-<div class="side_container">
-    <div class="user">
+<div class="side_container" [class.collapsed]="isCollapsed">
+    <div class="toggle-btn" (click)="toggleSidebar()">
+        <i class="fas" [class.fa-chevron-left]="!isCollapsed" [class.fa-chevron-right]="isCollapsed"></i>
+    </div>
+    <div class="user" *ngIf="!isCollapsed">
         <div class="name">John Doe</div>
-        <div class="email">JohnDoe@demo.com</div>
     </div>
     <ul class="navbar">
-        <li class="nav-item" routerLink="/main/dashboard"> <i class="fas fa-house nav-icon" ></i>Dashboard</li>
-        <li class="nav-item"  routerLink="/main/getrapport"> <i class="fas fa-lightbulb nav-icon" ></i>Insight</li>
-        <li class="nav-item" routerLink="/main/users"> <i class="fas fa-regular fa-user nav-icon"></i>Users</li>
-        <li class="nav-item"> <i class="fas fa-chart-pie nav-icon" ></i>Analytics</li>
-        <li class="nav-item" routerLink="/main/connection"> <i class="fas fa-link nav-icon" ></i>Connections</li>
+        <li class="nav-item" routerLink="/main/dashboard"> 
+            <i class="fas fa-house nav-icon"></i>
+            <span *ngIf="!isCollapsed">Dashboard</span>
+        </li>
+        <li class="nav-item"  routerLink="/main/getrapport"> 
+            <i class="fas fa-lightbulb nav-icon"></i>
+            <span *ngIf="!isCollapsed">Insight</span>
+        </li>
+        <li class="nav-item" routerLink="/main/users"> 
+            <i class="fas fa-regular fa-user nav-icon"></i>
+            <span *ngIf="!isCollapsed">Users</span>
+        </li>
+        <li class="nav-item"> 
+            <i class="fas fa-chart-pie nav-icon"></i>
+            <span *ngIf="!isCollapsed">Analytics</span>
+        </li>
+        <li class="nav-item" routerLink="/main/connection"> 
+            <i class="fas fa-link nav-icon"></i>
+            <span *ngIf="!isCollapsed">Connections</span>
+        </li>
     </ul>
     
     <div class="logout">
-        <button (click)="logout()"><i class="fas fa-sign-out-alt nav-icon"></i>Logout</button>
+        <button (click)="logout()">
+            <i class="fas fa-sign-out-alt nav-icon"></i>
+            <span *ngIf="!isCollapsed">Logout</span>
+        </button>
     </div>
 </div>

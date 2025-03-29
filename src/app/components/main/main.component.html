@@ -1,8 +1,8 @@
 <div class="main_container">
     <div class="nav">
-        <app-navbar ></app-navbar>
+        <app-navbar #navbar></app-navbar>
     </div>
-    <div class="section">
+    <div class="section" [ngClass]="{'section-expanded': navbar.isCollapsed}">
         <router-outlet></router-outlet>
     </div>
 </div>

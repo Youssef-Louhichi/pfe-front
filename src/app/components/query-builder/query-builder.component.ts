@@ -1,4 +1,4 @@
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, copyArrayItem, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import {  Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Column } from 'src/app/models/column';
@@ -13,6 +13,19 @@ interface WhereClause {
   columnName: string;
   operator: string;
   value: string;
+  tableName : string
+}
+
+interface JoinCondition {
+  firstTableId: number;
+  firstColumnName: string;
+  secondTableId: number;
+  secondColumnName: string;
+  joinType: string;
+}
+
+interface ColumnWithTable extends Column {
+  table: DbTable;
 }
 
 @Component({
@@ -35,21 +48,23 @@ export class QueryBuilderComponent implements OnInit {
     table: DbTable = null;
     tableData: any[] = [];
     tableHeaders: string[] = [];
-    columns: Column[] = [];
     columns2: Column[] = [];
     allColumns: Column[] = [];
     selectedDbIndex: number | null = null;
-    
+    selectedTables: DbTable[] = [];
+    selectedColumns: ColumnWithTable[] = [];
+    whereConditionColumns: ColumnWithTable[] = [];
     // Track which columns have been selected
     selectedColumnIds: Set<number> = new Set();
   
-    
+    originalTableColumns: { [tableId: number]: Column[] } = {};
   
     ngOnInit(): void {
       this.queryForm = this.fb.group({
         table: ['', Validators.required],
         column: ['', Validators.required],
-        whereClauses: this.fb.array([])
+        whereClauses: this.fb.array([]),
+        joinClauses: this.fb.array([]) 
       });
   
       this.getDbs();
@@ -58,87 +73,236 @@ export class QueryBuilderComponent implements OnInit {
         this.selectedDbIndex = 0;
         this.toggleDb(this.databases[0]);
       }
+
+
+      this.queryForm.get('table').valueChanges.subscribe(() => {
+        if (this.selectedTables.length > 1 && this.joinClauses.length === 0) {
+          this.addJoinCondition();
+        }
+      });
     }
-  
-    // Check if a column is already selected
-    isColumnSelected(columnId: number): boolean {
-      return this.selectedColumnIds.has(columnId);
+
+    get joinClauses(): FormArray {
+      return this.queryForm.get('joinClauses') as FormArray;
     }
-  
-    // Remove a column from the selected columns
-    removeColumn(column: Column): void {
-      const index = this.columns.findIndex(c => c.id === column.id);
-      if (index !== -1) {
-        this.columns.splice(index, 1);
+
+    addJoinCondition() {
+      if (this.selectedTables.length < 2) {
+        return;
       }
+  
+      const firstTable = this.selectedTables[0];
+      const secondTable = this.selectedTables.length > 1 ? this.selectedTables[1] : this.selectedTables[0];
       
-      // Remove from selected IDs to re-enable it in the source list
-      this.selectedColumnIds.delete(column.id);
-      
-      // Update form control with selected columns
-      this.updateFormColumns();
+      const firstColumn = firstTable.columns.find(c => c.name.toLowerCase().includes('id')) || firstTable.columns[0];
+      const secondColumn = secondTable.columns.find(c => c.name.toLowerCase().includes('id')) || secondTable.columns[0];
+  
+      const joinCondition = this.fb.group({
+        firstTableId: [firstTable.id, Validators.required],
+        firstColumnName: [firstColumn.name, Validators.required],
+        secondTableId: [secondTable.id, Validators.required],
+        secondColumnName: [secondColumn.name, Validators.required],
+        joinType: ['INNER', Validators.required]
+      });
+  
+      this.joinClauses.push(joinCondition);
     }
   
-    drop(event: CdkDragDrop<any, any>) {
+    removeJoinCondition(index: number) {
+      this.joinClauses.removeAt(index);
+    }
+
+    getTableColumns(tableId: number): Column[] {
+      if (!tableId) return [];
+      
+      const table = this.selectedTables.find(t => t.id === +tableId);
+      return table ? table.columns : [];
+    }
+
+
+
+    onFirstTableChange(index: number) {
+      const joinControl = this.joinClauses.at(index);
+      const tableId = joinControl.get('firstTableId').value;
+      const columns = this.getTableColumns(tableId);
+      
+      if (columns.length > 0) {
+        const idColumn = columns.find(c => c.name.toLowerCase().includes('id')) || columns[0];
+        joinControl.get('firstColumnName').setValue(idColumn.name);
+      }
+    }
+  
+    onSecondTableChange(index: number) {
+      const joinControl = this.joinClauses.at(index);
+      const tableId = joinControl.get('secondTableId').value;
+      const columns = this.getTableColumns(tableId);
+      
+      if (columns.length > 0) {
+        const idColumn = columns.find(c => c.name.toLowerCase().includes('id')) || columns[0];
+        joinControl.get('secondColumnName').setValue(idColumn.name);
+      }
+    }
+  
+    onColumnDropForCondition(event: CdkDragDrop<Column[]>) {
+      // Check if column already exists in conditions
+      const draggedColumn = event.previousContainer.data[event.previousIndex];
+      
+      const columnExists = this.whereClauses.controls.some(
+        control => control.get('columnName').value === draggedColumn.name
+      );
+      
+      if (!columnExists) {
+        // Create a new where clause form group
+        console.log("taw");
+        const whereCondition = this.fb.group({
+          columnName: [draggedColumn.name , Validators.required],
+          tableName: [draggedColumn.table.name, Validators.required],
+          operator: ['=', Validators.required],
+          value: ['', Validators.required]
+        });
+        
+        // Add the condition to the form array
+        this.whereClauses.push(whereCondition);
+        
+        // Ensure the table is added to selected tables
+        this.addTableToSelectedTables(draggedColumn.table);
+      }
+    }
+   
+    drop(event: CdkDragDrop<ColumnWithTable[]>, type: 'columns' | 'conditions') {
+      const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
+      
       if (event.previousContainer === event.container) {
+        // Reorder within the same list
         moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       } else {
-        // Get the column being dragged
         const draggedColumn = event.previousContainer.data[event.previousIndex];
         
-        // Check if it's already in the target container to avoid duplicates
-        const columnExists = this.columns.some(c => c.id === draggedColumn.id);
+        // Check if column already exists in target array
+        const columnExists = targetArray.some(c => c.id === draggedColumn.id);
         
         if (!columnExists) {
-          // Add to selected columns set
-          this.selectedColumnIds.add(draggedColumn.id);
+          // Enrich column with table information
+          const columnWithTable: ColumnWithTable = {
+            ...draggedColumn,
+            table: this.getTableForColumn(draggedColumn)
+          };
           
-          // Transfer the item
-          transferArrayItem(
+          // Copy the item instead of transferring to keep it in original list
+          copyArrayItem(
             event.previousContainer.data,
-            event.container.data,
+            targetArray,
             event.previousIndex,
             event.currentIndex
           );
           
-          // Add back to original container (to keep it there but disabled)
-          event.previousContainer.data.splice(event.previousIndex, 0, draggedColumn);
+          // Add table to selected tables if not already present
+          this.addTableToSelectedTables(columnWithTable.table);
+          
+          // Update form
+          this.updateFormColumns();
         }
       }
+    }
+
+    private getTableForColumn(column: Column): DbTable {
+      for (const db of this.databases) {
+        for (const table of db.tables) {
+          if (table.columns.some(c => c.id === column.id)) {
+            return table;
+          }
+        }
+      }
+      throw new Error('Table not found for column');
+    }
+
+    private generateJoinConditions() {
+      const joinConditions = this.joinClauses.value;
+      return joinConditions.length > 0 ? joinConditions : [];
+    }
+    private addTableToSelectedTables(table: DbTable) {
+      if (!this.selectedTables.some(t => t.id === table.id)) {
+        this.selectedTables.push(table);
+        
+        // Auto-add join condition if we now have more than one table
+        if (this.selectedTables.length === 2) {
+          this.addJoinCondition();
+        }
+      }
+    }
+
+
+    removeTable(table: DbTable) {
+      // Remove table from selectedTables
+      this.selectedTables = this.selectedTables.filter(t => t.id !== table.id);
       
-      // Update form control with selected columns
+      // Remove columns from this table
+      this.selectedColumns = this.selectedColumns.filter(c => c.table.id !== table.id);
+      this.whereConditionColumns = this.whereConditionColumns.filter(c => c.table.id !== table.id);
+      
+      // Update form
       this.updateFormColumns();
     }
-    
-    updateFormColumns() {
-      this.queryForm.patchValue({ column: this.columns.map(c => c.id) });
-    }
-  
-    getDbs() {
-      let idConnexion = Number(localStorage.getItem("idConnection"));
-      let idUser = Number(localStorage.getItem("userId"));
+
+    removeColumn(column: ColumnWithTable, type: 'columns' | 'conditions') {
+      const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
       
-      this.userservice.getUserById(idUser).subscribe(data => {
-        this.databases = data.databases.filter(db => db.connexion.id == idConnexion);
+      // Remove column from target array
+      const index = targetArray.findIndex(c => c.id === column.id);
+      if (index !== -1) {
+        targetArray.splice(index, 1);
+      }
+      
+      // Check if table should be removed
+      const tableColumns = [
+        ...this.selectedColumns.filter(c => c.table.id === column.table.id),
+        ...this.whereConditionColumns.filter(c => c.table.id === column.table.id)
+      ];
+      
+      // If no columns for this table remain, remove the table
+      if (tableColumns.length === 0) {
+        this.selectedTables = this.selectedTables.filter(t => t.id !== column.table.id);
+      }
+      
+      // Update form
+      this.updateFormColumns();
+    }
+
+  // Check if a column is selected in a specific list
+  isColumnSelected(columnId: number, type: 'columns' | 'conditions'): boolean {
+    const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
+    return targetArray.filter(c => c.id === columnId).length > 1;
+  }
+
+  // Update form columns
+  updateFormColumns() {
+    // Combine column IDs from both lists
+    const columnIds = [
+      ...this.selectedColumns.map(c => c.id),
+      ...this.whereConditionColumns.map(c => c.id)
+    ];
+    
+    this.queryForm.patchValue({ 
+      column: columnIds,
+      table: this.selectedTables.map(t => t.name).join(', ')
+    });
+  }
+  getDbs() {
+    let idConnexion = Number(localStorage.getItem("idConnection"));
+    let idUser = Number(localStorage.getItem("userId"));
+    
+    this.userservice.getUserById(idUser).subscribe(data => {
+      this.databases = data.databases.filter(db => db.connexion.id == idConnexion);
+      
+      // Store original columns for each table
+      this.databases.forEach(db => {
+        db.tables.forEach(table => {
+          this.originalTableColumns[table.id] = [...table.columns];
+        });
       });
-    }
+    });
+  }
   
-    get whereClauses(): FormArray {
-      return this.queryForm.get('whereClauses') as FormArray;
-    }
-  
-    addWhereCondition() {
-      const whereCondition = this.fb.group({
-        columnName: ['', Validators.required],
-        operator: ['=', Validators.required],
-        value: ['', Validators.required]
-      });
-      this.whereClauses.push(whereCondition);
-    }
-  
-    removeWhereCondition(index: number) {
-      this.whereClauses.removeAt(index);
-    }
   
     toggleDb(db: Database) {
       const index = this.databases.findIndex(database => database.name === db.name);
@@ -169,13 +333,16 @@ export class QueryBuilderComponent implements OnInit {
     onSubmit() {
       if (this.queryForm.valid) {
         const formData = this.queryForm.value;
+        
+        // Prepare where conditions
         const whereConditions: WhereClause[] = formData.whereClauses.map((condition: any) => ({
           columnName: condition.columnName,
-          operator: condition.operator,
-          value: condition.value
+        tableName: condition.tableName,
+        operator: condition.operator,
+        value: condition.value
         }));
-    
-        // Constructing request payload
+  
+        // Construct request payload
         const requestPayload = {
           req: {
             id: 1,
@@ -187,18 +354,18 @@ export class QueryBuilderComponent implements OnInit {
             },
             content: "Fetching data"
           },
-          tableId: [this.table.id], // Directly use table ID
+          tableId: this.selectedTables.map(t => t.id),
           columnId: formData.column,
           groupByColumns: [],
           aggregations: [],
-          joinRequest:{
-            joinConditions:[]
+          joinRequest: {
+            joinConditions: this.generateJoinConditions()
           },
           filters: whereConditions
         };
-    
+  
         console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
-    
+  
         this.reqservice.fetchTableData(requestPayload).subscribe(
           response => {
             this.tableData = response;
@@ -211,6 +378,24 @@ export class QueryBuilderComponent implements OnInit {
       }
     }
 
+  
+    // Existing methods for where clauses
+    get whereClauses(): FormArray {
+      return this.queryForm.get('whereClauses') as FormArray;
+    }
+  
+    addWhereCondition() {
+      const whereCondition = this.fb.group({
+        columnName: ['', Validators.required],
+        operator: ['=', Validators.required],
+        value: ['', Validators.required]
+      });
+      this.whereClauses.push(whereCondition);
+    }
+  
+    removeWhereCondition(index: number) {
+      this.whereClauses.removeAt(index);
+    }
 
     @Output() newItemEvent = new EventEmitter<Graph>();
     

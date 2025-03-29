@@ -9,6 +9,11 @@ import { Router } from '@angular/router';
 export class NavbarComponent {
 
     constructor(private route: Router) { }
+    isCollapsed = false;
+
+    toggleSidebar() {
+      this.isCollapsed = !this.isCollapsed;
+    }
   
 
   logout(){
