@@ -9,10 +9,21 @@ import { Observable } from 'rxjs';
 export class RequeteService {
 
   private apiUrl = 'http://localhost:8087/api/query/fetch'; 
-
+  private insertUrl = 'http://localhost:8087/api/query/insert';
+  private UpdateUrl = 'http://localhost:8087/api/query/update';
   constructor(private http: HttpClient) {}
 
   fetchTableData(request: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, request);
+  }
+
+
+
+  insertTableData(request: any): Observable<any> {
+    return this.http.post<any>(this.insertUrl, request);
+  }
+
+  UpdateTableData(request: any): Observable<any> {
+    return this.http.post<any>(this.UpdateUrl, request);
   }
 }

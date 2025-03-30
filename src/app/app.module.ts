@@ -15,6 +15,7 @@ import { LoginPageComponent } from './components/login-page/login-page.component
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { QueryBuilderComponent } from './components/query-builder/query-builder.component';
 import { GetRapportComponent } from './components/get-rapport/get-rapport.component';
+import { LMDComponent } from './components/lmd/lmd.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { GetRapportComponent } from './components/get-rapport/get-rapport.compon
     LoginPageComponent,
     QueryBuilderComponent,
     GetRapportComponent,
+    LMDComponent,
     
   ],
   imports: [

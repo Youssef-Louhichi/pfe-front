@@ -1,0 +1,107 @@
+<div class="insert-form-container">
+    <section class="side">
+      <!-- Database dropdown selector -->
+      <div class="db-selector">
+        <label for="dbSelect">Select Database:</label>
+        <select id="dbSelect" class="db-select" 
+          [(ngModel)]="selectedDbIndex" 
+          (change)="toggleDb(databases[selectedDbIndex])">
+          <option *ngFor="let db of databases; let i = index" [value]="i">
+            {{db.name | titlecase}}
+          </option>
+        </select>
+      </div>
+  
+      <!-- Tables list for selected database -->
+      <div class="tables-container" *ngIf="selectedDbIndex != null">
+        <h3 class="section-title">Tables</h3>
+        <ul class="tables-list">
+          <li *ngFor="let table of databases[selectedDbIndex]?.tables" 
+              class="table-item" 
+              [class.selected]="selectedTable?.id === table.id">
+            <div class="table-header" (click)="toggleTable(table)">
+              <span class="expander">
+                <svg width="10" height="10" viewBox="0 0 10 10" 
+                     [class.expanded]="showColumns[table.name]">
+                  <polygon points="0,0 10,5 0,10" fill="#444" />
+                </svg>
+              </span>
+              <span class="table-name">{{ table.name }}</span>
+            </div>
+  
+            <!-- Show table action when expanded -->
+            <div class="table-actions" *ngIf="showColumns[table.name]">
+              <button type="button" class="btn-select-table" (click)="selectTable(table)">
+                Select for Insert
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  
+    <div class="form-area">
+      <form [formGroup]="insertForm" (ngSubmit)="onSubmit()" class="insert-form">
+        <div class="form-header">
+          <h2>Insert Data Form</h2>
+        </div>
+  
+        <!-- Selected Table Info -->
+        <div class="selected-table-info" *ngIf="selectedTable">
+          <h3>Insert Into: {{ selectedTable.name }}</h3>
+          <input type="hidden" formControlName="table">
+        </div>
+  
+        <!-- No table selected message -->
+        <div class="no-table-message" *ngIf="!selectedTable">
+          <p>Please select a table from the list on the left.</p>
+        </div>
+  
+        <!-- Dynamic Column Fields -->
+        <div class="column-fields" *ngIf="selectedTable">
+          <div formArrayName="columns">
+            <div *ngFor="let columnControl of columns.controls; let i = index" 
+                 [formGroupName]="i" 
+                 class="column-field-row">
+              
+              <div class="column-name-field">
+                <label [for]="'column-name-' + i">Column Name:</label>
+                <input type="text" 
+                       [id]="'column-name-' + i" 
+                       formControlName="columnName" 
+                       readonly 
+                       class="form-control column-name">
+              </div>
+              
+              <div class="column-value-field">
+                <label [for]="'column-value-' + i">Value:</label>
+                <input type="text" 
+                       [id]="'column-value-' + i" 
+                       formControlName="columnValue" 
+                       [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
+                       class="form-control column-value">
+                
+                <!-- Show error message if needed -->
+                <div class="error-message" 
+                     *ngIf="columnControl.get('columnValue').invalid && 
+                           (columnControl.get('columnValue').dirty || 
+                            columnControl.get('columnValue').touched)">
+                 
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Form Actions -->
+        <div class="form-actions" *ngIf="selectedTable">
+          <button type="submit" class="btn-submit" [disabled]="!insertForm.valid">
+            Insert Data
+          </button>
+          <button type="button" class="btn-reset" (click)="resetForm()">
+            Reset Values
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

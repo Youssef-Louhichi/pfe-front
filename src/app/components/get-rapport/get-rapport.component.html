@@ -2,6 +2,7 @@
 <input type="number" #i>
 <button (click)="show(i.value)">Show</button>
 
+
 <div class="page" #page *ngIf="rapport" >
     <div  *ngFor="let table of rapport.graphs" class="draggable resizable-table" [style.width.px]="table.width"
       [style.height.px]="table.height" [style.top.px]="table.toppos" [style.left.px]="table.leftpos">
