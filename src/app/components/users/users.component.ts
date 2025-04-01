@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Analyst } from 'src/app/models/analyst';
+import { Creator } from 'src/app/models/creator';
 import { Database } from 'src/app/models/database';
 import { User } from 'src/app/models/user';
+import { AnalystService } from 'src/app/services/analyst.service';
 import { UsersService } from 'src/app/services/users.service';
 
 @Component({
@@ -8,18 +11,16 @@ import { UsersService } from 'src/app/services/users.service';
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent implements OnInit{
+export class UsersComponent implements OnInit {
 
-  user : User;
-  users: User[] = [];
-  useradd: User ;
-  dbs:Database[] = []
-  selectedDb : Database 
+  user: User;
+  useradd: User;
+  dbs: Database[] = []
+  selectedDb: Database
 
-  constructor(private userservice : UsersService){}
+  constructor(private userservice: UsersService,private analystservice:AnalystService) { }
   ngOnInit(): void {
     this.getDbs()
-    this.getUsers();
   }
 
   getDbs() {
@@ -27,9 +28,20 @@ export class UsersComponent implements OnInit{
     let idUser = Number(localStorage.getItem("userId"))
 
     this.userservice.getUserById(idUser).subscribe(data => {
-      this.user=data 
-      this.dbs = data.databases.filter(db => db.connexion.id == idConnexion)
+      this.user = data
+      console.log(data)
+      if (data.type == "Creator") {
+        let creator = data as Creator
+        this.dbs = creator.connexions.find(cnx => cnx.id == idConnexion).databases
+      }
+      else {
+        let analyst = data as Analyst
+        this.dbs = analyst.databases.filter(db => db.connexion.id == idConnexion)
+      }
+
+
       this.selectedDb = this.dbs[0]
+      console.log(this.selectedDb)
     })
   }
 
@@ -38,55 +50,47 @@ export class UsersComponent implements OnInit{
 
 
 
-  getUsers()
-  {
-    this.userservice.getUsers().subscribe(data => {this.users=data;console.log(this.users)});
-  }
-  getUserById(id:number)
-  {
-    this.userservice.getUserById(id).subscribe(data => {this.user=data ; console.log(this.user)})
-  }
+
   deleteUser(id: number) {
     if (confirm('Are you sure you want to delete this user?')) {
       this.userservice.deleteUser(id).subscribe(() => {
-        this.getUsers(); // Refresh the user list after successful deletion
       });
     }
   }
 
-  
-
-filteredUsers: User[] = [];
-
-filterUsers(mail: string) {
-  if (this.isEmailComplete(mail)) {
-    this.userservice.getUserByMail(mail).subscribe(data => {
-      if (data[0])
-        this.filteredUsers = data
-    })
-  } 
-  else {
-    this.filteredUsers = []; 
-  }
-}
-
-isEmailComplete(mail: string): boolean {
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailPattern.test(mail);
-}
 
 
-addUser() {
+  filteredUsers: User[] = [];
 
-  if(this.filteredUsers.length != 0){
-  if(this.selectedDb.users.filter(u => u.identif == this.filteredUsers[0].identif).length == 0)
-  this.userservice.linkDatabaseToUser(this.filteredUsers[0].identif,this.selectedDb.id).subscribe(data =>{
-    if(data.message == "Database linked successfully"){
-      this.selectedDb.users.push(this.filteredUsers[0])
-      this.filteredUsers = []
+  filterUsers(mail: string) {
+    if (this.isEmailComplete(mail)) {
+      this.userservice.getUserByMail(mail).subscribe(data => {
+        if (data[0])
+          this.filteredUsers = data
+      })
     }
-  })
-}
+    else {
+      this.filteredUsers = [];
+    }
+  }
 
-}
+  isEmailComplete(mail: string): boolean {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(mail);
+  }
+
+
+  addUser() {
+
+    if (this.filteredUsers.length != 0) {
+      if (this.selectedDb.analysts.filter(u => u.identif == this.filteredUsers[0].identif).length == 0)
+        this.analystservice.linkDatabaseToAnalyst(this.filteredUsers[0].identif, this.selectedDb.id).subscribe(data => {
+          if (data.message == "Database linked successfully") {
+            this.selectedDb.analysts.push(this.filteredUsers[0] as Analyst)
+            this.filteredUsers = []
+          }
+        })
+    }
+
+  }
 }

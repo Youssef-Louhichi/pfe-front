@@ -20,11 +20,13 @@ export class ConnectionsComponent implements OnInit{
   constructor(private  fb: FormBuilder,private connexionService:ConnexionsService,private userService:UsersService,
     private dialogRef: MatDialogRef<HomeComponent>){}
 
-  user:User
+  creator:User
 
   ngOnInit(): void {
 
-    this.userService.getUserById(1).subscribe(data => this.user = data)
+    let idUser = Number(localStorage.getItem("userId"))
+
+    this.userService.getUserById(idUser).subscribe(data => this.creator = data)
     this.form = this.fb.group({
       host: [''],
       port:[],
@@ -41,20 +43,21 @@ export class ConnectionsComponent implements OnInit{
 
   changeIndex(i: number){
     if(i ==1){
+      this.form.reset()
       this.form.get("dbtype").setValue("MySQL")
       this.db_type="MySQL"
-      this.form.reset()
     }
     if (i==2){
+      this.form.reset()
       this.form.get("dbtype").setValue("Oracle")
       this.db_type="Oracle"
-      this.form.reset()
+      
     }
 
   }
 
   insertConnection(){
-    this.form.get("creator").setValue(this.user)
+    this.form.get("creator").setValue(this.creator)
     console.log(this.form.value)
     this.connexionService.insertConnexion(this.form.value).subscribe(data =>{
       this.dialogRef.close(data)

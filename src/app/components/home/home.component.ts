@@ -4,6 +4,9 @@ import { Connexion } from 'src/app/models/connexion';
 import { UsersService } from 'src/app/services/users.service';
 import { ConnectionsComponent } from '../connections/connections.component';
 import { Router } from '@angular/router';
+import { Creator } from 'src/app/models/creator';
+import { User } from 'src/app/models/user';
+import { AnalystService } from 'src/app/services/analyst.service';
 
 @Component({
   selector: 'app-home',
@@ -12,15 +15,25 @@ import { Router } from '@angular/router';
 })
 export class HomeComponent implements OnInit{
 
-  constructor(private userService:UsersService,private dialog: MatDialog,private router:Router){}
+  constructor(private userService:UsersService,private analystservice:AnalystService,private dialog: MatDialog,private router:Router){}
 
   connexions:Connexion[]
+  user:User
 
   ngOnInit(): void {
     let id = localStorage.getItem("userId")
-    this.userService.getUsersConnexions(Number(id)).subscribe(data =>{
+    this.userService.getUserById(Number(id)).subscribe(data =>{
       //console.log(data)
-      this.connexions = data
+      this.user = data
+      if(data.type == "Creator"){
+        let creator = data as Creator
+        this.connexions = creator.connexions
+      }
+      else{
+        this.analystservice.getAnalystsConnexions(Number(id)).subscribe(data2=>{
+          this.connexions = data2
+        })
+      }
     })
   }
 

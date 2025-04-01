@@ -1,4 +1,4 @@
-<div class="main" >
+<div class="main" *ngIf="user" >
 
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
@@ -39,7 +39,7 @@
       
       <div class="list_projects">
 
-        <div class="new_project" (click)="openPopup()">
+        <div class="new_project" (click)="openPopup()" *ngIf="user.type == 'Creator'">
           <div class="project_text"> New connection :</div>
           <div class="project_inside">
             <i class="fas fa-plus-circle"></i>
