@@ -18,15 +18,15 @@ export class UsersComponent implements OnInit {
   useradd: User;
   dbs: Database[] = []
   selectedDb: Database
-  newUserform:FormGroup
+  newUserform: FormGroup
 
-  constructor(private userservice: UsersService,private analystservice:AnalystService,private fb:FormBuilder) { }
+  constructor(private userservice: UsersService, private analystservice: AnalystService, private fb: FormBuilder) { }
   ngOnInit(): void {
     this.newUserform = this.fb.group({
-      mail:[],
-      password:[],
-      databases:[[]],
-      rapports:[[]]
+      mail: [],
+      password: [],
+      databases: [[]],
+      rapports: [[]]
     })
 
     this.getDbs()
@@ -60,7 +60,7 @@ export class UsersComponent implements OnInit {
   toggleForm() {
     this.isExistingUser = !this.isExistingUser;
   }
-  
+
 
 
 
@@ -109,23 +109,23 @@ export class UsersComponent implements OnInit {
   }
 
 
-  generatePwd(){
+  generatePwd() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+';
-  let password = '';
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  this.newUserform.get("password").setValue(password)
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    this.newUserform.get("password").setValue(password)
 
   }
-  addNewUser(){
-    this.analystservice.createAnalyst(this.newUserform.value).subscribe(data =>{
+  addNewUser() {
+    this.analystservice.createAnalyst(this.newUserform.value).subscribe(data => {
       this.analystservice.linkDatabaseToAnalyst(data.identif, this.selectedDb.id).subscribe(data2 => {
         if (data2.message == "Database linked successfully") {
           this.selectedDb.analysts.push(data)
           this.newUserform.reset()
         }
       })
-        })
+    })
   }
 }

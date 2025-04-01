@@ -16,6 +16,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { QueryBuilderComponent } from './components/query-builder/query-builder.component';
 import { GetRapportComponent } from './components/get-rapport/get-rapport.component';
 import { LMDComponent } from './components/lmd/lmd.component';
+import { RapportsComponent } from './components/rapports/rapports.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { LMDComponent } from './components/lmd/lmd.component';
     QueryBuilderComponent,
     GetRapportComponent,
     LMDComponent,
+    RapportsComponent,
     
   ],
   imports: [

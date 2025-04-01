@@ -1,0 +1,30 @@
+<div class="main">
+    <div class="top-bar">
+        Recents
+    </div>
+
+    <div class="content">
+        <div class="button-conatiner">
+            <button class="bt" (click)="openNewRapport()">
+                <i class="fa fa-solid fa-file"></i>
+                New Rapport
+            </button>
+        </div>
+
+        <div class="rapports-container">
+            <div class="rapport-item" *ngFor="let r of rapports" (click)="openRapport(r)"> 
+                <div class="rapport">
+                    rfdgfg
+                </div>
+                <div class="rapport-info">
+                    rapport 1
+                </div>
+               
+            </div>
+
+           
+
+
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { GetRapportComponent } from './components/get-rapport/get-rapport.component';
 import { LMDComponent } from './components/lmd/lmd.component';
+import { RapportsComponent } from './components/rapports/rapports.component';
 
 const routes: Routes = [
   {path:"login",title:"EasySql",component:LoginPageComponent},
@@ -15,6 +16,7 @@ const routes: Routes = [
     {path:"dashboard",component:DashboardComponent},
     {path:"users",component:UsersComponent},
     {path:"getrapport",component:GetRapportComponent},
+    {path:"rapports",component:RapportsComponent},
     {path:"LMD",component:LMDComponent},
 
     {path:"",redirectTo:"dashboard",pathMatch:'full'}
