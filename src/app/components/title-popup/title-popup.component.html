@@ -1,0 +1,9 @@
+<h2>Enter Rapport Title</h2>
+<p>Please enter a title for your rapport:</p>
+
+<input [(ngModel)]="newTitle" class="title-input" placeholder="Enter title" />
+
+<div class="dialog-actions">
+  <button mat-button (click)="closeDialog()">Cancel</button>
+  <button mat-button (click)="saveTitle()">Save</button>
+</div>

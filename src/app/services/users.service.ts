@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../models/user';
 import { Connexion } from '../models/connexion';
+import { Rapport } from '../models/rapport';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,9 @@ export class UsersService {
     return this.httpclient.get<User>(`${this.baseUrl}/${id}`);
   }
 
- 
+  getUserRapports(id: number): Observable<Rapport[]> {
+    return this.httpclient.get<Rapport[]>(`${this.baseUrl}/${id}/rapports`);
+  }
 
   // Update an existing user
   updateUser(id: number, updatedUser: User): Observable<User> {

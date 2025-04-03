@@ -1,4 +1,4 @@
-import {  Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {  Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
 
 import { ConnexionsService } from 'src/app/services/connexions.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -8,6 +8,8 @@ import { Rapport } from 'src/app/models/rapport';
 import { RapportService } from 'src/app/services/rapport.service';
 import { User } from 'src/app/models/user';
 import { Connexion } from 'src/app/models/connexion';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { TitlePopupComponent } from '../title-popup/title-popup.component';
 Chart.register(...registerables)
 
 
@@ -20,37 +22,32 @@ Chart.register(...registerables)
 export class DashboardComponent  implements OnInit{
 
   constructor( private el: ElementRef,private rapportService: RapportService,
-    private connexionService:ConnexionsService,private userService:UsersService
-  ) { }
+    private dialog: MatDialog ) { }
 
 
-  user:User
-  connexion:Connexion
-  rapport:Rapport = new Rapport(null,"rapport",[],null,null)
+
+  rapport:Rapport
+  rapportTables: Graph[] =  [];
   ngOnInit(): void {
-    this.userService.getUserById(Number(localStorage.getItem("userId"))).subscribe(data =>
-    {
-      this.user = data
-      this.rapport.user = data
-    }
-    )
-
-    this.connexionService.getConnexionById(Number(localStorage.getItem("idConnection"))).subscribe(data =>
-      {
-        this.connexion = data
-        this.rapport.cnxrapport = data
-      }
-      )
-
-
-
+    const storedData = localStorage.getItem('rapport');
+  if (storedData) {
+  const myObject = JSON.parse(storedData);
+  this.rapport = myObject
+  this.rapportTables = this.rapport.graphs
+  this.rapportTables.forEach(table => {
+    if (table.format == "chart")
+      setTimeout(() => this.createChart(table), 0);
+  });
+  }
+      this.rapport.user = new User(null,null,Number(localStorage.getItem("userId")),[],null) 
+      this.rapport.cnxrapport = new Connexion(Number(localStorage.getItem("idConnection")),null,null,null,null,null,null,null,[],[])
+      console.log(this.rapport)
   }
 
   
 
 
-  rapportTables: Graph[] =  [        
-   ];
+  
 
    onDataAdded(newItem:Graph) {
     this.rapportTables.push(newItem);
@@ -253,25 +250,45 @@ updateChart() {
 
 }
 
-
-
-save(){
-
-
-
-  for(let graph of this.rapportTables){
-    graph.id = null
+async save() {
+  for (let graph of this.rapportTables) {
+    graph.id = null;
   }
 
+  this.rapport.graphs = this.rapportTables;
+  
+  await this.checkAndOpenDialog()
 
-  this.rapport.graphs = this.rapportTables 
+  console.log(this.rapport);
 
-  this.rapportService.createRapport(this.rapport).subscribe(data =>
-  {
-    console.log(data)
-    
-  }
-  )
+  if (this.rapport.titre === null) return;
+  
+
+  this.rapportService.createRapport(this.rapport).subscribe((data) => {
+    localStorage.setItem('rapport', JSON.stringify(data))
+    this.rapport = data
+  });
 }
+
+async checkAndOpenDialog(): Promise<void> {
+  if (this.rapport.titre && this.rapport.titre.trim() !== '') {
+    return; 
+  }
+
+  return new Promise((resolve) => {
+    const dialogRef = this.dialog.open(TitlePopupComponent, {
+      width: '400px',
+      data: { currentTitle: this.rapport.titre },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.rapport.titre = result;
+      }
+      resolve(); 
+    });
+  });
+}
+
   
 }

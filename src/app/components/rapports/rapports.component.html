@@ -1,6 +1,6 @@
 <div class="main">
     <div class="top-bar">
-        Recents
+        Your Rapports
     </div>
 
     <div class="content">
@@ -14,10 +14,33 @@
         <div class="rapports-container">
             <div class="rapport-item" *ngFor="let r of rapports" (click)="openRapport(r)"> 
                 <div class="rapport">
-                    rfdgfg
+                    <div class="page" #page *ngIf="r" >
+                        <div  *ngFor="let table of r.graphs" class="draggable resizable-table" [style.width.px]="table.width/4"
+                          [style.height.px]="table.height/4" [style.top.px]="table.toppos/4" [style.left.px]="table.leftpos/4">
+                    
+                          <table class="tab" *ngIf="table.format == 'table'">
+                            <thead>
+                              <tr>
+                                <th *ngFor="let header of table.headers">{{ header | titlecase}}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let row of table.data">
+                                <td *ngFor="let key of table.headers">{{ row[key] }}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                    
+                          <canvas id="chartCanvas-{{table.id}}" class="charts" *ngIf="table.format === 'chart'"></canvas>
+                    
+                    
+                    
+                        </div>
+                      </div>
                 </div>
                 <div class="rapport-info">
-                    rapport 1
+                    {{r.titre}} <br>
+                    Last update : {{r.updatedAt}}
                 </div>
                
             </div>

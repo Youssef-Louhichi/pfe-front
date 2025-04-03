@@ -14,7 +14,7 @@
       {{ isExistingUser ? 'Add New User' : 'Add Existing User' }}
     </button>
   
-    <div class="form-wrapper">
+    <div class="form-wrapper" [hidden]="user.type == 'Analyst'">
       <!-- Existing User Form -->
       <form *ngIf="isExistingUser" class="fade-in">
         <h2>Add An Existing User</h2>

@@ -14,9 +14,9 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginPageComponent } from './components/login-page/login-page.component'; 
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { QueryBuilderComponent } from './components/query-builder/query-builder.component';
-import { GetRapportComponent } from './components/get-rapport/get-rapport.component';
 import { LMDComponent } from './components/lmd/lmd.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
+import { TitlePopupComponent } from './components/title-popup/title-popup.component';
 
 @NgModule({
   declarations: [
@@ -29,9 +29,9 @@ import { RapportsComponent } from './components/rapports/rapports.component';
     DashboardComponent,
     LoginPageComponent,
     QueryBuilderComponent,
-    GetRapportComponent,
     LMDComponent,
     RapportsComponent,
+    TitlePopupComponent,
     
   ],
   imports: [

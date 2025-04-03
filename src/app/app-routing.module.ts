@@ -1,21 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MainComponent } from './components/main/main.component';
-import { ConnectionsComponent } from './components/connections/connections.component';
 import { UsersComponent } from './components/users/users.component';
 import { HomeComponent } from './components/home/home.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
-import { GetRapportComponent } from './components/get-rapport/get-rapport.component';
 import { LMDComponent } from './components/lmd/lmd.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 
 const routes: Routes = [
   {path:"login",title:"EasySql",component:LoginPageComponent},
   {path:"main",title:"EasySql",component:MainComponent,children:[
-    {path:"dashboard",component:DashboardComponent},
+    {path:"dashboard",component:RapportsComponent},
+    {path:"dashboard/edit",component:DashboardComponent},
     {path:"users",component:UsersComponent},
-    {path:"getrapport",component:GetRapportComponent},
     {path:"rapports",component:RapportsComponent},
     {path:"LMD",component:LMDComponent},
 

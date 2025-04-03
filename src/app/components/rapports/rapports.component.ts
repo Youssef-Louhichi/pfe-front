@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Chart } from 'chart.js';
+import { Graph } from 'src/app/models/graph';
 import { Rapport } from 'src/app/models/rapport';
 import { UsersService } from 'src/app/services/users.service';
 
@@ -11,24 +13,87 @@ import { UsersService } from 'src/app/services/users.service';
 export class RapportsComponent implements OnInit{
 
 
-    constructor(private userService:UsersService,private router:Router
+    constructor(private userService:UsersService,private router:Router,
+      private el: ElementRef
     ) { }
 
     rapports:Rapport[]
 
     ngOnInit(): void {
-      this.userService.getUserById(Number(localStorage.getItem("userId"))).subscribe(data =>{
-        this.rapports = data.rapports
+      this.userService.getUserRapports(Number(localStorage.getItem("userId"))).subscribe(data =>{
+        console.log(data)
+        this.rapports = data
+        this.rapports.forEach(rapport =>{
+          rapport.graphs.forEach(table => {
+            if (table.format == "chart")
+              setTimeout(() => this.createChart(table), 0);
+          });
+        })
       })
 
     }
 
+    
+    
+      charts: { [key: string]: Chart } = {};
+    
+      createChart(table: Graph): void {
+        const canvas = this.el.nativeElement.querySelector(`#chartCanvas-${table.id}`);
+    
+        if (canvas && table.headers.length > 1) {
+          if (!table.columnX || !table.columnY) {
+            table.columnX = table.headers[0];
+            table.columnY = table.headers[1];
+          }
+    
+          let tabX = table.data.map(row => row[table.columnX]);
+          let tabY = table.data.map(row => row[table.columnY]);
+    
+          if (!table.chartType) table.chartType = 'bar';
+    
+          if (!table.colors) {
+            table.colors = tabY.map(() => '#004B91');
+          }
+    
+          if (this.charts[table.id]) {
+            this.charts[table.id].destroy();
+          }
+    
+          this.charts[table.id] = new Chart(`chartCanvas-${table.id}`, {
+            type: table.chartType,
+            data: {
+              labels: tabX,
+              datasets: [
+                {
+                  label: 'Dataset',
+                  data: tabY,
+                  backgroundColor: table.colors,
+                  borderWidth: 0.2
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        }
+      }
+    
+     
+
     openRapport(rapport:Rapport){
-      this.router.navigate(["/main/dashboard",{ state: { rapport: rapport } }])
+      localStorage.setItem('rapport', JSON.stringify(rapport))
+      this.router.navigate(["/main/dashboard/edit",{ state: { rapport: rapport } }])
     }
 
     openNewRapport(){
-      this.router.navigate(["/main/dashboard"],{ state:{ rapport: new Rapport(1,"null",[],null,null) }})
+      localStorage.setItem('rapport', JSON.stringify(new Rapport(null, null, [], null, null,null,null)))
+      this.router.navigate(["/main/dashboard/edit"])
     }
 
 }
