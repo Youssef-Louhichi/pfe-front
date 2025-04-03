@@ -97,6 +97,7 @@
   .btn-select-table {
     width: 100%;
     padding: 6px;
+    margin-bottom: 3%;
     background-color: #4a90e2;
     color: white;
     border: none;
@@ -241,3 +242,243 @@
   .btn-reset:hover {
     background-color: #e0e0e0;
   }
+
+  
+  
+
+  .where-clause-section {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f0f4f8;
+    border-radius: 4px;
+    border-left: 4px solid #3f51b5;
+  }
+
+
+  /* Styles for both forms */
+.insert-form-container {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.side {
+  flex: 0 0 250px;
+  border-right: 1px solid #ddd;
+  padding-right: 15px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.form-area {
+  flex: 1;
+  padding: 0 15px;
+  overflow-y: auto;
+}
+
+/* Table actions section */
+.table-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+.btn-select-table:hover {
+  background-color: #3a1d8f;
+}
+
+/* Form styles */
+.insert-form, .update-form {
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.selected-table-info {
+  margin-bottom: 15px;
+}
+
+.column-fields {
+  margin: 15px 0;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.column-field-row {
+  display: flex;
+  margin-bottom: 10px;
+  gap: 15px;
+}
+
+.column-name-field, .column-value-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.column-name-field {
+  flex: 0 0 180px;
+}
+
+.column-value-field {
+  flex: 1;
+}
+
+label {
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.form-control {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.column-name {
+  background-color: #f5f5f5;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-submit, .btn-reset {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+}
+
+.btn-submit {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-submit:hover {
+  background-color: #43a047;
+}
+
+.btn-reset {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-reset:hover {
+  background-color: #e0e0e0;
+}
+
+/* Where clause section */
+.where-clause-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f0f4f8;
+  border-radius: 4px;
+  border-left: 4px solid #3f51b5;
+}
+
+.section-description {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.where-condition-row {
+  display: flex;
+  margin-bottom: 12px;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.where-column-field {
+  flex: 2;
+}
+
+.where-operator-field {
+  flex: 1;
+}
+
+.where-value-field {
+  flex: 2;
+}
+
+.where-action-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+
+.btn-remove {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-remove:hover {
+  background-color: #d32f2f;
+}
+
+.remove-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.where-add-button {
+  margin-top: 15px;
+}
+
+.btn-add-condition {
+  background-color: #e3f2fd;
+  border: 1px solid #64b5f6;
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: #1976d2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-add-condition:hover {
+  background-color: #bbdefb;
+}
+
+.add-icon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 16px;
+}

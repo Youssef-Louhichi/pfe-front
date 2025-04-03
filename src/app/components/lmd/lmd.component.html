@@ -1,107 +1,238 @@
 <div class="insert-form-container">
-    <section class="side">
-      <!-- Database dropdown selector -->
-      <div class="db-selector">
-        <label for="dbSelect">Select Database:</label>
-        <select id="dbSelect" class="db-select" 
-          [(ngModel)]="selectedDbIndex" 
-          (change)="toggleDb(databases[selectedDbIndex])">
-          <option *ngFor="let db of databases; let i = index" [value]="i">
-            {{db.name | titlecase}}
-          </option>
-        </select>
+  <section class="side">
+    <!-- Database dropdown selector -->
+    <div class="db-selector">
+      <label for="dbSelect">Select Database:</label>
+      <select id="dbSelect" class="db-select" 
+        [(ngModel)]="selectedDbIndex" 
+        (change)="toggleDb(databases[selectedDbIndex])">
+        <option *ngFor="let db of databases; let i = index" [value]="i">
+          {{db.name | titlecase}}
+        </option>
+      </select>
+    </div>
+
+    <!-- Tables list for selected database -->
+    <div class="tables-container" *ngIf="selectedDbIndex != null">
+      <h3 class="section-title">Tables</h3>
+      <ul class="tables-list">
+        <li *ngFor="let table of databases[selectedDbIndex]?.tables" 
+            class="table-item" 
+            [class.selected]="selectedTable?.id === table.id">
+          <div class="table-header" (click)="toggleTable(table)">
+            <span class="expander">
+              <svg width="10" height="10" viewBox="0 0 10 10" 
+                   [class.expanded]="showColumns[table.name]">
+                <polygon points="0,0 10,5 0,10" fill="#444" />
+              </svg>
+            </span>
+            <span class="table-name">{{ table.name }}</span>
+          </div>
+
+          <!-- Show table action when expanded -->
+          <div class="table-actions" *ngIf="showColumns[table.name]">
+            <button type="button" class="btn-select-table" (click)="selectTable(table, 'insert')">
+              Select for Insert
+            </button>
+            <button type="button" class="btn-select-table" (click)="selectTable(table, 'update')">
+              Select for Update
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="form-area">
+    <!-- INSERT FORM -->
+    <form *ngIf="formMode === 'insert'" [formGroup]="insertForm" (ngSubmit)="onSubmit()" class="insert-form">
+      <div class="form-header">
+        <h2>Insert Data Form</h2>
       </div>
-  
-      <!-- Tables list for selected database -->
-      <div class="tables-container" *ngIf="selectedDbIndex != null">
-        <h3 class="section-title">Tables</h3>
-        <ul class="tables-list">
-          <li *ngFor="let table of databases[selectedDbIndex]?.tables" 
-              class="table-item" 
-              [class.selected]="selectedTable?.id === table.id">
-            <div class="table-header" (click)="toggleTable(table)">
-              <span class="expander">
-                <svg width="10" height="10" viewBox="0 0 10 10" 
-                     [class.expanded]="showColumns[table.name]">
-                  <polygon points="0,0 10,5 0,10" fill="#444" />
-                </svg>
-              </span>
-              <span class="table-name">{{ table.name }}</span>
-            </div>
-  
-            <!-- Show table action when expanded -->
-            <div class="table-actions" *ngIf="showColumns[table.name]">
-              <button type="button" class="btn-select-table" (click)="selectTable(table)">
-                Select for Insert
-              </button>
-            </div>
-          </li>
-        </ul>
+
+      <!-- Selected Table Info -->
+      <div class="selected-table-info" *ngIf="selectedTable">
+        <h3>Insert Into: {{ selectedTable.name }}</h3>
+        <input type="hidden" formControlName="table">
       </div>
-    </section>
-  
-    <div class="form-area">
-      <form [formGroup]="insertForm" (ngSubmit)="onSubmit()" class="insert-form">
-        <div class="form-header">
-          <h2>Insert Data Form</h2>
-        </div>
-  
-        <!-- Selected Table Info -->
-        <div class="selected-table-info" *ngIf="selectedTable">
-          <h3>Insert Into: {{ selectedTable.name }}</h3>
-          <input type="hidden" formControlName="table">
-        </div>
-  
-        <!-- No table selected message -->
-        <div class="no-table-message" *ngIf="!selectedTable">
-          <p>Please select a table from the list on the left.</p>
-        </div>
-  
-        <!-- Dynamic Column Fields -->
-        <div class="column-fields" *ngIf="selectedTable">
-          <div formArrayName="columns">
-            <div *ngFor="let columnControl of columns.controls; let i = index" 
-                 [formGroupName]="i" 
-                 class="column-field-row">
+
+      <!-- No table selected message -->
+      <div class="no-table-message" *ngIf="!selectedTable">
+        <p>Please select a table from the list on the left.</p>
+      </div>
+
+      <!-- Dynamic Column Fields -->
+      <div class="column-fields" *ngIf="selectedTable">
+        <div formArrayName="columns">
+          <div *ngFor="let columnControl of columns.controls; let i = index" 
+               [formGroupName]="i" 
+               class="column-field-row">
+            
+            <div class="column-name-field">
+              <label [for]="'column-name-' + i">Column Name:</label>
+              <input type="text" 
+                     [id]="'column-name-' + i" 
+                     formControlName="columnName" 
+                     readonly 
+                     class="form-control column-name">
+            </div>
+            
+            <div class="column-value-field">
+              <label [for]="'column-value-' + i">Value:</label>
+              <input type="text" 
+                     [id]="'column-value-' + i" 
+                     formControlName="columnValue" 
+                     [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
+                     class="form-control column-value">
               
-              <div class="column-name-field">
-                <label [for]="'column-name-' + i">Column Name:</label>
-                <input type="text" 
-                       [id]="'column-name-' + i" 
-                       formControlName="columnName" 
-                       readonly 
-                       class="form-control column-name">
-              </div>
-              
-              <div class="column-value-field">
-                <label [for]="'column-value-' + i">Value:</label>
-                <input type="text" 
-                       [id]="'column-value-' + i" 
-                       formControlName="columnValue" 
-                       [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
-                       class="form-control column-value">
-                
-                <!-- Show error message if needed -->
-                <div class="error-message" 
-                     *ngIf="columnControl.get('columnValue').invalid && 
-                           (columnControl.get('columnValue').dirty || 
-                            columnControl.get('columnValue').touched)">
-                 
-                </div>
+              <!-- Show error message if needed -->
+              <div class="error-message" 
+                   *ngIf="columnControl.get('columnValue').invalid && 
+                         (columnControl.get('columnValue').dirty || 
+                          columnControl.get('columnValue').touched)">
+               
               </div>
             </div>
           </div>
         </div>
-  
-        <!-- Form Actions -->
-        <div class="form-actions" *ngIf="selectedTable">
-          <button type="submit" class="btn-submit" [disabled]="!insertForm.valid">
-            Insert Data
-          </button>
-          <button type="button" class="btn-reset" (click)="resetForm()">
-            Reset Values
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions" *ngIf="selectedTable">
+        <button type="submit" class="btn-submit" [disabled]="!insertForm.valid">
+          Insert Data
+        </button>
+        <button type="button" class="btn-reset" (click)="resetForm()">
+          Reset Values
+        </button>
+      </div>
+    </form>
+
+    <!-- UPDATE FORM -->
+    <form *ngIf="formMode === 'update'" [formGroup]="updateForm" (ngSubmit)="onUpdateSubmit()" class="update-form">
+      <div class="form-header">
+        <h2>Update Data Form</h2>
+      </div>
+
+      <!-- Selected Table Info -->
+      <div class="selected-table-info" *ngIf="selectedTable">
+        <h3>Update Table: {{ selectedTable.name }}</h3>
+        <input type="hidden" formControlName="table">
+      </div>
+
+      <!-- No table selected message -->
+      <div class="no-table-message" *ngIf="!selectedTable">
+        <p>Please select a table from the list on the left.</p>
+      </div>
+
+      <!-- Dynamic Column Fields -->
+      <div class="column-fields" *ngIf="selectedTable">
+        <h4>Set New Values</h4>
+        <div formArrayName="columns">
+          <div *ngFor="let columnControl of updateColumns.controls; let i = index" 
+               [formGroupName]="i" 
+               class="column-field-row">
+            
+            <div class="column-name-field">
+              <label [for]="'update-column-name-' + i">Column Name:</label>
+              <input type="text" 
+                     [id]="'update-column-name-' + i" 
+                     formControlName="columnName" 
+                     readonly 
+                     class="form-control column-name">
+            </div>
+            
+            <div class="column-value-field">
+              <label [for]="'update-column-value-' + i">New Value:</label>
+              <input type="text" 
+                     [id]="'update-column-value-' + i" 
+                     formControlName="columnValue" 
+                     [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
+                     class="form-control column-value">
+              
+              <!-- Show error message if needed -->
+              <div class="error-message" 
+                   *ngIf="columnControl.get('columnValue').invalid && 
+                         (columnControl.get('columnValue').dirty || 
+                          columnControl.get('columnValue').touched)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Where Clause section -->
+      <div class="where-clause-section" *ngIf="selectedTable">
+        <h4>Where Clause</h4>
+        <p class="section-description">Define conditions for the rows to update:</p>
+        
+        <div formArrayName="whereClauses">
+          <div *ngFor="let whereControl of whereClauses.controls; let i = index" 
+               [formGroupName]="i" 
+               class="where-condition-row">
+            
+            <div class="where-column-field">
+              <label [for]="'where-column-' + i">Column:</label>
+              <select 
+                [id]="'where-column-' + i" 
+                formControlName="columnName" 
+                class="form-control where-column-select">
+                <option *ngFor="let column of tableColumns" [value]="column.name">
+                  {{ column.name }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="where-operator-field">
+              <label [for]="'where-operator-' + i">Operator:</label>
+              <select 
+                [id]="'where-operator-' + i" 
+                formControlName="operator" 
+                class="form-control where-operator-select">
+                <option value="=">=</option>
+                <option value="!=">!=</option>
+                <option value=">">&gt;</option>
+                <option value=">=">&gt;=</option>
+                <option value="<">&lt;</option>
+                <option value="<=">&lt;=</option>
+                <option value="LIKE">LIKE</option>
+                <option value="IN">IN</option>
+              </select>
+            </div>
+            
+            <div class="where-value-field">
+              <label [for]="'where-value-' + i">Value:</label>
+              <input 
+                type="text" 
+                [id]="'where-value-' + i" 
+                formControlName="value" 
+                class="form-control where-value-input">
+            </div>
+            
+            <div class="where-action-field">
+              <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
+                <span class="remove-icon">×</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="where-add-button">
+          <button type="button" class="btn-add-condition" (click)="addWhereCondition()">
+            <span class="add-icon">+</span> Add Condition
           </button>
         </div>
-      </form>
-    </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions" *ngIf="selectedTable">
+        <button type="submit" class="btn-submit" [disabled]="!updateForm.valid">
+          Update Data
+        </button>
+        <button type="button" class="btn-reset" (click)="resetUpdateForm()">
+          Reset Values
+        </button>
+      </div>
+    </form>
   </div>
+</div>
