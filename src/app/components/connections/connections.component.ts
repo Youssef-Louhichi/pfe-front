@@ -41,7 +41,7 @@ export class ConnectionsComponent implements OnInit{
 
 
 
-  changeIndex(i: number){
+  changeDb(i: number){
     if(i ==1){
       this.form.reset()
       this.form.get("dbtype").setValue("MySQL")

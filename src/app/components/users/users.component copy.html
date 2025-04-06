@@ -66,7 +66,7 @@
               <div class="user-element">
                 <input type="checkbox">
                 <i class="fa-solid fa-user-circle"></i>
-                <div (click)="showUserDetails(user)" class="user-mail">{{ user.mail }}</div>
+                <div (click)="showUserDetails(user)">{{ user.mail }}</div>
               </div>
               <div class="button-element" [hidden]="user.type == 'Analyst'">
                 <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-trash"></i></button>

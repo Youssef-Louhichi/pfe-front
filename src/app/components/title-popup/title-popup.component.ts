@@ -11,7 +11,7 @@ export class TitlePopupComponent {
   newTitle: string = '';
 
   constructor(
-    public dialogRef: MatDialogRef<TitlePopupComponent>,
+    private dialogRef: MatDialogRef<TitlePopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { currentTitle: string }
   ) {
     this.newTitle = data.currentTitle || ''; // Initialize with existing title

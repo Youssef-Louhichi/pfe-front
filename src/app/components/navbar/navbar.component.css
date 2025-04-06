@@ -38,6 +38,14 @@
     font-family: "Open Sans";
 }
 
+.user{
+    cursor: pointer;
+}
+
+.user i{
+    margin-right: 5px;
+}
+
 .email {
     font-size: 14px;
     color: #C0BFBD;

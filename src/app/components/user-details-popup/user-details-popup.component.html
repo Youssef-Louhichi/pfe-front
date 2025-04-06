@@ -1,0 +1,36 @@
+<div class="popup-container">
+    <div class="popup-header">
+        <div class="user-avatar">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <h2 class="popup-title">User Profile</h2>
+    </div>
+  
+    <div class="user-details">
+        <div class="detail-row">
+            <div class="detail-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="detail-content">
+                <label>Email Address</label>
+                <p>{{ user.mail }}</p>
+            </div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-icon">
+                <i class="fas fa-user-tag"></i>
+            </div>
+            <div class="detail-content">
+                <label>Account Type</label>
+                <p>{{ user.type }}</p>
+            </div>
+        </div>
+    </div>
+  
+    <div class="popup-footer">
+        <button mat-button (click)="close()" class="close-btn">
+            <i class="fas fa-times"></i> Close
+        </button>
+    </div>
+</div>
