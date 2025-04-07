@@ -1,53 +1,58 @@
 <div class="main">
     <div class="top-bar">
-        Your Rapports
+        <h1>Your Rapports</h1>
     </div>
 
     <div class="content">
-        <div class="button-conatiner">
-            <button class="bt" (click)="openNewRapport()">
-                <i class="fa fa-solid fa-file"></i>
-                New Rapport
+        <div class="button-container">
+            <button class="new-rapport-btn" (click)="openNewRapport()">
+                <i class="fa fa-solid fa-plus"></i>
+                Create New Rapport
             </button>
         </div>
 
         <div class="rapports-container">
-            <div class="rapport-item" *ngFor="let r of rapports" (click)="openRapport(r)"> 
-                <div class="rapport">
-                    <div class="page" #page *ngIf="r" >
-                        <div  *ngFor="let table of r.graphs" class="draggable resizable-table" [style.width.px]="table.width/4"
-                          [style.height.px]="table.height/4" [style.top.px]="table.toppos/4" [style.left.px]="table.leftpos/4">
-                    
-                          <table class="tab" *ngIf="table.format == 'table'">
-                            <thead>
-                              <tr>
-                                <th *ngFor="let header of table.headers">{{ header | titlecase}}</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr *ngFor="let row of table.data">
-                                <td *ngFor="let key of table.headers">{{ row[key] }}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                    
-                          <canvas id="chartCanvas-{{table.id}}" class="charts" *ngIf="table.format === 'chart'"></canvas>
-                    
-                    
-                    
+            <div class="rapport-item" *ngFor="let r of rapports" (click)="openRapport(r)">
+                <div class="rapport-preview">
+                    <div class="page"  *ngIf="r">
+                        <div *ngFor="let table of r.graphs" class="draggable resizable-table" [ngClass]="{'text-zone':table.format == 'text'}"
+                            [style.width.px]="table.width/5" [style.height.px]="table.height/5"
+                            [style.top.px]="table.toppos/5" [style.left.px]="table.leftpos/5">
+
+                            <table class="tab" *ngIf="table.format == 'table'">
+                                <thead>
+                                    <tr>
+                                        <th *ngFor="let header of table.headers">{{ header | titlecase}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let row of table.data">
+                                        <td *ngFor="let key of table.headers">{{ row[key] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <canvas id="chartCanvas-{{table.id}}" class="charts" [width]="table.width/4" [height]="table.height/4"
+                                *ngIf="table.format === 'chart'"></canvas>
+                            <textarea *ngIf="table.format === 'text'" class="text" [style.color]="table.colors[0]">
+                                {{table.data[0].text}}
+                            </textarea>
+
+
+
                         </div>
-                      </div>
+                    </div>
                 </div>
                 <div class="rapport-info">
-                    {{r.titre}} <br>
-                    Last update : {{r.updatedAt}}
+                    <h3>{{r.titre}}</h3>
+                    <p class="update-date">Last updated: {{r.updatedAt | date:'mediumDate'}}</p>
+                    <div class="actions">
+                        <button class="action-btn" (click)="openRapport(r); $event.stopPropagation()">
+                            <i class="fa fa-eye"></i> View
+                        </button>
+                    </div>
                 </div>
-               
             </div>
-
-           
-
-
         </div>
     </div>
 </div>

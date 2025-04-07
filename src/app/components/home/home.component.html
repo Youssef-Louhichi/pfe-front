@@ -42,7 +42,7 @@
         <div class="new_project" (click)="openPopup()" *ngIf="user.type == 'Creator'">
           <div class="project_text"> New connection :</div>
           <div class="project_inside">
-            <i class="fas fa-plus-circle"></i>
+            <i class="fas fa-plus-circle" style="cursor: pointer;"></i>
           </div>
         </div>
         <div class="project" *ngFor="let c of connexions">

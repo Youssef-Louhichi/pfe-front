@@ -16,6 +16,7 @@ export class ConnectionsComponent implements OnInit{
   form: FormGroup
 
   db_type:String = "MySQL"
+  isLoading=false
 
   constructor(private  fb: FormBuilder,private connexionService:ConnexionsService,private userService:UsersService,
     private dialogRef: MatDialogRef<HomeComponent>){}
@@ -41,7 +42,7 @@ export class ConnectionsComponent implements OnInit{
 
 
 
-  changeIndex(i: number){
+  changeDb(i: number){
     if(i ==1){
       this.form.reset()
       this.form.get("dbtype").setValue("MySQL")
@@ -57,11 +58,21 @@ export class ConnectionsComponent implements OnInit{
   }
 
   insertConnection(){
+    this.isLoading=true
+
     this.form.get("creator").setValue(this.creator)
     console.log(this.form.value)
     this.connexionService.insertConnexion(this.form.value).subscribe(data =>{
       this.dialogRef.close(data)
-    })
+      this.isLoading=false
+
+    },
+    error => {
+      this.isLoading=false
+      console.error('Error fetching data:', error)
+    }
+  )
+    
   }
 
 

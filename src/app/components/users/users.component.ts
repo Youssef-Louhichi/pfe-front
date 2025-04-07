@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Analyst } from 'src/app/models/analyst';
 import { Creator } from 'src/app/models/creator';
 import { Database } from 'src/app/models/database';
 import { User } from 'src/app/models/user';
 import { AnalystService } from 'src/app/services/analyst.service';
 import { UsersService } from 'src/app/services/users.service';
+import { UserDetailsPopupComponent } from '../user-details-popup/user-details-popup.component';
 
 @Component({
   selector: 'app-users',
@@ -20,7 +22,9 @@ export class UsersComponent implements OnInit {
   selectedDb: Database
   newUserform: FormGroup
 
-  constructor(private userservice: UsersService, private analystservice: AnalystService, private fb: FormBuilder) { }
+  constructor(private userservice: UsersService, private analystservice: AnalystService, private fb: FormBuilder,
+    private dialog: MatDialog
+  ) { }
   ngOnInit(): void {
     this.newUserform = this.fb.group({
       mail: [],
@@ -128,4 +132,15 @@ export class UsersComponent implements OnInit {
       })
     })
   }
+
+  showUserDetails(user: User): void {
+    this.dialog.open(UserDetailsPopupComponent, {
+        width: '420px',
+        panelClass: 'user-details-dialog',
+        data: user,
+        autoFocus: false,
+        disableClose: false
+    });
+}
+  
 }

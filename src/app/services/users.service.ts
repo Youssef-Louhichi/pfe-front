@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { User } from '../models/user';
 import { Connexion } from '../models/connexion';
 import { Rapport } from '../models/rapport';
@@ -31,9 +31,23 @@ export class UsersService {
     return this.httpclient.get<Rapport[]>(`${this.baseUrl}/${id}/rapports`);
   }
 
-  // Update an existing user
   updateUser(id: number, updatedUser: User): Observable<User> {
-    return this.httpclient.put<User>(`${this.baseUrl}/${id}`, updatedUser);
+    const updateData = {
+      mail: updatedUser.mail,
+      password: updatedUser.password
+    };
+    
+    return this.httpclient.put<User>(`${this.baseUrl}/${id}`, updateData);
+  }
+
+
+  verifyPassword(userId: number, password: string): Observable<boolean> {
+    return this.httpclient.post<{ isValid: boolean }>(`${this.baseUrl}/verify-password`, { 
+      userId, 
+      password 
+    }).pipe(
+      map(response => response.isValid)
+    );
   }
 
   // Delete a user by ID

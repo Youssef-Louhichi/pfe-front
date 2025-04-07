@@ -21,8 +21,7 @@ export class RapportsComponent implements OnInit{
 
     ngOnInit(): void {
       this.userService.getUserRapports(Number(localStorage.getItem("userId"))).subscribe(data =>{
-        console.log(data)
-        this.rapports = data
+        this.rapports = data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         this.rapports.forEach(rapport =>{
           rapport.graphs.forEach(table => {
             if (table.format == "chart")
@@ -74,12 +73,25 @@ export class RapportsComponent implements OnInit{
             },
             options: {
               responsive: true,
+              maintainAspectRatio: false,
               scales: {
+                x: {
+                  display: false // Hide the x-axis if needed
+                },
                 y: {
-                  beginAtZero: true
+                  display: false // Hide the y-axis if needed
+                }
+              
+              },
+
+              plugins: {
+                legend: {
+                  display: false 
                 }
               }
+             
             }
+            
           });
         }
       }
@@ -88,7 +100,7 @@ export class RapportsComponent implements OnInit{
 
     openRapport(rapport:Rapport){
       localStorage.setItem('rapport', JSON.stringify(rapport))
-      this.router.navigate(["/main/dashboard/edit",{ state: { rapport: rapport } }])
+      this.router.navigate(["/main/dashboard/edit"])
     }
 
     openNewRapport(){
@@ -96,4 +108,8 @@ export class RapportsComponent implements OnInit{
       this.router.navigate(["/main/dashboard/edit"])
     }
 
+
+    editRapport(r:Rapport){
+      
+    }
 }

@@ -1,89 +1,184 @@
-.main{
-    width: 100%;
-    height: 100vh;
-}
+:root {
+    --primary-color: #4361ee;
+    --primary-light: #7b9efd;
+    --primary-dark: #3a0ca3;
+    --text-color: #2b2d42;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --dark-gray: #adb5bd;
+    --white: #ffffff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --border-radius: 12px;
+  }
+  
+  .main {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--light-gray);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .top-bar {
+      width: 100%;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      background-color: var(--white);
+      box-shadow: var(--shadow);
+      border-bottom: 1px solid rgb(0, 0, 0);
+  }
+  
+  .top-bar h1 {
+      color: var(--text-color);
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 0;
+  }
+  
+  .content {
+      width: 90%;
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 20px;
+  }
+  
+  .button-container {
+      margin-bottom: 30px;
+  }
+  
+  .new-rapport-btn {
+      width: 250px;
+      height: 60px;
+      border-radius: var(--border-radius);
+      background-color: var(--primary-color);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+  }
+  
+  .new-rapport-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+  }
+  
+  .new-rapport-btn i {
+      font-size: 1.2rem;
+  }
+  
+  .rapports-container {
+      width: 100%;
+      height: 500px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      padding: 10px 0;
+      overflow-y: scroll;
 
-.top-bar{
-    width: 100%;
-    height: 75px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid rgb(0, 0, 0);
-    font-size: 18px;
-    padding-left: 25px;
-}
-
-.content{
-    width: 90%;
-    height: 90%;
-    margin: auto;
-    padding-top: 20px;
-    overflow-y: scroll;
-}
-
-.button-conatiner{
-    display: flex;
-    width: 100%;
-    padding: 10px;
-}
-
-.bt{
-    width: 300px;
-    height: 100px;
-    border-radius: 20px;
-    background-color: transparent;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 75px 0 75px;
-
-}
-
-.bt i{
-    font-size: 25px;
-}
-
-.rapports-container{
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-wrap: wrap;
-
-}
-
-.rapport-item{
-    width: 30%;
-    height: 275px;
-    border-radius: 20px;
-    border: 1px solid black;
-    margin: 20px;
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
-
-}
-
-.rapport{
-    height: 75%;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-.rapport-info{
-    position: relative;
-    bottom: 0;
-    border-top: 1px solid black;
-    height: 25%;
-    width: 100%;
-    padding-left: 10px;
-    background-color: #eee;
-    border-radius: 0 0 20px 20px;
-}
-
-
+  }
+  
+  .rapport-item {
+      background-color: var(--white);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: 350px;
+  }
+  
+  .rapport-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .rapport-preview {
+      height: 65%;
+      background-color: var(--medium-gray);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--primary-color);
+  }
+  
+  .rapport-preview i {
+      font-size: 3.5rem;
+      opacity: 0.8;
+  }
+  
+  .rapport-info {
+      padding: 15px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+  }
+  
+  .rapport-info h3 {
+      margin: 0 0 8px 0;
+      color: var(--text-color);
+      font-size: 1.1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+  
+  .update-date {
+      color: var(--dark-gray);
+      font-size: 0.9rem;
+      margin: 0 0 15px 0;
+  }
+  
+  .actions {
+      margin-top: auto;
+      display: flex;
+      justify-content: flex-end;
+  }
+  
+  .action-btn {
+      background-color: transparent;
+      border: none;
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 5px;
+  }
+  
+  .action-btn:hover {
+      background-color: rgba(67, 97, 238, 0.1);
+  }
+  
+  .action-btn i {
+      font-size: 0.9rem;
+  }
+  
+  /* Scrollbar styling */
+  .content::-webkit-scrollbar {
+      width: 8px;
+  }
+  
+  .content::-webkit-scrollbar-track {
+      background: var(--light-gray);
+  }
+  
+  .content::-webkit-scrollbar-thumb {
+      background-color: var(--dark-gray);
+      border-radius: 20px;
+  }
 
   
 
@@ -92,7 +187,7 @@
   .page {
     z-index: -99999;
     position: relative;
-    width: 233.33px; /* 700px / 3 */
+    width: 150.33px; /* 700px / 3 */
     height: 200px; /* 600px / 3 */
     background-color: #fff;
     border-radius: 2px; /* 6px / 3 */
@@ -102,8 +197,8 @@
   
   .workspace-table {
     position: absolute;
-    min-width: 33.33px; /* 100px / 3 */
-    min-height: 16.67px; /* 50px / 3 */
+    min-width: 25.33px; /* 100px / 3 */
+    min-height: 10.67px; /* 50px / 3 */
     resize: both;
     overflow: hidden;
   }
@@ -120,6 +215,24 @@
     border: 0.33px solid #ccc; /* 1px / 3 */
     background: white;
     overflow: hidden;
+  }
+
+  
+.text-zone{
+    border: none;
+    background: transparent;
+
+  }
+
+  .text {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    border: none;
+    overflow-y: hidden;
+    font-size: 3px;
+    background: transparent;
+
   }
   
   .resize-handle {
@@ -153,7 +266,7 @@
   .charts {
     width: 100%;
     height: 100%;
-    font-size: 6px;
+    font-size: 3px;
 
   }
   

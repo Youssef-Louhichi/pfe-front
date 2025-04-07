@@ -17,6 +17,9 @@ import { QueryBuilderComponent } from './components/query-builder/query-builder.
 import { LMDComponent } from './components/lmd/lmd.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { TitlePopupComponent } from './components/title-popup/title-popup.component';
+import { UserDetailsPopupComponent } from './components/user-details-popup/user-details-popup.component';
+import { EditUserProfileComponent } from './components/edit-user-profile/edit-user-profile.component';
+import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +35,9 @@ import { TitlePopupComponent } from './components/title-popup/title-popup.compon
     LMDComponent,
     RapportsComponent,
     TitlePopupComponent,
+    UserDetailsPopupComponent,
+    EditUserProfileComponent,
+    LoadingSpinnerComponent,
     
   ],
   imports: [

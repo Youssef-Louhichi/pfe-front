@@ -39,9 +39,14 @@ export class HomeComponent implements OnInit{
 
   openPopup(): void {
     const dialogRef = this.dialog.open(ConnectionsComponent, {
-      width: '1200px',
-      height:'450px',        
-    });
+      panelClass: 'custom-dialog-container',
+      backdropClass: 'custom-backdrop',
+      hasBackdrop: true,
+      maxWidth: '100vw',
+      maxHeight: '100vh'
+    }
+          
+    );
 
     dialogRef.afterClosed().subscribe((data) => {
       if(data)

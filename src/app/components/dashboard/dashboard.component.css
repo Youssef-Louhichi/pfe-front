@@ -6,217 +6,298 @@ main {
   justify-content: flex-start;
 }
 
-  .workspace{
-    width: 700px;
-    height: 600px;
-    margin-top:20px ;
-    margin-left: 10px;
-    margin-bottom: 20px;
+.workspace {
+  width: 700px;
+  height: 100vh;
+  margin-top: 20px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 50px;
+  overflow-y: scroll;
 
-  }
-
-  .tool-bar{
-    width: 100%;
-    height: 100px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background-color: #fff;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-
-  }
-
-  .disabled-tool-bar {
-    pointer-events: none;  
-    opacity: 0.5;          
-    cursor: not-allowed;  
 }
 
-  .chart-axes{
-    display: flex;
-    width: 190px;
-    height: 100px;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .chart-axes-inputs{
-    width: 150px;
-   
-  }
-
-  .chart-axes-inputs input{
-    width: 150px;
-    padding: 8px 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;    
-  }
-
-  .chart-axes button{
-    width: 40px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: transparent;
-    border: none;
-  }
-
-  .color-contanier{
-    display: flex;
-    width: 120px;
-    height: 100px;
-    align-items: center;
-    justify-content: flex-start;
-
-  }
-
-  .color-contanier ul{
-    list-style: none;
-  }
-
-  .color-contanier ul li{
-display: flex;
-align-items: center;
-justify-content: flex-start;
-
-  }
-
-  .color-input{
-    width: 20px;
-    height: 10px;
-    border: none;
-    cursor: pointer;
-  }
+.tool-bar {
+  position: sticky; /* Makes it stick when scrolling */
+  top: 0;          /* Positions at the top of its container */
+  width: 700px;    /* Match page width */
+  height: 100px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 6px 6px 0 0; /* Round top corners only */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  z-index: 100;    /* Ensures it stays above other content */
+}
 
 
-  .chart-type{
-    display: flex;
-    width: 100px;
-    height: 100px;
-    align-items: center;
-    justify-content: center;
-  }
 
-  .chart-type select{
-    width: 100%;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-  }
+.chart-axes {
+  display: flex;
+  width: 190px;
+  height: 100px;
+  align-items: center;
+  justify-content: space-between;
+}
 
+.chart-axes-inputs {
+  width: 150px;
 
-  .vertical-line{
-    height: 100px;
-    width: 1px;
-    background-color: #eee;
-  }
+}
 
+.chart-axes-inputs input {
+  width: 150px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
 
-  .page{
-    position: relative;
-    width: 700px;
-    height: 600px;
-    background-color: #fff;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
+.chart-axes button {
+  width: 40px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+}
 
-  
-  .workspace-table {
-    position: absolute;
-    min-width: 100px;
-    min-height: 50px;
-    resize: both;
-    overflow: hidden;
-  }
-  
+.color-contanier {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #eee;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  gap: 30px;
+  scroll-behavior: smooth;
 
-  .draggable {
-    position: absolute;
-    border: 1px solid #333;
-    background: white;
-    min-width: 100px;
-    min-height: 50px;
-  }
+}
 
-  .resizable-table {
-    border: 1px solid #ccc;
-    background: white;
-    overflow: hidden;
-  }
-  
-  
-  .resize-handle {
-    width: 10px;
-    height: 10px;
-    background: gray;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    cursor: nwse-resize;
-    
-    
-  }
+.color-contanier::-webkit-scrollbar {
+  height: 8px;
+}
 
-  .change-handle {
-    width: 10px;
-    height: 10px;
-    background: gray;
-    position: absolute;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-  }
-  
-  
-  .tab {
-    width: 100%;
-    height: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
+.color-contanier::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
 
-  .charts{
-    width: 100%;
-    height: 100%;
-  }
-
-  .tab th {
-    background-color: #f5f5f5;
-    padding: 10px 15px;
-    text-align: left;
-    font-weight: 500;
-    border-bottom: 2px solid #ddd;
-  }
-  
-  .tab td {
-    padding: 8px 15px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .tab tr:hover {
-    background-color: #f9f9f9;
-  }
+.color-contanier::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #313233, #000000);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
 
 
-  .title-input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 10px;
-  }
-  
-  .dialog-actions {
-    margin-top: 15px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  
+
+.color-element {
+  font-weight: bold;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+
+}
+
+.color-input {
+  width: 50px;
+  height: 30px;
+  border: none;
+  cursor: pointer;
+}
+
+
+.chart-type {
+  display: flex;
+  width: 100px;
+  height: 100px;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-type select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+
+.vertical-line {
+  height: 100px;
+  width: 1px;
+  background-color: #eee;
+}
+
+
+.text-tool-bar{
+  display: flex;
+  width: 250px;
+  height: 100px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-input-police{
+  width: 50px;
+}
+
+.page {
+  position: relative;
+  width:700px;
+  min-height: 990px; 
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: visible; 
+}
+
+
+.workspace-table {
+  position: absolute;
+  min-width: 100px;
+  min-height: 50px;
+  resize: both;
+  overflow: hidden;
+}
+
+
+.draggable {
+  position: absolute;
+  background: white;
+  min-width: 100px;
+  min-height: 50px;
+}
+
+.resizable-graph {
+  border: 1px solid #ccc;
+  background: white;
+  overflow: hidden;
+}
+
+.text-zone{
+  border: none;
+  background: transparent;
+}
+
+
+.resize-handle {
+  width: 10px;
+  height: 10px;
+  background: gray;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+
+
+}
+
+.change-handle {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+
+.tab {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.charts {
+  width: 100%;
+  height: 100%;
+}
+
+.tab th {
+  background-color: #f5f5f5;
+  padding: 10px 15px;
+  text-align: left;
+  font-weight: 500;
+  border-bottom: 2px solid #ddd;
+}
+
+.tab td {
+  padding: 8px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.tab tr:hover {
+  background-color: #f9f9f9;
+}
+
+
+.title-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+}
+
+.dialog-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+
+.side-tool-bar {
+  width: 50px;
+  margin: 120px auto auto auto;
+  height: 600px;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.text {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  border: none;
+  overflow-y: hidden;
+  background: transparent;
+}
+
+
+
+
+
+
+
+
+
+i {
+  cursor: pointer;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
