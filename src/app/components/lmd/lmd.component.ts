@@ -10,7 +10,13 @@ import { DbTable } from 'src/app/models/db-table';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
 
-
+interface JoinCondition {
+  firstTableId: number;
+  firstColumnName: string;
+  secondTableId: number;
+  secondColumnName: string;
+  joinType: string;
+}
 
 @Component({
   selector: 'app-lmd',
@@ -28,9 +34,11 @@ export class LMDComponent implements OnInit {
   // Form properties
   insertForm: FormGroup;
   updateForm: FormGroup;
-  formMode: 'insert' | 'update' = 'insert'; // Track which form to display
+  deleteForm: FormGroup; // New form for delete operations
+  formMode: 'insert' | 'update' | 'delete' = 'insert'; // Added 'delete' to form modes
   tableColumns: Column[] = [];
 
+  
   constructor(
     private userService: UsersService,
     private fb: FormBuilder,
@@ -53,7 +61,15 @@ export class LMDComponent implements OnInit {
     this.updateForm = this.fb.group({
       table: ['', Validators.required],
       columns: this.fb.array([]),
-      whereClauses: this.fb.array([])
+      whereClauses: this.fb.array([]),
+      joins: this.fb.array([])
+    });
+
+    // Initialize delete form (similar to update but without columns array)
+    this.deleteForm = this.fb.group({
+      table: ['', Validators.required],
+      whereClauses: this.fb.array([]),
+      joins: this.fb.array([])
     });
   }
 
@@ -66,7 +82,15 @@ export class LMDComponent implements OnInit {
   }
 
   get whereClauses(): FormArray {
-    return this.updateForm.get('whereClauses') as FormArray;
+    return this.formMode === 'update' 
+      ? this.updateForm.get('whereClauses') as FormArray
+      : this.deleteForm.get('whereClauses') as FormArray;
+  }
+
+  get joins(): FormArray {
+    return this.formMode === 'update'
+      ? this.updateForm.get('joins') as FormArray
+      : this.deleteForm.get('joins') as FormArray;
   }
 
   getDatabases(): void {
@@ -109,15 +133,17 @@ export class LMDComponent implements OnInit {
     this.clearColumnFields();
     this.clearUpdateColumnFields();
     this.clearWhereConditions();
+    this.clearJoinConditions(); // Clear join conditions too
     this.insertForm.get('table').setValue('');
     this.updateForm.get('table').setValue('');
+    this.deleteForm.get('table').setValue('');
   }
 
   toggleTable(table: DbTable): void {
     this.showColumns[table.name] = !this.showColumns[table.name];
   }
 
-  selectTable(table: DbTable, mode: 'insert' | 'update'): void {
+  selectTable(table: DbTable, mode: 'insert' | 'update' | 'delete'): void {
     this.selectedTable = table;
     this.tableColumns = [...table.columns];
     this.formMode = mode;
@@ -125,12 +151,19 @@ export class LMDComponent implements OnInit {
     if (mode === 'insert') {
       this.insertForm.get('table').setValue(table.id);
       this.generateColumnFields();
-    } else {
+    } else if (mode === 'update') {
       this.updateForm.get('table').setValue(table.id);
       this.generateUpdateColumnFields();
       
       // Add an initial where condition
-      if (this.whereClauses.length === 0) {
+      if ((this.updateForm.get('whereClauses') as FormArray).length === 0) {
+        this.addWhereCondition();
+      }
+    } else if (mode === 'delete') {
+      this.deleteForm.get('table').setValue(table.id);
+      
+      // Add an initial where condition for delete form
+      if ((this.deleteForm.get('whereClauses') as FormArray).length === 0) {
         this.addWhereCondition();
       }
     }
@@ -149,8 +182,22 @@ export class LMDComponent implements OnInit {
   }
 
   clearWhereConditions(): void {
-    while (this.whereClauses.length > 0) {
-      this.whereClauses.removeAt(0);
+    const clauses = this.formMode === 'update' 
+      ? this.updateForm.get('whereClauses') as FormArray
+      : this.deleteForm.get('whereClauses') as FormArray;
+      
+    while (clauses.length > 0) {
+      clauses.removeAt(0);
+    }
+  }
+
+  clearJoinConditions(): void {
+    const joinArray = this.formMode === 'update'
+      ? this.updateForm.get('joins') as FormArray
+      : this.deleteForm.get('joins') as FormArray;
+      
+    while (joinArray.length > 0) {
+      joinArray.removeAt(0);
     }
   }
 
@@ -217,18 +264,50 @@ export class LMDComponent implements OnInit {
       tableName: [this.selectedTable?.name || '', Validators.required]
     });
     
-    this.whereClauses.push(whereCondition);
+    const clauses = this.formMode === 'update' 
+      ? this.updateForm.get('whereClauses') as FormArray
+      : this.deleteForm.get('whereClauses') as FormArray;
+      
+    clauses.push(whereCondition);
   }
 
   removeWhereCondition(index: number): void {
+    const clauses = this.formMode === 'update' 
+      ? this.updateForm.get('whereClauses') as FormArray
+      : this.deleteForm.get('whereClauses') as FormArray;
+    
     // Don't remove if it's the last condition
-    if (this.whereClauses.length > 1) {
-      this.whereClauses.removeAt(index);
+    if (clauses.length > 1) {
+      clauses.removeAt(index);
     } else {
       // If it's the last one, just reset its values
-      const lastCondition = this.whereClauses.at(0);
+      const lastCondition = clauses.at(0);
       lastCondition.get('value').setValue('');
     }
+  }
+
+  addJoinCondition(): void {
+    const joinCondition = this.fb.group({
+      firstTableId: [this.selectedTable?.id || '', Validators.required],
+      firstColumnName: ['', Validators.required],
+      secondTableId: ['', Validators.required],
+      secondColumnName: ['', Validators.required],
+      joinType: ['INNER', Validators.required]
+    });
+    
+    const joinArray = this.formMode === 'update'
+      ? this.updateForm.get('joins') as FormArray
+      : this.deleteForm.get('joins') as FormArray;
+      
+    joinArray.push(joinCondition);
+  }
+
+  removeJoinCondition(index: number): void {
+    const joinArray = this.formMode === 'update'
+      ? this.updateForm.get('joins') as FormArray
+      : this.deleteForm.get('joins') as FormArray;
+      
+    joinArray.removeAt(index);
   }
 
   onSubmit(): void {
@@ -286,11 +365,25 @@ export class LMDComponent implements OnInit {
         return;
       }
       
-      const requestPayload = { 
+      // Prepare join conditions
+      const joinConditions: JoinCondition[] = formData.joins.map(join => ({
+        firstTableId: join.firstTableId,
+        firstColumnName: join.firstColumnName,
+        secondTableId: join.secondTableId,
+        secondColumnName: join.secondColumnName,
+        joinType: join.joinType
+      }));
+      
+      const requestPayload: any = { 
         tableId: formData.table,
         columnValues: columnData,
         filters: whereClauses
       };
+      
+      // Only add joins if there are any
+      if (joinConditions.length > 0) {
+        requestPayload.joins = joinConditions;
+      }
       
       console.log("Sending update payload:", JSON.stringify(requestPayload, null, 2));
       
@@ -306,6 +399,64 @@ export class LMDComponent implements OnInit {
           alert("Error updating data. Please check the console for details.");
         }
       );
+    }
+  }
+  
+  // New method for delete submission
+  onDeleteSubmit(): void {
+    if (this.deleteForm.valid && this.selectedTable) {
+      const formData = this.deleteForm.value;
+      
+      // Prepare where clauses
+      const whereClauses: WhereClause[] = formData.whereClauses.map(clause => ({
+        columnName: clause.columnName,
+        operator: clause.operator,
+        value: clause.value,
+        tableName: this.selectedTable.name
+      }));
+      
+      // Make sure there's at least one where condition to prevent accidental deletion of all records
+      if (whereClauses.length === 0) {
+        alert("Please specify at least one condition for deletion");
+        return;
+      }
+      
+      // Prepare join conditions
+      const joinConditions: JoinCondition[] = formData.joins.map(join => ({
+        firstTableId: join.firstTableId,
+        firstColumnName: join.firstColumnName,
+        secondTableId: join.secondTableId,
+        secondColumnName: join.secondColumnName,
+        joinType: join.joinType
+      }));
+      
+      const requestPayload: any = { 
+        tableId: formData.table,
+        filters: whereClauses
+      };
+      
+      // Only add joins if there are any
+      if (joinConditions.length > 0) {
+        requestPayload.joins = joinConditions;
+      }
+      
+      console.log("Sending delete payload:", JSON.stringify(requestPayload, null, 2));
+      
+      // Add confirmation before deleting
+      if (confirm("Are you sure you want to delete these records? This action cannot be undone.")) {
+        // Call service method to send the delete request
+        this.reqService.DeleteTableData(requestPayload).subscribe(
+          response => {
+            console.log("Delete successful:", response);
+            alert("Data deleted successfully!");
+            this.resetDeleteForm();
+          },
+          error => {
+            console.error('Error deleting data:', error);
+            alert("Error deleting data. Please check the console for details.");
+          }
+        );
+      }
     }
   }
 
@@ -327,8 +478,65 @@ export class LMDComponent implements OnInit {
       });
       
       // Reset where clauses to just one empty clause
-      this.clearWhereConditions();
+      const whereClauses = this.updateForm.get('whereClauses') as FormArray;
+      while (whereClauses.length > 0) {
+        whereClauses.removeAt(0);
+      }
       this.addWhereCondition();
+      
+      // Reset join conditions
+      const joins = this.updateForm.get('joins') as FormArray;
+      while (joins.length > 0) {
+        joins.removeAt(0);
+      }
     }
+  }
+  
+  // New method for resetting delete form
+  resetDeleteForm(): void {
+    // Clear form values but keep the selected table
+    if (this.selectedTable) {
+      // Reset where clauses to just one empty clause
+      const whereClauses = this.deleteForm.get('whereClauses') as FormArray;
+      while (whereClauses.length > 0) {
+        whereClauses.removeAt(0);
+      }
+      this.addWhereCondition();
+      
+      // Reset join conditions
+      const joins = this.deleteForm.get('joins') as FormArray;
+      while (joins.length > 0) {
+        joins.removeAt(0);
+      }
+    }
+  }
+
+  getAvailableTables(): DbTable[] {
+    // This should return all tables in the current database
+    const currentDb = this.databases[this.selectedDbIndex];
+    return currentDb ? currentDb.tables : [];
+  }
+
+  // Helper method to get columns for a specific table by ID
+  getColumnsForTable(tableId: number): Column[] {
+    const currentDb = this.databases[this.selectedDbIndex];  
+    if (!currentDb) return [];
+    
+    const table = currentDb.tables.find(t => t.id === tableId);
+    return table ? table.columns : [];
+  }
+
+  getSecondTableColumns(joinIndex: number): Column[] {
+    const joinArray = this.formMode === 'update'
+      ? this.updateForm.get('joins') as FormArray
+      : this.deleteForm.get('joins') as FormArray;
+    
+    const join = joinArray.at(joinIndex);
+    if (!join) return [];
+    const secondTableId = join.get('secondTableId').value;
+    if (!secondTableId) return [];
+    
+    // Convert to number to ensure it's the right type
+    return this.getColumnsForTable(Number(secondTableId));
   }
 }

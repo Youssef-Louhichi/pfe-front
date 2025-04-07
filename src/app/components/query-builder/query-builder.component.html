@@ -83,129 +83,194 @@
                     </ul>
                     <input type="hidden" formControlName="column">
                 </div>
-                <!-- Add this section after the Selected Tables and before the Where Conditions section -->
-    <div class="join-conditions" *ngIf="selectedTables.length > 1">
-    <h3>Join Conditions</h3>
-    <div class="join-container">
-      <div formArrayName="joinClauses">
-        <div *ngFor="let join of joinClauses.controls; let i = index" 
-             [formGroupName]="i" class="join-row">
-          <!-- First Table -->
-          <div class="join-table-select">
-            <select formControlName="firstTableId" class="form-control" (change)="onFirstTableChange(i)">
-              <option *ngFor="let table of selectedTables" [value]="table.id">
-                {{ table.name }}
-              </option>
-            </select>
-          </div>
-  
-          <!-- First Column -->
-          <div class="join-column-select">
-            <select formControlName="firstColumnName" class="form-control">
-              <option *ngFor="let column of getTableColumns(join.get('firstTableId').value)" [value]="column.name">
-                {{ column.name }}
-              </option>
-            </select>
-          </div>
-  
-          <!-- Join Type -->
-          <div class="join-type-select">
-            <select formControlName="joinType" class="form-control">
-              <option value="INNER">INNER JOIN</option>
-              <option value="LEFT">LEFT JOIN</option>
-              <option value="RIGHT">RIGHT JOIN</option>
-              <option value="FULL">FULL JOIN</option>
-            </select>
-          </div>
-  
-          <!-- Second Table -->
-          <div class="join-table-select">
-            <select formControlName="secondTableId" class="form-control" (change)="onSecondTableChange(i)">
-              <option *ngFor="let table of selectedTables" [value]="table.id">
-                {{ table.name }}
-              </option>
-            </select>
-          </div>
-  
-          <!-- Second Column -->
-          <div class="join-column-select">
-            <select formControlName="secondColumnName" class="form-control">
-              <option *ngFor="let column of getTableColumns(join.get('secondTableId').value)" [value]="column.name">
-                {{ column.name }}
-              </option>
-            </select>
-          </div>
-  
-          <!-- Remove Join Button -->
-          <button type="button" class="btn-remove" (click)="removeJoinCondition(i)">
-            <span>&times;</span>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Add Join Button -->
-      <button type="button" class="btn-add-join" (click)="addJoinCondition()" 
-              *ngIf="selectedTables.length > 1">
-        <span>+ Add Join</span>
-      </button>
-    </div>
-  </div>
+
+                <!-- Aggregation Functions -->
+                <div class="aggregation-section">
+                    <h3>Aggregation Functions</h3>
+                    <div class="aggregation-container">
+                        <div formArrayName="aggregations">
+                            <div *ngFor="let agg of aggregationControls.controls; let i = index" 
+                                [formGroupName]="i" class="aggregation-row">
+                                
+                                <!-- Column Selection -->
+                                <div class="agg-column-select">
+                                    <select formControlName="columnId" class="form-control">
+                                        <option value="" disabled selected>Select Column</option>
+                                        <option *ngFor="let column of getAvailableColumns()" [value]="column.id">
+                                            {{ column.name }} ({{ column.table.name }})
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Function Selection -->
+                                <div class="agg-function-select">
+                                    <select formControlName="function" class="form-control">
+                                        <option value="COUNT">COUNT</option>
+                                        <option value="SUM">SUM</option>
+                                        <option value="AVG">AVG</option>
+                                        <option value="MIN">MIN</option>
+                                        <option value="MAX">MAX</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Remove Button -->
+                                <button type="button" class="btn-remove" (click)="removeAggregation(i)">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Aggregation Button -->
+                        <button type="button" class="btn-add-agg" (click)="addAggregation()">
+                            <span>+ Add Aggregation</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Group By Section -->
+                <div class="group-by-section">
+                    <h3>Group By</h3>
+                    <div class="group-by-container">
+                        <div class="group-by-columns">
+                            <label>Group By Columns:</label>
+                            <div class="selected-group-columns">
+                                <div cdkDropList 
+                                    id="groupByDropZone"
+                                    (cdkDropListDropped)="onColumnDropForGroupBy($event)"
+                                    class="dropzone">
+                                    <p *ngIf="!groupByColumns.length">Drag Columns Here for Group By</p>
+                                    <div formArrayName="groupByColumns">
+                                        <div *ngFor="let column of groupByColumns; let i = index" class="group-by-item">
+                                            {{ column.name }} ({{ column.table.name }})
+                                            <button type="button" class="remove-column" (click)="removeGroupByColumn(i)">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Join Conditions -->
+                <div class="join-conditions" *ngIf="selectedTables.length > 1">
+                    <h3>Join Conditions</h3>
+                    <div class="join-container">
+                        <div formArrayName="joinClauses">
+                            <div *ngFor="let join of joinClauses.controls; let i = index" 
+                                [formGroupName]="i" class="join-row">
+                                <!-- First Table -->
+                                <div class="join-table-select">
+                                    <select formControlName="firstTableId" class="form-control" (change)="onFirstTableChange(i)">
+                                        <option *ngFor="let table of selectedTables" [value]="table.id">
+                                            {{ table.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                    
+                                <!-- First Column -->
+                                <div class="join-column-select">
+                                    <select formControlName="firstColumnName" class="form-control">
+                                        <option *ngFor="let column of getTableColumns(join.get('firstTableId').value)" [value]="column.name">
+                                            {{ column.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                    
+                                <!-- Join Type -->
+                                <div class="join-type-select">
+                                    <select formControlName="joinType" class="form-control">
+                                        <option value="INNER">INNER JOIN</option>
+                                        <option value="LEFT">LEFT JOIN</option>
+                                        <option value="RIGHT">RIGHT JOIN</option>
+                                        <option value="FULL">FULL JOIN</option>
+                                    </select>
+                                </div>
+                    
+                                <!-- Second Table -->
+                                <div class="join-table-select">
+                                    <select formControlName="secondTableId" class="form-control" (change)="onSecondTableChange(i)">
+                                        <option *ngFor="let table of selectedTables" [value]="table.id">
+                                            {{ table.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                    
+                                <!-- Second Column -->
+                                <div class="join-column-select">
+                                    <select formControlName="secondColumnName" class="form-control">
+                                        <option *ngFor="let column of getTableColumns(join.get('secondTableId').value)" [value]="column.name">
+                                            {{ column.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                    
+                                <!-- Remove Join Button -->
+                                <button type="button" class="btn-remove" (click)="removeJoinCondition(i)">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    
+                        <!-- Add Join Button -->
+                        <button type="button" class="btn-add-join" (click)="addJoinCondition()" 
+                                *ngIf="selectedTables.length > 1">
+                            <span>+ Add Join</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Where Conditions -->
                 <div class="where-conditions">
                     <h3>Where Conditions</h3>
                     <div class="condition-drop-area">
                         <div cdkDropList 
-                             id="dropzone2"
-                             (cdkDropListDropped)="onColumnDropForCondition($event)"
-                             class="dropzone">
+                            id="dropzone2"
+                            (cdkDropListDropped)="onColumnDropForCondition($event)"
+                            class="dropzone">
                             <h4>Drag Columns Here for Conditions</h4>
                         </div>
+                
+                        <!-- Condition Inputs -->
+                        <div formArrayName="whereClauses">
+                            <div *ngFor="let condition of whereClauses.controls; let i = index" 
+                                [formGroupName]="i" class="condition-row">
+                                
+                                <input type="text" 
+                                    formControlName="columnName" 
+                                    class="form-control column-name" 
+                                    readonly>
+                                
+                                <!-- Hidden input for table name -->
+                                <input type="hidden" 
+                                    formControlName="tableName" 
+                                    class="form-control table-name">
                     
-                
-                    <!-- Condition Inputs -->
-                    <div formArrayName="whereClauses">
-                        <div *ngFor="let condition of whereClauses.controls; let i = index" 
-                             [formGroupName]="i" class="condition-row">
-                            <!-- Column Name (Now auto-populated from drag) -->
-                            <input type="text" 
-                                   formControlName="columnName" 
-                                   class="form-control column-name" 
-                                   readonly>
-                            
-                            <!-- Hidden input for table name -->
-                            <input type="hidden" 
-                                   formControlName="tableName" 
-                                   class="form-control table-name">
-                
-                            <select formControlName="operator" class="form-control operator">
-                                <option value="=">=</option>
-                                <option value="!=">!=</option>
-                                <option value="like">LIKE</option>
-                                <option value=">">&gt;</option>
-                                <option value="<">&lt;</option>
-                                <option value=">=">&gt;=</option>
-                                <option value="<=">&lt;=</option>
-                                <option value="in">IN</option>
-                            </select>
-                
-                            <input type="text" 
-                                   formControlName="value" 
-                                   placeholder="Value" 
-                                   class="form-control value">
-                
-                            <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
-                                <span>&times;</span>
-                            </button>
+                                <select formControlName="operator" class="form-control operator">
+                                    <option value="=">=</option>
+                                    <option value="!=">!=</option>
+                                    <option value="like">LIKE</option>
+                                    <option value=">">&gt;</option>
+                                    <option value="<">&lt;</option>
+                                    <option value=">=">&gt;=</option>
+                                    <option value="<=">&lt;=</option>
+                                    <option value="in">IN</option>
+                                </select>
+                    
+                                <input type="text" 
+                                    formControlName="value" 
+                                    placeholder="Value" 
+                                    class="form-control value">
+                    
+                                <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                        
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">Execute Query</button>
-                        <button  class="btn-primary" (click)="addTableToWorkspace()">add Results</button>
-
+                        <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Results</button>
                     </div>
-                  
                 </div>
             </form>
 

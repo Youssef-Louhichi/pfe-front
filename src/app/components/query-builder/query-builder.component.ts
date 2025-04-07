@@ -17,6 +17,10 @@ interface WhereClause {
   value: string;
   tableName: string
 }
+interface Aggregation {
+  columnId: number;
+  function: string;
+}
 
 interface JoinCondition {
   firstTableId: number;
@@ -56,8 +60,10 @@ export class QueryBuilderComponent implements OnInit {
   selectedTables: DbTable[] = [];
   selectedColumns: ColumnWithTable[] = [];
   whereConditionColumns: ColumnWithTable[] = [];
-  // Track which columns have been selected
   selectedColumnIds: Set<number> = new Set();
+
+  groupByColumns: ColumnWithTable[] = [];
+availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
   originalTableColumns: { [tableId: number]: Column[] } = {};
 
@@ -66,23 +72,102 @@ export class QueryBuilderComponent implements OnInit {
       table: ['', Validators.required],
       column: ['', Validators.required],
       whereClauses: this.fb.array([]),
-      joinClauses: this.fb.array([])
+      joinClauses: this.fb.array([]),
+      aggregations: this.fb.array([]),
+      groupByColumns: this.fb.array([])
     });
-
+  
     this.getDbs();
-
+  
     if (this.databases && this.databases.length > 0) {
       this.selectedDbIndex = 0;
       this.toggleDb(this.databases[0]);
     }
-
-
+  
     this.queryForm.get('table').valueChanges.subscribe(() => {
       if (this.selectedTables.length > 1 && this.joinClauses.length === 0) {
         this.addJoinCondition();
       }
     });
   }
+
+
+
+  get aggregationControls(): FormArray {
+    return this.queryForm.get('aggregations') as FormArray;
+  }
+  
+  get groupByControls(): FormArray {
+    return this.queryForm.get('groupByColumns') as FormArray;
+  }
+  
+  // Method to add an aggregation
+  addAggregation() {
+    const aggregation = this.fb.group({
+      columnId: ['', Validators.required],
+      function: ['COUNT', Validators.required]
+    });
+    this.aggregationControls.push(aggregation);
+  }
+  
+  // Method to remove an aggregation
+  removeAggregation(index: number) {
+    this.aggregationControls.removeAt(index);
+  }
+
+
+
+  onColumnDropForGroupBy(event: CdkDragDrop<Column[]>) {
+    const draggedColumn = event.previousContainer.data[event.previousIndex];
+    
+    // Check if column already exists in group by
+    const columnExists = this.groupByColumns.some(c => c.id === draggedColumn.id);
+    
+    if (!columnExists) {
+      // Enrich column with table information
+      const columnWithTable: ColumnWithTable = {
+        ...draggedColumn,
+        table: this.getTableForColumn(draggedColumn)
+      };
+      
+      // Add to group by columns
+      this.groupByColumns.push(columnWithTable);
+      
+      // Ensure the table is added to selected tables
+      this.addTableToSelectedTables(columnWithTable.table);
+      
+      // Add column to selectedColumns if not already there
+      if (!this.selectedColumns.some(c => c.id === columnWithTable.id)) {
+        this.selectedColumns.push(columnWithTable);
+        this.updateFormColumns();
+      }
+    }
+  }
+  
+  // Method to remove a group by column
+  removeGroupByColumn(index: number) {
+    if (index >= 0 && index < this.groupByColumns.length) {
+      this.groupByColumns.splice(index, 1);
+    }
+  }
+
+
+  getAvailableColumns(): ColumnWithTable[] {
+    // Return all columns from all selected tables
+    const allColumns: ColumnWithTable[] = [];
+    
+    this.selectedTables.forEach(table => {
+      table.columns.forEach(column => {
+        allColumns.push({
+          ...column,
+          table: table
+        });
+      });
+    });
+    
+    return allColumns;
+  }
+  
 
   get joinClauses(): FormArray {
     return this.queryForm.get('joinClauses') as FormArray;
@@ -112,6 +197,7 @@ export class QueryBuilderComponent implements OnInit {
 
   removeJoinCondition(index: number) {
     this.joinClauses.removeAt(index);
+
   }
 
   getTableColumns(tableId: number): Column[] {
@@ -248,28 +334,54 @@ export class QueryBuilderComponent implements OnInit {
 
   removeColumn(column: ColumnWithTable, type: 'columns' | 'conditions') {
     const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
-
+  
     // Remove column from target array
     const index = targetArray.findIndex(c => c.id === column.id);
     if (index !== -1) {
       targetArray.splice(index, 1);
     }
-
+  
+    // Also remove from group by if present
+    const groupByIndex = this.groupByColumns.findIndex(c => c.id === column.id);
+    if (groupByIndex !== -1) {
+      this.groupByColumns.splice(groupByIndex, 1);
+    }
+  
+    // Also remove from aggregations if present
+    for (let i = this.aggregationControls.length - 1; i >= 0; i--) {
+      const control = this.aggregationControls.at(i);
+      if (control.get('columnId').value === column.id.toString()) {
+        this.aggregationControls.removeAt(i);
+      }
+    }
+  
     // Check if table should be removed
     const tableColumns = [
       ...this.selectedColumns.filter(c => c.table.id === column.table.id),
       ...this.whereConditionColumns.filter(c => c.table.id === column.table.id)
     ];
-
+  
     // If no columns for this table remain, remove the table
     if (tableColumns.length === 0) {
-      this.selectedTables = this.selectedTables.filter(t => t.id !== column.table.id);
+      const tableId = column.table.id;
+      this.selectedTables = this.selectedTables.filter(t => t.id !== tableId);
+      
+      // Find and remove any join conditions that involve this table
+      for (let i = this.joinClauses.length - 1; i >= 0; i--) {
+        const joinControl = this.joinClauses.at(i);
+        const firstTableId = joinControl.get('firstTableId').value;
+        const secondTableId = joinControl.get('secondTableId').value;
+        
+        // Remove the join if either the first or second table is the one being removed
+        if (firstTableId === tableId || secondTableId === tableId) {
+          this.joinClauses.removeAt(i);
+        }
+      }
     }
-
+  
     // Update form
     this.updateFormColumns();
   }
-
   // Check if a column is selected in a specific list
   isColumnSelected(columnId: number, type: 'columns' | 'conditions'): boolean {
     const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
@@ -343,7 +455,7 @@ export class QueryBuilderComponent implements OnInit {
   onSubmit() {
     if (this.queryForm.valid) {
       const formData = this.queryForm.value;
-
+  
       // Prepare where conditions
       const whereConditions: WhereClause[] = formData.whereClauses.map((condition: any) => ({
         columnName: condition.columnName,
@@ -351,7 +463,50 @@ export class QueryBuilderComponent implements OnInit {
         operator: condition.operator,
         value: condition.value
       }));
-
+  
+      // Get aggregations
+      const aggregations: Aggregation[] = this.aggregationControls.value;
+  
+      // Get group by column IDs
+      const groupByColumnIds = this.groupByColumns.map(column => column.id);
+  
+      // Validate SQL rules
+      let isValid = true;
+      let errorMessage = "";
+  
+      // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
+      if (aggregations.length > 0) {
+        // Get all selected column IDs that are not part of aggregations
+        const nonAggregatedColumnIds = this.selectedColumns
+          .filter(col => !aggregations.some(agg => agg.columnId === col.id))
+          .map(col => col.id);
+        
+        // Check if all non-aggregated columns are in GROUP BY
+        const missingGroupByColumns = nonAggregatedColumnIds
+          .filter(colId => !groupByColumnIds.includes(colId));
+        
+        if (missingGroupByColumns.length > 0) {
+          isValid = false;
+          const missingColumns = this.selectedColumns
+            .filter(col => missingGroupByColumns.includes(col.id))
+            .map(col => `${col.name} (${col.table.name})`)
+            .join(', ');
+          
+          errorMessage = `SQL Error: Columns ${missingColumns} must appear in GROUP BY clause or be used in an aggregate function`;
+        }
+      }
+  
+      // Rule 2: If using GROUP BY, you should have at least one aggregation function
+      if (groupByColumnIds.length > 0 && aggregations.length === 0) {
+        console.warn("Warning: Using GROUP BY without any aggregation functions");
+        // This is a warning, not an error, so we don't set isValid to false
+      }
+  
+      if (!isValid) {
+        alert(errorMessage);
+        return;
+      }
+  
       // Construct request payload
       const requestPayload = {
         req: {
@@ -365,17 +520,17 @@ export class QueryBuilderComponent implements OnInit {
           content: "Fetching data"
         },
         tableId: this.selectedTables.map(t => t.id),
-        columnId: formData.column,
-        groupByColumns: [],
-        aggregations: [],
+        columnId: this.selectedColumns.map(c => c.id),
+        groupByColumns: groupByColumnIds,
+        aggregations: aggregations,
         joinRequest: {
           joinConditions: this.generateJoinConditions()
         },
         filters: whereConditions
       };
-
+  
       console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
-
+  
       this.reqservice.fetchTableData(requestPayload).subscribe(
         response => {
           this.tableData = response;

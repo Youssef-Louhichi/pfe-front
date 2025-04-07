@@ -11,6 +11,8 @@ export class RequeteService {
   private apiUrl = 'http://localhost:8087/api/query/fetch'; 
   private insertUrl = 'http://localhost:8087/api/query/insert';
   private UpdateUrl = 'http://localhost:8087/api/query/update';
+  private DeleteUrl = 'http://localhost:8087/api/query/delete';
+
   constructor(private http: HttpClient) {}
 
   fetchTableData(request: any): Observable<any> {
@@ -25,5 +27,9 @@ export class RequeteService {
 
   UpdateTableData(request: any): Observable<any> {
     return this.http.post<any>(this.UpdateUrl, request);
+  }
+
+  DeleteTableData(request: any): Observable<any> {
+    return this.http.post<any>(this.DeleteUrl, request);
   }
 }

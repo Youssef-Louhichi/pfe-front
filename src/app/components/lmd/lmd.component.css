@@ -92,7 +92,10 @@
     padding: 8px 10px;
     background-color: #f9f9f9;
     border-top: 1px solid #eaeaea;
+    display: flex;
+    gap: 5px;
   }
+  
   
   .btn-select-table {
     width: 100%;
@@ -107,10 +110,7 @@
     transition: background-color 0.2s;
   }
   
-  .btn-select-table:hover {
-    background-color: #3a80d2;
-  }
-  
+
   .insert-form {
     background-color: #ffffff;
     border-radius: 6px;
@@ -276,11 +276,6 @@
   overflow-y: auto;
 }
 
-/* Table actions section */
-.table-actions {
-  display: flex;
-  flex-direction: column;
-}
 
 
 
@@ -481,4 +476,16 @@ h4 {
   margin-bottom: 10px;
   color: #333;
   font-size: 16px;
+}
+.btn-add-join {
+  align-self: flex-start;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
