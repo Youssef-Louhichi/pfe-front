@@ -19,6 +19,7 @@ import { RapportsComponent } from './components/rapports/rapports.component';
 import { TitlePopupComponent } from './components/title-popup/title-popup.component';
 import { UserDetailsPopupComponent } from './components/user-details-popup/user-details-popup.component';
 import { EditUserProfileComponent } from './components/edit-user-profile/edit-user-profile.component';
+import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { EditUserProfileComponent } from './components/edit-user-profile/edit-us
     TitlePopupComponent,
     UserDetailsPopupComponent,
     EditUserProfileComponent,
+    LoadingSpinnerComponent,
     
   ],
   imports: [

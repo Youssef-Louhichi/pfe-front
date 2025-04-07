@@ -1,4 +1,16 @@
 <div class="container1">
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <app-loading-spinner
+      [size]="'60px'"
+      [thickness]="'5px'"
+      [primaryColor]="'#3f51b5'"
+      [text]="'Processing data...'"
+      [textColor]="'#3f51b5'"
+      [showText]="true">
+    </app-loading-spinner>
+  </div>
+
     <div class="title">
       Setup new connection
     </div>
