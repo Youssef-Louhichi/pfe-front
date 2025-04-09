@@ -67,6 +67,10 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
   originalTableColumns: { [tableId: number]: Column[] } = {};
 
+  toggle:boolean = true
+  columns:string = ""
+  tables:string = ""
+
   ngOnInit(): void {
     this.queryForm = this.fb.group({
       table: ['', Validators.required],
@@ -439,6 +443,15 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
     // Show only the selected database
     this.showDatabases[db.name] = true;
+
+    //lel ai
+    db.tables.forEach(table => {
+      this.tables += table.name +":" + table.id + "|" 
+      table.columns.forEach(c => {
+        this.columns += c.name +":" + c.id + "|" 
+      }
+    )
+    });
   }
 
   toggleTable(table: DbTable): void {
@@ -587,5 +600,85 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   }
 
 
+  switch(){
+    this.toggle = !this.toggle
+  }
+
+  send(s:string){
+
+    console.log(1)
+
+    let prompt = 
+  "Tables (IDs): " + this.tables + ".\n" +
+  "Columns (IDs): " + this.columns + ".\n" +
+  "Convert the following user input into a JSON object representing an SQL query using table and column IDs. Format:\n" +
+  "{ id: 1, sentAt: date, sender: {}, tableId: [id], columnId: [id], groupByColumns: [id], aggregations: [{ columnId, function}], joinRequest: { joinConditions: [{firstTableId:,firstColumnName,secondTableId,secondColumnName,joinType=INNER}] }, filters: [{ columnName:string, operator:string, value:string, tableName:string } ]}\n" +
+  "Notes : In filter we use column name and table name not id and in join we use Table Id and column name, columnId define the columns of the select, aggregations define the aggregation,every column id present in aggregation can't be present in columnId, tableid define all the table used in the query. every joinCondition define join between two table . Don't give any comments or any explanaition or options just the object i asked for and don't change any key name ever \n" +
+  "Important : First step make the query normally than transform it into the object\n"+
+  "User input: '" + s + "'";
+
+  const tokenCount = Math.ceil(prompt.length / 4.5);
+  
+  console.log(`Prompt token count: ${tokenCount}`); 
+  
+  const tokenLimit = 2078;
+  const responseMaxTokens = tokenLimit - tokenCount;
+  
+  console.log(`Max tokens available for the response: ${responseMaxTokens}`);
+  
+  const maxTokens = Math.min(responseMaxTokens, 1000);
+
+  console.log(maxTokens)
+
+
+     fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer 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",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "messages": [
+          {
+            "role": "user",
+            "content": prompt
+          }
+        ],
+        "max_tokens": maxTokens
+      })
+    }) .then(response => response.json()) 
+    .then(data => {
+      console.log(data)
+      const reply = data.choices[0]?.message?.content;
+
+      if (reply) {
+        const start = reply.indexOf('{');
+        const end = reply.lastIndexOf('}');
+        const jsonString = reply.slice(start, end + 1);
+        console.log(jsonString)
+
+      
+        try {
+          const parsedObject = JSON.parse(jsonString);
+          console.log(parsedObject)
+          this.reqservice.fetchTableData(parsedObject).subscribe(data=>{
+            this.tableData = data;
+            if (this.tableData.length > 0) {
+              this.tableHeaders = Object.keys(this.tableData[0]);
+            }
+
+          })
+          } catch (error) {
+          console.error("Failed to parse JSON:", error);
+        }
+
+    }
+  })
+    .catch(err => {
+      console.error("Error fetching response:", err);
+    });
+
+  }
 
 }

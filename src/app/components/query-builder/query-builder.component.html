@@ -51,7 +51,7 @@
 
     <div class="query-area">
         <div class="content-area">
-            <form [formGroup]="queryForm" (ngSubmit)="onSubmit()" class="query-form">
+            <form [formGroup]="queryForm" (ngSubmit)="onSubmit()" class="query-form" *ngIf="toggle">
                 <div class="form-header">
                     <h2>Query Builder</h2>
                 </div>
@@ -270,9 +270,23 @@
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">Execute Query</button>
                         <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Results</button>
+                        <button type="button" class="btn-primary" (click)="switch()">AI <i class="fas fa-robot"></i></button>
                     </div>
                 </div>
             </form>
+
+            <div  class="query-form" *ngIf="!toggle">
+                <div class="ai-input" [ngClass]="{'disabled':selectedDbIndex==null}">
+                    <h3>Ask What You Want</h3>
+                    <textarea class="text-zone" #text></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-primary" (click)="send(text.value)">Execute</button>
+                    <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Results</button>
+                    <button type="button" class="btn-primary" (click)="switch()">Builder</button>
+                </div>
+                
+            </div>
 
             <!-- Results Table -->
             <div class="results-section" *ngIf="tableData && tableData.length">
