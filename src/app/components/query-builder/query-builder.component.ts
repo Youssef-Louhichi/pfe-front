@@ -10,6 +10,8 @@ import { Graph } from 'src/app/models/graph';
 //import { WhereClause } from 'src/app/models/where-clause';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
+//import dotenv from 'dotenv';
+//dotenv.config();
 
 interface WhereClause {
   columnName: string;
@@ -634,7 +636,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
      fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: "Bearer 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",
+        Authorization: "Bearer "+ "",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
