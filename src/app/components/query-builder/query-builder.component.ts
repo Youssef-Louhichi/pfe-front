@@ -10,8 +10,9 @@ import { Graph } from 'src/app/models/graph';
 //import { WhereClause } from 'src/app/models/where-clause';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
-//import dotenv from 'dotenv';
-//dotenv.config();
+import { environment } from 'src/environments/environment';
+const apiKey = environment.openRouterApiKey;
+
 
 interface WhereClause {
   columnName: string;
@@ -72,6 +73,9 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   toggle:boolean = true
   columns:string = ""
   tables:string = ""
+
+  
+  
 
   ngOnInit(): void {
     this.queryForm = this.fb.group({
@@ -636,7 +640,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
      fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: "Bearer "+ "",
+        Authorization: "Bearer "+ apiKey,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
