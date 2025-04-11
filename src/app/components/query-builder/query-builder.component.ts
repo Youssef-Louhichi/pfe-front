@@ -22,6 +22,12 @@ interface WhereClause {
   value: string;
   tableName: string
 }
+interface AggregationWithColumn {
+  columnId: number;
+  columnName: string;
+  tableId: number;
+  function: string;
+}
 interface Aggregation {
   columnId: number;
   function: string;
@@ -118,17 +124,66 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   addAggregation() {
     const aggregation = this.fb.group({
       columnId: ['', Validators.required],
+      columnName: ['', Validators.required],
+      tableId: ['', Validators.required],
       function: ['COUNT', Validators.required]
     });
     this.aggregationControls.push(aggregation);
   }
-  
   // Method to remove an aggregation
   removeAggregation(index: number) {
-    this.aggregationControls.removeAt(index);
+    if (index >= 0 && index < this.aggregationControls.length) {
+      this.aggregationControls.removeAt(index);
+      // Update group by columns after removing aggregation
+      this.updateGroupByColumnsAfterAggregation();
+    }
+  }
+  
+  onColumnDropForAggregation(event: CdkDragDrop<Column[]>) {
+    const draggedColumn = event.previousContainer.data[event.previousIndex];
+    
+    // Check if column already exists in aggregations
+    const columnExists = this.aggregationControls.controls.some(
+      control => control.get('columnId').value === draggedColumn.id
+    );
+    
+    if (!columnExists) {
+      // Get the table for this column
+      const table = this.getTableForColumn(draggedColumn);
+      
+      // Create a new aggregation form group
+      const aggregation = this.fb.group({
+        columnId: [draggedColumn.id, Validators.required],
+        columnName: [draggedColumn.name, Validators.required],
+        tableId: [table.id, Validators.required],
+        function: ['COUNT', Validators.required]
+      });
+      
+      this.aggregationControls.push(aggregation);
+      
+      // Add table to selected tables if not already present
+      this.addTableToSelectedTables(table);
+      
+      // Add all non-aggregated columns from selected columns to group by
+      this.updateGroupByColumnsAfterAggregation();
+    }
   }
 
 
+  updateGroupByColumnsAfterAggregation() {
+    // Get all aggregated column IDs
+    const aggregatedColumnIds = this.aggregationControls.controls.map(
+      control => Number(control.get('columnId').value)
+    );
+    
+    // Add all selected columns that are not aggregated to group by
+    this.selectedColumns.forEach(column => {
+      if (!aggregatedColumnIds.includes(column.id) && 
+          !this.groupByColumns.some(gc => gc.id === column.id)) {
+        this.groupByColumns.push(column);
+      }
+    });
+  }
 
   onColumnDropForGroupBy(event: CdkDragDrop<Column[]>) {
     const draggedColumn = event.previousContainer.data[event.previousIndex];
@@ -496,7 +551,10 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
       }));
   
       // Get aggregations
-      const aggregations: Aggregation[] = this.aggregationControls.value;
+      const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
+        columnId: agg.columnId,
+        function: agg.function
+      }));
   
       // Get group by column IDs
       const groupByColumnIds = this.groupByColumns.map(column => column.id);
@@ -523,7 +581,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
             .map(col => `${col.name} (${col.table.name})`)
             .join(', ');
           
-          errorMessage = `SQL Error: Columns ${missingColumns} must appear in GROUP BY clause or be used in an aggregate function`;
+          errorMessage = `SQL Error: Non-aggregated columns ${missingColumns} must appear in GROUP BY clause`;
         }
       }
   
@@ -551,7 +609,12 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
           content: "Fetching data"
         },
         tableId: this.selectedTables.map(t => t.id),
-        columnId: this.selectedColumns.map(c => c.id),
+        // If we have aggregations, include only non-aggregated columns in columnId
+        columnId: aggregations.length > 0 
+          ? this.selectedColumns
+              .filter(col => !aggregations.some(agg => agg.columnId === col.id))
+              .map(c => c.id)
+          : this.selectedColumns.map(c => c.id),
         groupByColumns: groupByColumnIds,
         aggregations: aggregations,
         joinRequest: {

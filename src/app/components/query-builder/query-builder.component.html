@@ -85,47 +85,58 @@
                 </div>
 
                 <!-- Aggregation Functions -->
-                <div class="aggregation-section">
-                    <h3>Aggregation Functions</h3>
-                    <div class="aggregation-container">
-                        <div formArrayName="aggregations">
-                            <div *ngFor="let agg of aggregationControls.controls; let i = index" 
-                                [formGroupName]="i" class="aggregation-row">
-                                
-                                <!-- Column Selection -->
-                                <div class="agg-column-select">
-                                    <select formControlName="columnId" class="form-control">
-                                        <option value="" disabled selected>Select Column</option>
-                                        <option *ngFor="let column of getAvailableColumns()" [value]="column.id">
-                                            {{ column.name }} ({{ column.table.name }})
-                                        </option>
-                                    </select>
-                                </div>
-                                
-                                <!-- Function Selection -->
-                                <div class="agg-function-select">
-                                    <select formControlName="function" class="form-control">
-                                        <option value="COUNT">COUNT</option>
-                                        <option value="SUM">SUM</option>
-                                        <option value="AVG">AVG</option>
-                                        <option value="MIN">MIN</option>
-                                        <option value="MAX">MAX</option>
-                                    </select>
-                                </div>
-                                
-                                <!-- Remove Button -->
-                                <button type="button" class="btn-remove" (click)="removeAggregation(i)">
-                                    <span>&times;</span>
-                                </button>
-                            </div>
-                        </div>
+               
+<div class="aggregation-section">
+    <h3>Aggregation Functions</h3>
+    <div class="aggregation-container">
+        <div cdkDropList 
+             id="aggregationDropZone"
+             (cdkDropListDropped)="onColumnDropForAggregation($event)"
+             class="dropzone">
+            <p *ngIf="!aggregationControls.length">Drag Columns Here for Aggregation</p>
+            
+            <div formArrayName="aggregations">
+                <div *ngFor="let agg of aggregationControls.controls; let i = index" 
+                    [formGroupName]="i" class="aggregation-row">
+                    
+                    <!-- Column Selection -->
+                    <div class="agg-column-select">
+                        <input type="text" 
+                               formControlName="columnName" 
+                               class="form-control column-name" 
+                               readonly>
                         
-                        <!-- Add Aggregation Button -->
-                        <button type="button" class="btn-add-agg" (click)="addAggregation()">
-                            <span>+ Add Aggregation</span>
-                        </button>
+                        <!-- Hidden input for column ID -->
+                        <input type="hidden" 
+                               formControlName="columnId" 
+                               class="form-control">
+                        
+                        <!-- Hidden input for table ID -->
+                        <input type="hidden" 
+                               formControlName="tableId" 
+                               class="form-control">
                     </div>
+                    
+                    <!-- Function Selection -->
+                    <div class="agg-function-select">
+                        <select formControlName="function" class="form-control">
+                            <option value="COUNT">COUNT</option>
+                            <option value="SUM">SUM</option>
+                            <option value="AVG">AVG</option>
+                            <option value="MIN">MIN</option>
+                            <option value="MAX">MAX</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Remove Button -->
+                    <button type="button" class="btn-remove" (click)="removeAggregation(i)">
+                        <span>&times;</span>
+                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
                 
                 <!-- Group By Section -->
                 <div class="group-by-section">

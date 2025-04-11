@@ -22,6 +22,7 @@ export class RapportsComponent implements OnInit{
     ngOnInit(): void {
       this.userService.getUserRapports(Number(localStorage.getItem("userId"))).subscribe(data =>{
         this.rapports = data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        this.rapports = this.rapports.filter(r => r.cnxrapport.id == Number(localStorage.getItem("idConnection")))
         this.rapports.forEach(rapport =>{
           rapport.graphs.forEach(table => {
             if (table.format == "chart")
