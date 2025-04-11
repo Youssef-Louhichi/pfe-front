@@ -20,6 +20,8 @@ import { TitlePopupComponent } from './components/title-popup/title-popup.compon
 import { UserDetailsPopupComponent } from './components/user-details-popup/user-details-popup.component';
 import { EditUserProfileComponent } from './components/edit-user-profile/edit-user-profile.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
+import { AddUserComponent } from './components/add-user/add-user.component';
+import { ListUserComponent } from './components/list-user/list-user.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +40,8 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
     UserDetailsPopupComponent,
     EditUserProfileComponent,
     LoadingSpinnerComponent,
+    AddUserComponent,
+    ListUserComponent,
     
   ],
   imports: [

@@ -7,6 +7,8 @@ import { Creator } from 'src/app/models/creator';
 import { Database } from 'src/app/models/database';
 import { DbTable } from 'src/app/models/db-table';
 import { Graph } from 'src/app/models/graph';
+import { AnalystService } from 'src/app/services/analyst.service';
+import { ConnexionsService } from 'src/app/services/connexions.service';
 //import { WhereClause } from 'src/app/models/where-clause';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -44,7 +46,8 @@ interface ColumnWithTable extends Column {
 })
 export class QueryBuilderComponent implements OnInit {
 
-  constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService
+  constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService,
+    private analystservice:AnalystService,private connexionservice:ConnexionsService
   ) { }
 
 
@@ -419,19 +422,28 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
       if (data.type == "Creator") {
         let creator = data as Creator
-        this.databases = creator.connexions.find(cnx => cnx.id == idConnexion).databases
+        this.connexionservice.getConnexionDatabases(idConnexion).subscribe(d =>{
+          this.databases = d
+          this.databases.forEach(db => {
+            db.tables.forEach(table => {
+              this.originalTableColumns[table.id] = [...table.columns];
+            });
+          });
+        })
       }
       else {
         let analyst = data as Analyst
-        this.databases = analyst.databases.filter(db => db.connexion.id == idConnexion)
+        this.analystservice.getAnalystsDatabasess(idUser).subscribe(d =>{
+          this.databases = d
+          this.databases.forEach(db => {
+            db.tables.forEach(table => {
+              this.originalTableColumns[table.id] = [...table.columns];
+            });
+          });
+        })
       }
 
-      // Store original columns for each table
-      this.databases.forEach(db => {
-        db.tables.forEach(table => {
-          this.originalTableColumns[table.id] = [...table.columns];
-        });
-      });
+     
     });
   }
 

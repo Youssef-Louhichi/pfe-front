@@ -1,0 +1,194 @@
+.cont{
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    width: 100%;
+}
+/* User table section */
+.table-container {
+    width: 60%;
+  }
+  
+  .user-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  }
+  
+  .user-search {
+    background-color: #f8f9fa;
+    padding: 0;
+  }
+  
+  .user-search td {
+    padding: 15px;
+  }
+  
+  .user-search input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 14px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236c757d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>');
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    padding-left: 40px;
+  }
+  
+  .user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background-color 0.2s ease;
+  }
+  
+  .user-row:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .user-element {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .user-element input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: #3498db;
+  }
+  
+  .user-element i {
+    color: #3498db;
+    font-size: 20px;
+  }
+  
+  .user-mail{
+    cursor: pointer;
+  }
+  
+  .user-mail:hover{
+    text-decoration: underline;
+  }
+  
+  .button-element button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .button-element button:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
+  }
+  
+  .button-element i {
+    font-size: 14px;
+  }
+  
+  /* Animation */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  .database-arch {
+    width: 40%;
+    height: 500px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.database-arch.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    background-color: #f8f9fa;
+}
+
+.database-arch ul {
+    list-style-type: none;
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.database-arch li {
+    margin: 8px 0;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+
+
+.database-arch input[type="checkbox"] {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3498db;
+}
+
+.database-arch > input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+}
+
+.database-arch > label {
+    font-weight: bold;
+    font-size: 1.1em;
+    display: inline-block;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.database-arch .table-name {
+    font-weight: 600;
+    color: #34495e;
+}
+
+.database-arch .column-name {
+    color: #7f8c8d;
+    font-size: 0.95em;
+}
+  
+  .update-button {
+    margin-top: 5px;
+  }
+  
+  .update-button button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .update-button button:hover {
+    background-color: #45a049;
+  }

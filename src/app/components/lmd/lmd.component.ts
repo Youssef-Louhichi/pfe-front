@@ -9,6 +9,8 @@ import { WhereClause } from 'src/app/models/where-clause';
 import { DbTable } from 'src/app/models/db-table';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
+import { AnalystService } from 'src/app/services/analyst.service';
+import { ConnexionsService } from 'src/app/services/connexions.service';
 
 interface JoinCondition {
   firstTableId: number;
@@ -42,7 +44,9 @@ export class LMDComponent implements OnInit {
   constructor(
     private userService: UsersService,
     private fb: FormBuilder,
-    private reqService: RequeteService
+    private reqService: RequeteService,    
+    private analystservice:AnalystService,
+    private connexionservice:ConnexionsService
   ) { }
 
   ngOnInit(): void {
@@ -100,11 +104,15 @@ export class LMDComponent implements OnInit {
     this.userService.getUserById(idUser).subscribe(data => {
       if (data.type == "Creator") {
         let creator = data as Creator
-        this.databases = creator.connexions.find(cnx => cnx.id == idConnection).databases
+        this.connexionservice.getConnexionDatabases(idConnection).subscribe(d =>{
+          this.databases = d
+        })      
       }
       else {
         let analyst = data as Analyst
-        this.databases = analyst.databases.filter(db => db.connexion.id == idConnection)
+        this.analystservice.getAnalystsDatabasess(idUser).subscribe(d =>{
+          this.databases = d
+        })      
       }
       if (this.databases && this.databases.length > 0) {
         this.selectedDbIndex = 0;

@@ -1,0 +1,211 @@
+.cont{
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    width: 100%;
+}
+  .form-container {
+    width: 60%;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin: 0;
+  }
+  
+  /* Toggle button */
+  .toggle-btn {
+    width: 100%;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+  }
+  
+  .toggle-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(41, 128, 185, 0.2);
+  }
+  
+  /* Forms */
+  .form-wrapper {
+    background-color: white;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  
+  form h2 {
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 20px 0;
+    text-align: left;
+    border-bottom: 2px solid #f1f1f1;
+    padding-bottom: 10px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 8px;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background-color: #f9fafc;
+    color: #4b5563;
+  }
+  
+  .form-group input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+    background-color: #fff;
+  }
+  
+  /* Password generator button */
+  .password-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .password-row input {
+    flex: 1;
+  }
+  
+  .password-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-size: 13px;
+    margin-top: 28px;
+  }
+  
+  .password-button:hover {
+    background-color: #5a6268;
+  }
+  
+  /* Submit button */
+  .submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 10px;
+  }
+  
+  .submit-btn:hover {
+    background-color: #219653;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.2);
+  }
+  
+  /* User suggestions */
+  .suggestions {
+    list-style: none;
+    margin: 5px 0 0 0;
+    padding: 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: white;
+  }
+  
+  .suggestions li {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  .suggestions li:hover {
+    background-color: #f8f9fa;
+    color: #3498db;
+  }
+
+  .database-arch {
+    width: 40%;
+    height: 500px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.database-arch ul {
+    list-style-type: none;
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.database-arch li {
+    margin: 8px 0;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+
+.database-arch input[type="checkbox"] {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3498db;
+}
+
+.database-arch > input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+}
+
+.database-arch > label {
+    font-weight: bold;
+    font-size: 1.1em;
+    display: inline-block;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.database-arch .table-name {
+    font-weight: 600;
+    color: #34495e;
+}
+
+.database-arch .column-name {
+    color: #7f8c8d;
+    font-size: 0.95em;
+}

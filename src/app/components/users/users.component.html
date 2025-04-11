@@ -2,79 +2,21 @@
   <!-- Database selector -->
   <div class="db-selector">
     <label for="db-select">Database:</label>
-    <select id="db-select" class="db-select" [(ngModel)]="selectedDb">
+    <select id="db-select" class="db-select" [(ngModel)]="selectedDb" (change)="getDbAnalysts()">
       <option *ngFor="let db of dbs" [ngValue]="db">{{ db.name }}</option>
     </select>
   </div>
   
   <!-- Two-column layout -->
   <div class="content-wrapper">
-    <!-- Form container -->
-    <div class="form-container" [hidden]="user.type == 'Analyst'">
-      <button class="toggle-btn" (click)="toggleForm()">
-        {{ isExistingUser ? 'Add New User' : 'Add Existing User' }}
-      </button>
-      
-      <div class="form-wrapper">
-        <!-- Existing User Form -->
-        <form *ngIf="isExistingUser" class="fade-in">
-          <h2>Add An Existing User</h2>
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="mail" required (input)="filterUsers(mail.value)" #mail placeholder="Enter user email" />
-            <ul class="suggestions" *ngIf="filteredUsers.length > 0">
-              <li *ngFor="let user of filteredUsers">
-                {{ user.mail }}
-              </li>
-            </ul>
-          </div>
-          <button type="button" class="submit-btn" (click)="addUser()">Add User</button>
-        </form>
-        
-        <!-- New User Form -->
-        <form *ngIf="!isExistingUser" class="fade-in" [formGroup]="newUserform" (ngSubmit)="addNewUser()">
-          <h2>Add New User</h2>
-          <div class="form-group">
-            <label for="new-email">Email:</label>
-            <input type="email" id="new-email" name="mail" required formControlName="mail" placeholder="Enter new user email" />
-          </div>
-          <div class="form-group">
-            <label for="password">Password:</label>
-            <div class="password-row">
-              <input type="text" id="password" name="password" required readonly formControlName="password" placeholder="Generated password" />
-              <button type="button" class="password-button" (click)="generatePwd()">Generate</button>
-            </div>
-          </div>
-          <button type="submit" class="submit-btn">Add User</button>
-        </form>
-      </div>
+    <!-- Navigation links -->
+    <div class="nav-links">
+      <a href="#" (click)="showList = true; $event.preventDefault()" >Analysts list</a> |
+      <a href="#" (click)="showList = false; $event.preventDefault()" >Add new analyst</a>
     </div>
     
-    <!-- User table container -->
-    <div class="table-container">
-      <table class="user-table">
-        <thead>
-          <tr class="user-search">
-            <td>
-              <input type="text" placeholder="Search users..." />
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of selectedDb.analysts; let i = index">
-            <td class="user-row">
-              <div class="user-element">
-                <input type="checkbox">
-                <i class="fa-solid fa-user-circle"></i>
-                <div (click)="showUserDetails(user)" class="user-mail">{{ user.mail }}</div>
-              </div>
-              <div class="button-element" [hidden]="user.type == 'Analyst'">
-                <button (click)="deleteUser(user.identif)"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- Conditional rendering based on showList flag -->
+    <app-list-user *ngIf="showList" [selectedDb]="selectedDb" [analysts]="analysts" class="full-width"></app-list-user>
+    <app-add-user *ngIf="!showList" [user]="user" [analysts]="analysts" [selectedDb]="selectedDb" class="full-width"></app-add-user>
   </div>
 </div>

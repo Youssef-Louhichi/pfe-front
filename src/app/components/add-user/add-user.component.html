@@ -1,0 +1,64 @@
+<div class="cont">
+    <div class="database-arch" >
+        <input type="checkbox" (change)="onDatabaseCheckboxChange($event, selectedDb)" [checked]="selectedDbId !== null">
+        {{selectedDb.name}}
+        <ul>
+            <li *ngFor="let tab of selectedDb.tables" class="table-name">
+                <input type="checkbox" (change)="onTableCheckboxChange($event, tab)"
+                    [checked]="selectedTableIds.includes(tab.id)" [disabled]="isTableDisabled()">
+                {{tab.name}}
+                <ul>
+                    <li *ngFor="let col of tab.columns" class="column-name">
+                        <input type="checkbox" (change)="onColumnCheckboxChange($event, col)"
+                            [checked]="selectedColumnIds.includes(col.id)" [disabled]="isColumnDisabled(tab.id)">
+                        {{col.name}}
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+<!-- Form container -->
+<div class="form-container" [hidden]="user.type == 'Analyst'">
+    <button class="toggle-btn" (click)="toggleForm()">
+        {{ isExistingUser ? 'Add New User' : 'Add Existing User' }}
+    </button>
+
+    <div class="form-wrapper">
+        <!-- Existing User Form -->
+        <form *ngIf="isExistingUser" class="fade-in">
+            <h2>Add An Existing User</h2>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="mail" required (input)="filterUsers(mail.value)" #mail
+                    placeholder="Enter user email" />
+                <ul class="suggestions" *ngIf="filteredUsers.length > 0">
+                    <li *ngFor="let user of filteredUsers">
+                        {{ user.mail }}
+                    </li>
+                </ul>
+            </div>
+            <button type="button" class="submit-btn" (click)="addUser()">Add User</button>
+        </form>
+
+        <!-- New User Form -->
+        <form *ngIf="!isExistingUser" class="fade-in" [formGroup]="newUserform" (ngSubmit)="addNewUser()">
+            <h2>Add New User</h2>
+            <div class="form-group">
+                <label for="new-email">Email:</label>
+                <input type="email" id="new-email" name="mail" required formControlName="mail"
+                    placeholder="Enter new user email" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <div class="password-row">
+                    <input type="text" id="password" name="password" required readonly formControlName="password"
+                        placeholder="Generated password" />
+                    <button type="button" class="password-button" (click)="generatePwd()">Generate</button>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Add User</button>
+
+        </form>
+    </div>
+</div>
+</div>

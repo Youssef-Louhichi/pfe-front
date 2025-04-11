@@ -1,0 +1,50 @@
+<div class="cont">
+    <div class="database-arch" [class.disabled]="selectedAnalystId === null">
+        <input type="checkbox" (change)="onDatabaseCheckboxChange($event, selectedDb)" [checked]="selectedDbId !== null">
+        {{selectedDb.name}}
+        <ul>
+            <li *ngFor="let tab of selectedDb.tables" class="table-name">
+                <input type="checkbox" (change)="onTableCheckboxChange($event, tab)"
+                    [checked]="selectedTableIds.includes(tab.id)" [disabled]="isTableDisabled()">
+                {{tab.name}}
+                <ul>
+                    <li *ngFor="let col of tab.columns" class="column-name">
+                        <input type="checkbox" (change)="onColumnCheckboxChange($event, col)"
+                            [checked]="selectedColumnIds.includes(col.id)" [disabled]="isColumnDisabled(tab.id)">
+                        {{col.name}}
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+<div class="table-container">
+    <table class="user-table">
+      <thead>
+        <tr class="user-search">
+          <td>
+            <input type="text" placeholder="Search users..." />
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of analysts; let i = index">
+          <td class="user-row">
+            <div class="user-element">
+              <input 
+                type="checkbox" 
+                [checked]="selectedAnalystId === user" 
+                (change)="toggleCheck(user)"
+              >
+              <i class="fa-solid fa-user-circle"></i>
+              <div (click)="showUserDetails(user)" class="user-mail">{{ user.mail }}</div>
+            </div>
+          
+            <div class="update-button" *ngIf="selectedAnalystId === user">
+              <button (click)="updateUser(user)">Update</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
