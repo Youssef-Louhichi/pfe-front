@@ -24,6 +24,9 @@ import { AddUserComponent } from './components/add-user/add-user.component';
 import { ListUserComponent } from './components/list-user/list-user.component';
 import { TaskPopupComponent } from './components/task-popup/task-popup.component';
 import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
+import { LmdInsertComponent } from './components/lmd-insert/lmd-insert.component';
+import { LmdUpdateComponent } from './components/lmd-update/lmd-update.component';
+import { LmdDeleteComponent } from './components/lmd-delete/lmd-delete.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +49,9 @@ import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
     ListUserComponent,
     TaskPopupComponent,
     MyTasksComponent,
+    LmdInsertComponent,
+    LmdUpdateComponent,
+    LmdDeleteComponent,
     
   ],
   imports: [

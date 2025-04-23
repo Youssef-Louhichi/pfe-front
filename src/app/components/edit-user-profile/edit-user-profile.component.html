@@ -1,41 +1,69 @@
 <div class="profile-container">
-    <div class="profile-card">
-      <div class="profile-header">
-        <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+  <div class="profile-card">
+    <div class="profile-header">
+      <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+        <input type="email" id="email" formControlName="mail" class="form-control">
+        <div *ngIf="profileForm.get('mail')?.invalid && profileForm.get('mail')?.touched" class="error-message">
+          Please enter a valid email address
+        </div>
       </div>
-  
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
-        <div class="form-group">
-          <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
-          <input type="email" id="email" formControlName="mail" class="form-control">
-          <div *ngIf="profileForm.get('mail')?.invalid && profileForm.get('mail')?.touched" class="error-message">
-            Please enter a valid email address
-          </div>
+
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Password</label>
+        <input type="password" id="password" formControlName="password" class="form-control">
+        <div *ngIf="profileForm.get('password')?.invalid && profileForm.get('password')?.touched" class="error-message">
+          Password must be at least 6 characters
         </div>
-  
-        <div class="form-group">
-          <label for="password"><i class="fas fa-lock"></i> Password</label>
-          <input type="password" id="password" formControlName="password" class="form-control">
-          <div *ngIf="profileForm.get('password')?.invalid && profileForm.get('password')?.touched" class="error-message">
-            Password must be at least 6 characters
-          </div>
-        </div>
-  
-        <div class="form-group">
-          <label><i class="fas fa-user-tag"></i> Account Type</label>
-          <div class="account-type">{{user?.type}}</div>
-        </div>
-  
-       
-  
-        <div class="form-actions">
-          <button type="submit" [disabled]="profileForm.invalid || !profileForm.dirty" class="save-btn">
-            <i class="fas fa-save"></i> Save Changes
-          </button>
-          <button type="button" (click)="onCancel()" class="cancel-btn">
-            <i class="fas fa-times"></i> Cancel
-          </button>
-        </div>
-      </form>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-user-tag"></i> Account Type</label>
+        <div class="account-type">{{user?.type}}</div>
+      </div>
+
+     
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="profileForm.invalid || !profileForm.dirty" class="save-btn">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <button type="button" (click)="onCancel()" class="cancel-btn">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+  <div class="historique-container">
+  <div class="historique-card">
+    <div class="historique-header">
+      <h2><i class="fas fa-history"></i> Your Query History</h2>
+    </div>
+    <div class="historique-content">
+      <table class="historique-table">
+        <thead>
+          <tr>
+            <th>Query</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reqs">
+            <td>{{r.content}}</td>
+            <td>{{r.sentAt | date:'medium'}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="reqs?.length === 0" class="no-history">
+        <i class="fas fa-info-circle"></i> No query history available
+      </div>
     </div>
   </div>
+</div>
