@@ -1,0 +1,118 @@
+.insert-form {
+    background-color: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+  }
+  
+  .form-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .form-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+    font-weight: 500;
+  }
+  
+  .selected-table-info {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    background-color: #f5f9ff;
+    border-radius: 4px;
+    border-left: 4px solid #4a90e2;
+  }
+  
+  .selected-table-info h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .column-fields {
+    margin-bottom: 20px;
+  }
+  
+  .column-field-row {
+    display: flex;
+    margin-bottom: 15px;
+    gap: 15px;
+  }
+  
+  .column-name-field, .column-value-field {
+    flex: 1;
+  }
+  
+  .column-name-field label, .column-value-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+  
+  .form-control:focus {
+    border-color: #4a90e2;
+    outline: none;
+  }
+  
+  .form-control.column-name {
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+  }
+  
+  .error-message {
+    color: #e53935;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .btn-submit, .btn-reset {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-submit {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .btn-submit:hover {
+    background-color: #3d9140;
+  }
+  
+  .btn-submit:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+  }
+  
+  .btn-reset {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #d0d0d0;
+  }
+  
+  .btn-reset:hover {
+    background-color: #e0e0e0;
+  }

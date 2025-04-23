@@ -26,11 +26,11 @@ interface AggregationWithColumn {
   columnId: number;
   columnName: string;
   tableId: number;
-  function: string;
+  functionagg: string;
 }
 interface Aggregation {
   columnId: number;
-  function: string;
+  functionagg: string;
 }
 
 interface JoinCondition {
@@ -126,7 +126,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
       columnId: ['', Validators.required],
       columnName: ['', Validators.required],
       tableId: ['', Validators.required],
-      function: ['COUNT', Validators.required]
+      functionagg: ['COUNT', Validators.required]
     });
     this.aggregationControls.push(aggregation);
   }
@@ -156,7 +156,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
         columnId: [draggedColumn.id, Validators.required],
         columnName: [draggedColumn.name, Validators.required],
         tableId: [table.id, Validators.required],
-        function: ['COUNT', Validators.required]
+        functionagg: ['COUNT', Validators.required]
       });
       
       this.aggregationControls.push(aggregation);
@@ -538,102 +538,118 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     this.allColumns = [...t.columns];
   }
 
-  onSubmit() {
+  onSubmit(): void {
+    const userId = Number(localStorage.getItem('userId'));
+
+    if (!userId) {
+      console.error('User ID not found in localStorage');
+      alert('Error: User not logged in.');
+      return;
+    }
+
     if (this.queryForm.valid) {
-      const formData = this.queryForm.value;
-  
-      // Prepare where conditions
-      const whereConditions: WhereClause[] = formData.whereClauses.map((condition: any) => ({
-        columnName: condition.columnName,
-        tableName: condition.tableName,
-        operator: condition.operator,
-        value: condition.value
-      }));
-  
-      // Get aggregations
-      const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
-        columnId: agg.columnId,
-        function: agg.function
-      }));
-  
-      // Get group by column IDs
-      const groupByColumnIds = this.groupByColumns.map(column => column.id);
-  
-      // Validate SQL rules
-      let isValid = true;
-      let errorMessage = "";
-  
-      // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
-      if (aggregations.length > 0) {
-        // Get all selected column IDs that are not part of aggregations
-        const nonAggregatedColumnIds = this.selectedColumns
-          .filter(col => !aggregations.some(agg => agg.columnId === col.id))
-          .map(col => col.id);
-        
-        // Check if all non-aggregated columns are in GROUP BY
-        const missingGroupByColumns = nonAggregatedColumnIds
-          .filter(colId => !groupByColumnIds.includes(colId));
-        
-        if (missingGroupByColumns.length > 0) {
-          isValid = false;
-          const missingColumns = this.selectedColumns
-            .filter(col => missingGroupByColumns.includes(col.id))
-            .map(col => `${col.name} (${col.table.name})`)
-            .join(', ');
-          
-          errorMessage = `SQL Error: Non-aggregated columns ${missingColumns} must appear in GROUP BY clause`;
-        }
-      }
-  
-      // Rule 2: If using GROUP BY, you should have at least one aggregation function
-      if (groupByColumnIds.length > 0 && aggregations.length === 0) {
-        console.warn("Warning: Using GROUP BY without any aggregation functions");
-        // This is a warning, not an error, so we don't set isValid to false
-      }
-  
-      if (!isValid) {
-        alert(errorMessage);
-        return;
-      }
-  
-      // Construct request payload
-      const requestPayload = {
-        req: {
-          id: 1,
-          sentAt: new Date().toISOString(),
-          sender: {
-            identif: 1,
-            mail: "test@example.com",
-            password: "1234"
-          },
-          content: "Fetching data"
-        },
-        tableId: this.selectedTables.map(t => t.id),
-        // If we have aggregations, include only non-aggregated columns in columnId
-        columnId: aggregations.length > 0 
-          ? this.selectedColumns
+      this.userservice.getUserById(userId).subscribe({
+        next: (user) => {
+          const formData = this.queryForm.value;
+
+          // Prepare where conditions
+          const whereConditions: WhereClause[] = formData.whereClauses.map((condition: any) => ({
+            columnName: condition.columnName,
+            tableName: condition.tableName,
+            operator: condition.operator,
+            value: condition.value
+          }));
+
+          // Get aggregations
+          const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
+            columnId: agg.columnId,
+            functionagg: agg.functionagg
+          }));
+
+          // Get group by column IDs
+          const groupByColumnIds = this.groupByColumns.map(column => column.id);
+
+          // Validate SQL rules
+          let isValid = true;
+          let errorMessage = "";
+
+          // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
+          if (aggregations.length > 0) {
+            // Get all selected column IDs that are not part of aggregations
+            const nonAggregatedColumnIds = this.selectedColumns
               .filter(col => !aggregations.some(agg => agg.columnId === col.id))
-              .map(c => c.id)
-          : this.selectedColumns.map(c => c.id),
-        groupByColumns: groupByColumnIds,
-        aggregations: aggregations,
-        joinRequest: {
-          joinConditions: this.generateJoinConditions()
-        },
-        filters: whereConditions
-      };
-  
-      console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
-  
-      this.reqservice.fetchTableData(requestPayload).subscribe(
-        response => {
-          this.tableData = response;
-          if (this.tableData.length > 0) {
-            this.tableHeaders = Object.keys(this.tableData[0]);
+              .map(col => col.id);
+            
+            // Check if all non-aggregated columns are in GROUP BY
+            const missingGroupByColumns = nonAggregatedColumnIds
+              .filter(colId => !groupByColumnIds.includes(colId));
+            
+            if (missingGroupByColumns.length > 0) {
+              isValid = false;
+              const missingColumns = this.selectedColumns
+                .filter(col => missingGroupByColumns.includes(col.id))
+                .map(col => `${col.name} (${col.table.name})`)
+                .join(', ');
+              
+              errorMessage = `SQL Error: Non-aggregated columns ${missingColumns} must appear in GROUP BY clause`;
+            }
           }
+
+          // Rule 2: If using GROUP BY, you should have at least one aggregation function
+          if (groupByColumnIds.length > 0 && aggregations.length === 0) {
+            console.warn("Warning: Using GROUP BY without any aggregation functions");
+            // This is a warning, not an error, so we don't set isValid to false
+          }
+
+          if (!isValid) {
+            alert(errorMessage);
+            return;
+          }
+
+          // Construct request payload
+          const requestPayload = {
+            req: {
+              
+              sentAt: new Date().toISOString(),
+              sender: {
+                identif: user.identif,
+                mail: user.mail,
+                password: user.password
+              },
+              content: "Fetching data"
+            },
+            tableId: this.selectedTables.map(t => t.id),
+            // If we have aggregations, include only non-aggregated columns in columnId
+            columnId: aggregations.length > 0 
+              ? this.selectedColumns
+                  .filter(col => !aggregations.some(agg => agg.columnId === col.id))
+                  .map(c => c.id)
+              : this.selectedColumns.map(c => c.id),
+            groupByColumns: groupByColumnIds,
+            aggregations: aggregations,
+            joinRequest: {
+              joinConditions: this.generateJoinConditions()
+            },
+            filters: whereConditions
+          };
+
+          console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
+
+          this.reqservice.fetchTableData(requestPayload).subscribe(
+            response => {
+              this.tableData = response;
+              if (this.tableData.length > 0) {
+                this.tableHeaders = Object.keys(this.tableData[0]);
+              }
+            },
+            error => console.error('Error fetching data:', error)
+          );
         },
-        error => console.error('Error fetching data:', error)
-      );
+        error: (error) => {
+          console.error('Error fetching user:', error);
+          alert('Error retrieving user data.');
+        }
+      });
     }
   }
 
@@ -693,7 +709,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   "Tables (IDs): " + this.tables + ".\n" +
   "Columns (IDs): " + this.columns + ".\n" +
   "Convert the following user input into a JSON object representing an SQL query using table and column IDs. Format:\n" +
-  "{ id: 1, sentAt: date, sender: {}, tableId: [id], columnId: [id], groupByColumns: [id], aggregations: [{ columnId, function}], joinRequest: { joinConditions: [{firstTableId:,firstColumnName,secondTableId,secondColumnName,joinType=INNER}] }, filters: [{ columnName:string, operator:string, value:string, tableName:string } ]}\n" +
+  "{ id: 1, sentAt: date, sender: {}, tableId: [id], columnId: [id], groupByColumns: [id], aggregations: [{ columnId, functionagg}], joinRequest: { joinConditions: [{firstTableId:,firstColumnName,secondTableId,secondColumnName,joinType=INNER}] }, filters: [{ columnName:string, operator:string, value:string, tableName:string } ]}\n" +
   "Notes : In filter we use column name and table name not id and in join we use Table Id and column name, columnId define the columns of the select, aggregations define the aggregation,every column id present in aggregation can't be present in columnId, tableid define all the table used in the query. every joinCondition define join between two table . Don't give any comments or any explanaition or options just the object i asked for and don't change any key name ever \n" +
   "Important : First step make the query normally than transform it into the object\n"+
   "User input: '" + s + "'";

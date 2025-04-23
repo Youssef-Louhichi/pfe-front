@@ -1,0 +1,46 @@
+<form [formGroup]="insertForm" (ngSubmit)="onSubmit()" class="insert-form">
+    <div class="form-header">
+      <h2>Insert Data Form</h2>
+    </div>
+  
+    <div class="selected-table-info">
+      <h3>Insert Into: {{ selectedTable.name }}</h3>
+      <input type="hidden" formControlName="table">
+    </div>
+  
+    <div class="column-fields">
+      <div formArrayName="columns">
+        <div *ngFor="let columnControl of columns.controls; let i = index" 
+             [formGroupName]="i" 
+             class="column-field-row">
+          <div class="column-name-field">
+            <label [for]="'column-name-' + i">Column Name:</label>
+            <input type="text" 
+                   [id]="'column-name-' + i" 
+                   formControlName="columnName" 
+                   readonly 
+                   class="form-control column-name">
+          </div>
+          <div class="column-value-field">
+            <label [for]="'column-value-' + i">Value:</label>
+            <input type="text" 
+                   [id]="'column-value-' + i" 
+                   formControlName="columnValue" 
+                   [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
+                   class="form-control column-value">
+            <div class="error-message" 
+                 *ngIf="columnControl.get('columnValue').invalid && 
+                       (columnControl.get('columnValue').dirty || 
+                        columnControl.get('columnValue').touched)">
+              Required
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="form-actions">
+      <button type="submit" class="btn-submit" [disabled]="!insertForm.valid">Insert Data</button>
+      <button type="button" class="btn-reset" (click)="resetForm()">Reset Values</button>
+    </div>
+  </form>

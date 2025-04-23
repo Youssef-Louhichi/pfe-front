@@ -1,0 +1,161 @@
+<form [formGroup]="updateForm" (ngSubmit)="onSubmit()" class="update-form">
+    <div class="form-header">
+      <h2>Update Data Form</h2>
+    </div>
+  
+    <div class="selected-table-info">
+      <h3>Update Table: {{ selectedTable.name }}</h3>
+      <input type="hidden" formControlName="table">
+    </div>
+  
+    <div class="column-fields">
+      <h4>Set New Values</h4>
+      <div formArrayName="columns">
+        <div *ngFor="let columnControl of updateColumns.controls; let i = index" 
+             [formGroupName]="i" 
+             class="column-field-row">
+          <div class="column-name-field">
+            <label [for]="'update-column-name-' + i">Column Name:</label>
+            <input type="text" 
+                   [id]="'update-column-name-' + i" 
+                   formControlName="columnName" 
+                   readonly 
+                   class="form-control column-name">
+          </div>
+          <div class="column-value-field">
+            <label [for]="'update-column-value-' + i">New Value:</label>
+            <input type="text" 
+                   [id]="'update-column-value-' + i" 
+                   formControlName="columnValue" 
+                   [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
+                   class="form-control column-value">
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="where-clause-section">
+      <h4>Where Clause</h4>
+      <p class="section-description">Define conditions for the rows to update:</p>
+      <div formArrayName="whereClauses">
+        <div *ngFor="let whereControl of whereClauses.controls; let i = index" 
+             [formGroupName]="i" 
+             class="where-condition-row">
+          <div class="where-column-field">
+            <label [for]="'where-column-' + i">Column:</label>
+            <select [id]="'where-column-' + i" 
+                    formControlName="column" 
+                    class="form-control where-column-select">
+              <option *ngFor="let column of getAvailableColumns()" [value]="column.tableName + ':' + column.name">
+                {{ column.tableName }}.{{ column.name }}
+              </option>
+            </select>
+          </div>
+          <div class="where-operator-field">
+            <label [for]="'where-operator-' + i">Operator:</label>
+            <select [id]="'where-operator-' + i" 
+                    formControlName="operator" 
+                    class="form-control where-operator-select">
+              <option value="=">=</option>
+              <option value="!=">!=</option>
+              <option value=">">></option>
+              <option value=">=">>=</option>
+              <option value="<"><</option>
+              <option value="<="><=</option>
+              <option value="LIKE">LIKE</option>
+              <option value="IN">IN</option>
+            </select>
+          </div>
+          <div class="where-value-field">
+            <label [for]="'where-value-' + i">Value:</label>
+            <input type="text" 
+                   [id]="'where-value-' + i" 
+                   formControlName="value" 
+                   class="form-control where-value-input">
+          </div>
+          <div class="where-action-field">
+            <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
+              <span class="remove-icon">×</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="where-add-button">
+        <button type="button" class="btn-add-condition" (click)="addWhereCondition()">
+          <span class="add-icon">+</span> Add Condition
+        </button>
+      </div>
+    </div>
+  
+    <div class="join-clause-section">
+      <h4>Join Conditions</h4>
+      <p class="section-description">Add table joins for the update query:</p>
+      <div formArrayName="joins">
+        <div *ngFor="let joinControl of joins.controls; let i = index" 
+             [formGroupName]="i" 
+             class="join-condition-row">
+          <div class="join-first-table-field">
+            <input type="hidden" formControlName="firstTableId">
+            <div class="field-label">First Table: {{ selectedTable.name }}</div>
+          </div>
+          <div class="join-first-column-field">
+            <label [for]="'join-first-column-' + i">First Column:</label>
+            <select [id]="'join-first-column-' + i" 
+                    formControlName="firstColumnName" 
+                    class="form-control join-column-select">
+              <option *ngFor="let column of tableColumns" [value]="column.name">
+                {{ column.name }}
+              </option>
+            </select>
+          </div>
+          <div class="join-type-field">
+            <label [for]="'join-type-' + i">Join Type:</label>
+            <select [id]="'join-type-' + i" 
+                    formControlName="joinType" 
+                    class="form-control join-type-select">
+              <option value="INNER">INNER JOIN</option>
+              <option value="LEFT">LEFT JOIN</option>
+              <option value="RIGHT">RIGHT JOIN</option>
+            </select>
+          </div>
+          <div class="join-second-table-field">
+            <label [for]="'join-second-table-' + i">Second Table:</label>
+            <select [id]="'join-second-table-' + i" 
+                    formControlName="secondTableId" 
+                    class="form-control join-table-select"
+                    (change)="updateAvailableColumns()">
+              <option *ngFor="let table of availableTables" [value]="table.id">
+                {{ table.name }}
+              </option>
+            </select>
+          </div>
+          <div class="join-second-column-field">
+            <label [for]="'join-second-column-' + i">Second Column:</label>
+            <select [id]="'join-second-column-' + i" 
+                    formControlName="secondColumnName" 
+                    class="form-control join-column-select">
+              <option value="">-- Select Column --</option>
+              <option *ngFor="let column of getSecondTableColumns(i)" [value]="column.name">
+                {{ column.name }}
+              </option>
+            </select>
+          </div>
+          <div class="join-action-field">
+            <button type="button" class="btn-remove" (click)="removeJoinCondition(i)">
+              <span class="remove-icon">×</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="join-add-button">
+        <button type="button" class="btn-add-join" (click)="addJoinCondition()">
+          <span class="add-icon">+</span> Add Join
+        </button>
+      </div>
+    </div>
+  
+    <div class="form-actions">
+      <button type="submit" class="btn-submit" [disabled]="!updateForm.valid">Update Data</button>
+      <button type="button" class="btn-reset" (click)="resetForm()">Reset Values</button>
+    </div>
+  </form>

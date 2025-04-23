@@ -22,6 +22,9 @@ import { EditUserProfileComponent } from './components/edit-user-profile/edit-us
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { AddUserComponent } from './components/add-user/add-user.component';
 import { ListUserComponent } from './components/list-user/list-user.component';
+import { LmdInsertComponent } from './components/lmd-insert/lmd-insert.component';
+import { LmdUpdateComponent } from './components/lmd-update/lmd-update.component';
+import { LmdDeleteComponent } from './components/lmd-delete/lmd-delete.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +45,9 @@ import { ListUserComponent } from './components/list-user/list-user.component';
     LoadingSpinnerComponent,
     AddUserComponent,
     ListUserComponent,
+    LmdInsertComponent,
+    LmdUpdateComponent,
+    LmdDeleteComponent,
     
   ],
   imports: [

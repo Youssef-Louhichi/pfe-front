@@ -3,7 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import {  Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+import { Requete } from 'src/app/models/requete';
 import { User } from 'src/app/models/user';
+import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
 
 @Component({
@@ -15,16 +17,19 @@ export class EditUserProfileComponent implements OnInit {
   profileForm!: FormGroup;
   user: User | null = null;
   isLoading = false;
+  reqs : Requete[] ;
 
   constructor(
     private fb: FormBuilder,
     private usersService: UsersService,
-    private router: Router
+    private router: Router,
+    private reqService : RequeteService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadUserData();
+    this.getReq(Number(localStorage.getItem('userId')));
   }
 
   private initializeForm(): void {
@@ -82,4 +87,14 @@ this.usersService.getUserById(userId).subscribe(data =>{
       this.router.navigate(['/profile']);
     }
   }
+
+
+
+getReq(senderId : any)  {
+
+this.reqService.getUserReq(senderId).subscribe(data => {this.reqs = data});
+
+
+}
+
 }

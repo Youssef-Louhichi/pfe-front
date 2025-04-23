@@ -1,11 +1,12 @@
 <div class="insert-form-container">
+  <!-- Sidebar with Database and Table Selection -->
   <section class="side">
     <!-- Database dropdown selector -->
     <div class="db-selector">
       <label for="dbSelect">Select Database:</label>
       <select id="dbSelect" class="db-select" 
-        [(ngModel)]="selectedDbIndex" 
-        (change)="toggleDb(databases[selectedDbIndex])">
+              [(ngModel)]="selectedDbIndex" 
+              (change)="toggleDb(databases[selectedDbIndex])">
         <option *ngFor="let db of databases; let i = index" [value]="i">
           {{db.name | titlecase}}
         </option>
@@ -29,16 +30,16 @@
             <span class="table-name">{{ table.name }}</span>
           </div>
 
-          <!-- Show table action when expanded -->
+          <!-- Table actions -->
           <div class="table-actions" *ngIf="showColumns[table.name]">
             <button type="button" class="btn-select-table" (click)="selectTable(table, 'insert')">
-              <i class="fa-solid fa-pen"></i>
+              <i class="fa-solid fa-pen"></i> Insert
             </button>
             <button type="button" class="btn-select-table" (click)="selectTable(table, 'update')">
-              <i class="fa-solid fa-rotate"></i>     
+              <i class="fa-solid fa-rotate"></i> Update
             </button>
             <button type="button" class="btn-select-table" (click)="selectTable(table, 'delete')">
-              <i class="fa-solid fa-trash"></i>
+              <i class="fa-solid fa-trash"></i> Delete
             </button>
           </div>
         </li>
@@ -46,460 +47,33 @@
     </div>
   </section>
 
+  <!-- Form Area for Child Components -->
   <div class="form-area">
-    <!-- INSERT FORM -->
-    <form *ngIf="formMode === 'insert'" [formGroup]="insertForm" (ngSubmit)="onSubmit()" class="insert-form">
-      <div class="form-header">
-        <h2>Insert Data Form</h2>
-      </div>
-
-      <!-- Selected Table Info -->
-      <div class="selected-table-info" *ngIf="selectedTable">
-        <h3>Insert Into: {{ selectedTable.name }}</h3>
-        <input type="hidden" formControlName="table">
-      </div>
-
-      <!-- No table selected message -->
-      <div class="no-table-message" *ngIf="!selectedTable">
-        <p>Please select a table from the list on the left.</p>
-      </div>
-
-      <!-- Dynamic Column Fields -->
-      <div class="column-fields" *ngIf="selectedTable">
-        <div formArrayName="columns">
-          <div *ngFor="let columnControl of columns.controls; let i = index" 
-               [formGroupName]="i" 
-               class="column-field-row">
-            
-            <div class="column-name-field">
-              <label [for]="'column-name-' + i">Column Name:</label>
-              <input type="text" 
-                     [id]="'column-name-' + i" 
-                     formControlName="columnName" 
-                     readonly 
-                     class="form-control column-name">
-            </div>
-            
-            <div class="column-value-field">
-              <label [for]="'column-value-' + i">Value:</label>
-              <input type="text" 
-                     [id]="'column-value-' + i" 
-                     formControlName="columnValue" 
-                     [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
-                     class="form-control column-value">
-              
-              <!-- Show error message if needed -->
-              <div class="error-message" 
-                   *ngIf="columnControl.get('columnValue').invalid && 
-                         (columnControl.get('columnValue').dirty || 
-                          columnControl.get('columnValue').touched)">
-               
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Form Actions -->
-      <div class="form-actions" *ngIf="selectedTable">
-        <button type="submit" class="btn-submit" [disabled]="!insertForm.valid">
-          Insert Data
-        </button>
-        <button type="button" class="btn-reset" (click)="resetForm()">
-          Reset Values
-        </button>
-      </div>
-    </form>
-
-   <!-- UPDATE FORM -->
-<form *ngIf="formMode === 'update'" [formGroup]="updateForm" (ngSubmit)="onUpdateSubmit()" class="update-form">
-  <div class="form-header">
-    <h2>Update Data Form</h2>
-  </div>
-
-  <!-- Selected Table Info -->
-  <div class="selected-table-info" *ngIf="selectedTable">
-    <h3>Update Table: {{ selectedTable.name }}</h3>
-    <input type="hidden" formControlName="table">
-  </div>
-
-  <!-- No table selected message -->
-  <div class="no-table-message" *ngIf="!selectedTable">
-    <p>Please select a table from the list on the left.</p>
-  </div>
-
-  <!-- Dynamic Column Fields -->
-  <div class="column-fields" *ngIf="selectedTable">
-    <h4>Set New Values</h4>
-    <div formArrayName="columns">
-      <div *ngFor="let columnControl of updateColumns.controls; let i = index" 
-           [formGroupName]="i" 
-           class="column-field-row">
-        
-        <div class="column-name-field">
-          <label [for]="'update-column-name-' + i">Column Name:</label>
-          <input type="text" 
-                 [id]="'update-column-name-' + i" 
-                 formControlName="columnName" 
-                 readonly 
-                 class="form-control column-name">
-        </div>
-        
-        <div class="column-value-field">
-          <label [for]="'update-column-value-' + i">New Value:</label>
-          <input type="text" 
-                 [id]="'update-column-value-' + i" 
-                 formControlName="columnValue" 
-                 [placeholder]="getPlaceholderForColumn(tableColumns[i])" 
-                 class="form-control column-value">
-          
-          <!-- Show error message if needed -->
-          <div class="error-message" 
-               *ngIf="columnControl.get('columnValue').invalid && 
-                     (columnControl.get('columnValue').dirty || 
-                      columnControl.get('columnValue').touched)">
-          </div>
-        </div>
-      </div>
+    <app-lmd-insert 
+      *ngIf="formMode === 'insert' && selectedTable" 
+      [selectedTable]="selectedTable" 
+      [tableColumns]="tableColumns"
+      (formSubmit)="onInsertSubmit($event)"
+      (formReset)="resetForm()">
+    </app-lmd-insert>
+    <app-lmd-update 
+      *ngIf="formMode === 'update' && selectedTable" 
+      [selectedTable]="selectedTable" 
+      [tableColumns]="tableColumns"
+      [availableTables]="availableTables"
+      (formSubmit)="onUpdateSubmit($event)"
+      (formReset)="resetForm()">
+    </app-lmd-update>
+    <app-lmd-delete 
+      *ngIf="formMode === 'delete' && selectedTable" 
+      [selectedTable]="selectedTable" 
+      [tableColumns]="tableColumns"
+      [availableTables]="availableTables"
+      (formSubmit)="onDeleteSubmit($event)"
+      (formReset)="resetForm()">
+    </app-lmd-delete>
+    <div class="no-table-message" *ngIf="!selectedTable">
+      <p>Please select a table from the list on the left.</p>
     </div>
-  </div>
-
-  <!-- Where Clause section -->
-  <div class="where-clause-section" *ngIf="selectedTable">
-    <h4>Where Clause</h4>
-    <p class="section-description">Define conditions for the rows to update:</p>
-    
-    <div formArrayName="whereClauses">
-      <div *ngFor="let whereControl of whereClauses.controls; let i = index" 
-           [formGroupName]="i" 
-           class="where-condition-row">
-        
-        <div class="where-column-field">
-          <label [for]="'where-column-' + i">Column:</label>
-          <select 
-            [id]="'where-column-' + i" 
-            formControlName="columnName" 
-            class="form-control where-column-select">
-            <option *ngFor="let column of tableColumns" [value]="column.name">
-              {{ column.name }}
-            </option>
-          </select>
-        </div>
-        
-        <div class="where-operator-field">
-          <label [for]="'where-operator-' + i">Operator:</label>
-          <select 
-            [id]="'where-operator-' + i" 
-            formControlName="operator" 
-            class="form-control where-operator-select">
-            <option value="=">=</option>
-            <option value="!=">!=</option>
-            <option value=">">&gt;</option>
-            <option value=">=">&gt;=</option>
-            <option value="<">&lt;</option>
-            <option value="<=">&lt;=</option>
-            <option value="LIKE">LIKE</option>
-            <option value="IN">IN</option>
-          </select>
-        </div>
-        
-        <div class="where-value-field">
-          <label [for]="'where-value-' + i">Value:</label>
-          <input 
-            type="text" 
-            [id]="'where-value-' + i" 
-            formControlName="value" 
-            class="form-control where-value-input">
-        </div>
-        
-        <div class="where-action-field">
-          <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
-            <span class="remove-icon">×</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="where-add-button">
-      <button type="button" class="btn-add-condition" (click)="addWhereCondition()">
-        <span class="add-icon">+</span> Add Condition
-      </button>
-    </div>
-  </div>
-
-  <!-- Join Condition section -->
-  <div class="join-clause-section" *ngIf="selectedTable">
-    <h4>Join Conditions</h4>
-    <p class="section-description">Add table joins for the update query:</p>
-    
-    <div formArrayName="joins">
-      <div *ngFor="let joinControl of joins.controls; let i = index" 
-           [formGroupName]="i" 
-           class="join-condition-row">
-        
-        <!-- First Table (default to current table) -->
-        <div class="join-first-table-field">
-          <input type="hidden" formControlName="firstTableId">
-          <div class="field-label">First Table: {{ selectedTable.name }}</div>
-        </div>
-        
-        <!-- First Column -->
-        <div class="join-first-column-field">
-          <label [for]="'join-first-column-' + i">First Column:</label>
-          <select 
-            [id]="'join-first-column-' + i" 
-            formControlName="firstColumnName" 
-            class="form-control join-column-select">
-            <option *ngFor="let column of tableColumns" [value]="column.name">
-              {{ column.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Join Type -->
-        <div class="join-type-field">
-          <label [for]="'join-type-' + i">Join Type:</label>
-          <select 
-            [id]="'join-type-' + i" 
-            formControlName="joinType" 
-            class="form-control join-type-select">
-            <option value="INNER">INNER JOIN</option>
-            <option value="LEFT">LEFT JOIN</option>
-            <option value="RIGHT">RIGHT JOIN</option>
-          </select>
-        </div>
-        
-        <!-- Second Table -->
-        <div class="join-second-table-field">
-          <label [for]="'join-second-table-' + i">Second Table:</label>
-          <select 
-            [id]="'join-second-table-' + i" 
-            formControlName="secondTableId" 
-            class="form-control join-table-select">
-            <option *ngFor="let table of getAvailableTables()" [value]="table.id"  >
-              {{ table.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Second Column -->
-        <div class="join-second-column-field">
-          <label [for]="'join-second-column-' + i">Second Column:</label>
-          <select 
-            [id]="'join-second-column-' + i" 
-            formControlName="secondColumnName" 
-            class="form-control join-column-select">
-            <option value="">-- Select Column --</option>
-            <option *ngFor="let column of getSecondTableColumns(i)" [value]="column.name">
-              {{ column.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Remove button -->
-        <div class="join-action-field">
-          <button type="button" class="btn-remove" (click)="removeJoinCondition(i)">
-            <span class="remove-icon">×</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="join-add-button">
-      <button type="button" class="btn-add-join" (click)="addJoinCondition()">
-        <span class="add-icon">+</span> Add Join
-      </button>
-    </div>
-  </div>
-
-  <!-- Form Actions -->
-  <div class="form-actions" *ngIf="selectedTable">
-    <button type="submit" class="btn-submit" [disabled]="!updateForm.valid">
-      Update Data
-    </button>
-    <button type="button" class="btn-reset" (click)="resetUpdateForm()">
-      Reset Values
-    </button>
-  </div> 
-</form>
-
-<!-- DELETE FORM -->
-<form *ngIf="formMode === 'delete'" [formGroup]="deleteForm" (ngSubmit)="onDeleteSubmit()" class="delete-form">
-  <div class="form-header">
-    <h2>Delete Data Form</h2>
-  </div>
-
-  <!-- Selected Table Info -->
-  <div class="selected-table-info" *ngIf="selectedTable">
-    <h3>Delete From: {{ selectedTable.name }}</h3>
-    <input type="hidden" formControlName="table">
-    <div class="warning-message">
-      <strong>Warning:</strong> This action will permanently delete data from the database.
-    </div>
-  </div>
-
-  <!-- No table selected message -->
-  <div class="no-table-message" *ngIf="!selectedTable">
-    <p>Please select a table from the list on the left.</p>
-  </div>
-
-  <!-- Where Clause section -->
-  <div class="where-clause-section" *ngIf="selectedTable">
-    <h4>Where Clause</h4>
-    <p class="section-description">Define conditions for the rows to delete:</p>
-    
-    <div formArrayName="whereClauses">
-      <div *ngFor="let whereControl of whereClauses.controls; let i = index" 
-           [formGroupName]="i" 
-           class="where-condition-row">
-        
-        <div class="where-column-field">
-          <label [for]="'delete-where-column-' + i">Column:</label>
-          <select 
-            [id]="'delete-where-column-' + i" 
-            formControlName="columnName" 
-            class="form-control where-column-select">
-            <option *ngFor="let column of tableColumns" [value]="column.name">
-              {{ column.name }}
-            </option>
-          </select>
-        </div>
-        
-        <div class="where-operator-field">
-          <label [for]="'delete-where-operator-' + i">Operator:</label>
-          <select 
-            [id]="'delete-where-operator-' + i" 
-            formControlName="operator" 
-            class="form-control where-operator-select">
-            <option value="=">=</option>
-            <option value="!=">!=</option>
-            <option value=">">&gt;</option>
-            <option value=">=">&gt;=</option>
-            <option value="<">&lt;</option>
-            <option value="<=">&lt;=</option>
-            <option value="LIKE">LIKE</option>
-            <option value="IN">IN</option>
-          </select>
-        </div>
-        
-        <div class="where-value-field">
-          <label [for]="'delete-where-value-' + i">Value:</label>
-          <input 
-            type="text" 
-            [id]="'delete-where-value-' + i" 
-            formControlName="value" 
-            class="form-control where-value-input">
-        </div>
-        
-        <div class="where-action-field">
-          <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
-            <span class="remove-icon">×</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="where-add-button">
-      <button type="button" class="btn-add-condition" (click)="addWhereCondition()">
-        <span class="add-icon">+</span> Add Condition
-      </button>
-    </div>
-  </div>
-
-  <!-- Join Condition section -->
-  <div class="join-clause-section" *ngIf="selectedTable">
-    <h4>Join Conditions</h4>
-    <p class="section-description">Add table joins for the delete query:</p>
-    
-    <div formArrayName="joins">
-      <div *ngFor="let joinControl of joins.controls; let i = index" 
-           [formGroupName]="i" 
-           class="join-condition-row">
-        
-        <!-- First Table (default to current table) -->
-        <div class="join-first-table-field">
-          <input type="hidden" formControlName="firstTableId">
-          <div class="field-label">First Table: {{ selectedTable.name }}</div>
-        </div>
-        
-        <!-- First Column -->
-        <div class="join-first-column-field">
-          <label [for]="'delete-join-first-column-' + i">First Column:</label>
-          <select 
-            [id]="'delete-join-first-column-' + i" 
-            formControlName="firstColumnName" 
-            class="form-control join-column-select">
-            <option *ngFor="let column of tableColumns" [value]="column.name">
-              {{ column.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Join Type -->
-        <div class="join-type-field">
-          <label [for]="'delete-join-type-' + i">Join Type:</label>
-          <select 
-            [id]="'delete-join-type-' + i" 
-            formControlName="joinType" 
-            class="form-control join-type-select">
-            <option value="INNER">INNER JOIN</option>
-            <option value="LEFT">LEFT JOIN</option>
-            <option value="RIGHT">RIGHT JOIN</option>
-          </select>
-        </div>
-        
-        <!-- Second Table -->
-        <div class="join-second-table-field">
-          <label [for]="'delete-join-second-table-' + i">Second Table:</label>
-          <select 
-            [id]="'delete-join-second-table-' + i" 
-            formControlName="secondTableId" 
-            class="form-control join-table-select">
-            <option *ngFor="let table of getAvailableTables()" [value]="table.id"  >
-              {{ table.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Second Column -->
-        <div class="join-second-column-field">
-          <label [for]="'delete-join-second-column-' + i">Second Column:</label>
-          <select 
-            [id]="'delete-join-second-column-' + i" 
-            formControlName="secondColumnName" 
-            class="form-control join-column-select">
-            <option value="">-- Select Column --</option>
-            <option *ngFor="let column of getSecondTableColumns(i)" [value]="column.name">
-              {{ column.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Remove button -->
-        <div class="join-action-field">
-          <button type="button" class="btn-remove" (click)="removeJoinCondition(i)">
-            <span class="remove-icon">×</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="join-add-button">
-      <button type="button" class="btn-add-join" (click)="addJoinCondition()">
-        <span class="add-icon">+</span> Add Join
-      </button>
-    </div>
-  </div>
-
-  <!-- Form Actions -->
-  <div class="form-actions" *ngIf="selectedTable">
-    <button type="submit" class="btn-submit btn-danger" [disabled]="!deleteForm.valid">
-      Delete Data
-    </button>
-    <button type="button" class="btn-reset" (click)="resetDeleteForm()">
-      Reset Values
-    </button>
-  </div>
-</form>
   </div>
 </div>
