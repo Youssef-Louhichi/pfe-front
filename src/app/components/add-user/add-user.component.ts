@@ -149,7 +149,7 @@ getSelectedIds() {
       
         this.analystservice.linkDatabaseToAnalyst(this.filteredUsers[0].identif, payload).subscribe(data => {
           if (data.message == "Database linked successfully") {
-            this.analysts.push(data.analyst as Analyst)
+            this.analysts.push(data.analyst)
             this.filteredUsers = []
             this.selectedDbId = null
           this.selectedTableIds = []

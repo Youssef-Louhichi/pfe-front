@@ -5,6 +5,8 @@ import { UserDetailsPopupComponent } from '../user-details-popup/user-details-po
 import { MatDialog } from '@angular/material/dialog';
 import { Database } from 'src/app/models/database';
 import { AnalystService } from 'src/app/services/analyst.service';
+import { TaskPopupComponent } from '../task-popup/task-popup.component';
+import { TaskService } from 'src/app/services/task.service';
 
 @Component({
   selector: 'app-list-user',
@@ -17,6 +19,7 @@ export class ListUserComponent {
 constructor(
     private dialog: MatDialog,
   private analystservice: AnalystService,
+  private taskService: TaskService
   ) { }
 isDatabaseSelected: boolean = false;
 selectedTables: Set<string> = new Set(); // Track selected table names
@@ -28,7 +31,8 @@ selectedColumnIds: number[] = [];
 
   @Input() analysts : Analyst[]
     @Input() selectedDb: Database
-  
+    @Input() user: User;
+
 
 
 
@@ -171,6 +175,8 @@ updateUser(user: Analyst) {
     if(bool){
       this.analystservice.linkDatabaseToAnalyst(user.identif, payload).subscribe(data => {
         if (data.message == "Database linked successfully") {
+          this.analysts = this.analysts.filter(a=> a.identif != user.identif)
+          this.analysts.push(data.analyst) 
           this.selectedAnalystId=null
           this.selectedDbId = null
           this.selectedTableIds = []
@@ -181,5 +187,26 @@ updateUser(user: Analyst) {
   })
 }
 }
+
+openTaskDialog(receiverId: number) {
+  const dialogRef = this.dialog.open(TaskPopupComponent, {
+    width: '400px',
+    data: { receiverId }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result?.description) {
+      this.taskService.createTask({
+        senderId: this.user.identif,
+        receiverId: receiverId,
+        description: result.description
+      }).subscribe({
+        next: task => console.log('Task sent', task),
+        error: err => console.error('Error sending task', err)
+      });
+    }
+  });
+}
+
 
 }

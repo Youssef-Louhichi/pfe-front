@@ -176,12 +176,26 @@
     font-size: 0.95em;
 }
   
-  .update-button {
+  .buttons {
     margin-top: 5px;
   }
   
-  .update-button button {
+  .update-button {
     background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 3px;
+  }
+  
+  .update-button :hover {
+    background-color: #45a049;
+  }
+
+  .task-button {
+    background-color: #6f4caf;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -189,6 +203,6 @@
     cursor: pointer;
   }
   
-  .update-button button:hover {
-    background-color: #45a049;
+  .task-button :hover {
+    background-color: #8645a0;
   }

@@ -12,11 +12,11 @@
     <!-- Navigation links -->
     <div class="nav-links">
       <a href="#" (click)="showList = true; $event.preventDefault()" >Analysts list</a> |
-      <a href="#" (click)="showList = false; $event.preventDefault()" >Add new analyst</a>
+      <a href="#" (click)="showList = false; $event.preventDefault()" [hidden]="user.type == 'Analyst'" >Add new analyst</a>
     </div>
     
     <!-- Conditional rendering based on showList flag -->
-    <app-list-user *ngIf="showList" [selectedDb]="selectedDb" [analysts]="analysts" class="full-width"></app-list-user>
+    <app-list-user *ngIf="showList" [user]="user" [selectedDb]="selectedDb" [analysts]="analysts" class="full-width"></app-list-user>
     <app-add-user *ngIf="!showList" [user]="user" [analysts]="analysts" [selectedDb]="selectedDb" class="full-width"></app-add-user>
   </div>
 </div>

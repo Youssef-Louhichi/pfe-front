@@ -22,6 +22,8 @@ import { EditUserProfileComponent } from './components/edit-user-profile/edit-us
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { AddUserComponent } from './components/add-user/add-user.component';
 import { ListUserComponent } from './components/list-user/list-user.component';
+import { TaskPopupComponent } from './components/task-popup/task-popup.component';
+import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +44,8 @@ import { ListUserComponent } from './components/list-user/list-user.component';
     LoadingSpinnerComponent,
     AddUserComponent,
     ListUserComponent,
+    TaskPopupComponent,
+    MyTasksComponent,
     
   ],
   imports: [

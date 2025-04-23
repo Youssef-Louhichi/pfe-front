@@ -1,0 +1,60 @@
+<!-- tasks.component.html -->
+<div class="task-container">
+    <div class="tabs-container">
+        <button 
+        class="tab-button" 
+        [ngClass]="{'active': activeTab === 'received'}" 
+        (click)="activeTab = 'received'"
+      >
+        📥 Received Tasks
+      </button>
+      <button 
+        class="tab-button" 
+        [ngClass]="{'active': activeTab === 'sent'}" 
+        (click)="activeTab = 'sent'"
+      >
+        📤 Sent Tasks
+      </button>
+      
+    </div>
+
+    <div class="tab-content" *ngIf="activeTab === 'received'">
+        <div class="empty-state" *ngIf="receivedTasks.length === 0">
+          No tasks assigned to you.
+        </div>
+        
+        <div class="task-card" *ngFor="let task of receivedTasks" [ngClass]="{'task-done': task.done, 'task-pending': !task.done}">
+          <div class="task-sender">From: {{ task.sender.mail }}</div>
+          <div class="task-description">{{ task.description }}</div>
+          <div class="task-status">
+            <button
+              class="action-button"
+              (click)="markAsDone(task.id!)"
+              *ngIf="!task.done"
+            >
+              Mark as Done
+            </button>
+            <div class="status-done" *ngIf="task.done">
+              Done ✅
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    <!-- Sent Tasks Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'sent'">
+      <div class="empty-state" *ngIf="sentTasks.length === 0">
+        You haven't sent any tasks yet.
+      </div>
+      
+      <div class="task-card" *ngFor="let task of sentTasks" [ngClass]="{'task-done': task.done, 'task-pending': !task.done}">
+        <div class="task-receiver">To: {{ task.receiver.mail }}</div>
+        <div class="task-description">{{ task.description }}</div>
+        <div class="task-status">
+          Status: 
+          <span class="status-label" *ngIf="!task.done">⏳ Pending</span>
+          <span class="status-label status-done" *ngIf="task.done">Done ✅</span>
+        </div>
+      </div>
+    </div> 
+  </div>

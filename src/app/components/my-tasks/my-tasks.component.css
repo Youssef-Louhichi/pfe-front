@@ -1,0 +1,166 @@
+/* tasks.component.scss or tasks.component.css */
+
+.task-container {
+    max-width: 80%;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Tabs styling */
+  .tabs-container {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 2rem;
+  }
+  
+  .tab-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .tab-button:hover {
+    color: #4b5563;
+  }
+  
+  .tab-button.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+  }
+  
+  .tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .section-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 1.5rem;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .task-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3b82f6;
+    transition: all 0.2s ease;
+  }
+  
+  .task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .task-done {
+    border-left-color: #10b981;
+    background-color: #f0fdf4;
+  }
+  
+  .task-pending {
+    border-left-color: #f59e0b;
+  }
+  
+  .task-sender, .task-receiver {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+  
+  .task-description {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+  }
+  
+  .task-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+  }
+  
+  .status-label {
+    font-weight: 500;
+  }
+  
+  .status-done {
+    color: #059669;
+  }
+  
+  .action-button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .action-button:hover {
+    background-color: #2563eb;
+  }
+  
+  .action-button:focus {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 640px) {
+    .task-container {
+      padding: 1rem;
+      margin: 1rem;
+    }
+    
+    .tabs-container {
+      margin-bottom: 1.5rem;
+    }
+    
+    .tab-button {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      flex: 1;
+      text-align: center;
+    }
+    
+    .task-card {
+      padding: 1rem;
+    }
+  }

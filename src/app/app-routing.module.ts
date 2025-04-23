@@ -8,6 +8,7 @@ import { LoginPageComponent } from './components/login-page/login-page.component
 import { LMDComponent } from './components/lmd/lmd.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { EditUserProfileComponent } from './components/edit-user-profile/edit-user-profile.component';
+import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
 
 const routes: Routes = [
   {path:"login",title:"EasySql",component:LoginPageComponent},
@@ -18,6 +19,8 @@ const routes: Routes = [
     {path:"rapports",component:RapportsComponent},
     {path:"LMD",component:LMDComponent},
     {path:"profile",component:EditUserProfileComponent},
+    {path:"tasks",component:MyTasksComponent},
+
 
     {path:"",redirectTo:"dashboard",pathMatch:'full'}
   ]},

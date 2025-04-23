@@ -27,20 +27,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of analysts; let i = index">
+        <tr *ngFor="let analyst of analysts; let i = index">
           <td class="user-row">
             <div class="user-element">
               <input 
                 type="checkbox" 
-                [checked]="selectedAnalystId === user" 
-                (change)="toggleCheck(user)"
+                [checked]="selectedAnalystId === analyst" 
+                (change)="toggleCheck(analyst)"
               >
               <i class="fa-solid fa-user-circle"></i>
-              <div (click)="showUserDetails(user)" class="user-mail">{{ user.mail }}</div>
+              <div (click)="showUserDetails(analyst)" class="user-mail">{{ analyst.mail }}</div>
             </div>
           
-            <div class="update-button" *ngIf="selectedAnalystId === user">
-              <button (click)="updateUser(user)">Update</button>
+            <div class="buttons" *ngIf="selectedAnalystId === analyst" >
+              <button class="update-button" (click)="updateUser(analyst)" [hidden]="user.type == 'Analyst'">Update</button>
+              <button class="task-button" (click)="openTaskDialog(analyst.identif)">Send Task</button>
+
             </div>
           </td>
         </tr>
