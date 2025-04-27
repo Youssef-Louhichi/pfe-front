@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Select Script</h2>
+<mat-dialog-content>
+  <mat-selection-list #scriptList>
+    <mat-list-option *ngFor="let script of scripts" [value]="script.id">
+      {{ script.name }}
+    </mat-list-option>
+  </mat-selection-list>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-button [disabled]="!scriptList.selectedOptions.selected.length" 
+          (click)="onSelect()">Add to Script</button>
+</mat-dialog-actions>

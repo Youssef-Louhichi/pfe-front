@@ -7,6 +7,9 @@ import { Requete } from 'src/app/models/requete';
 import { User } from 'src/app/models/user';
 import { RequeteService } from 'src/app/services/requete.service';
 import { UsersService } from 'src/app/services/users.service';
+import { ScriptSelectionDialogComponent } from '../script-selection-dialog/script-selection-dialog.component';
+import { ScriptServiceService } from 'src/app/services/script-service.service';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-edit-user-profile',
@@ -23,7 +26,9 @@ export class EditUserProfileComponent implements OnInit {
     private fb: FormBuilder,
     private usersService: UsersService,
     private router: Router,
-    private reqService : RequeteService
+    private reqService : RequeteService,
+    private scriptService : ScriptServiceService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -95,6 +100,29 @@ getReq(senderId : any)  {
 this.reqService.getUserReq(senderId).subscribe(data => {this.reqs = data});
 
 
+}
+
+
+openScriptSelectionDialog(requeteId: number): void {
+  const dialogRef = this.dialog.open(ScriptSelectionDialogComponent, {
+    width: '400px',
+    data: { requeteId }
+  });
+
+  dialogRef.afterClosed().subscribe(scriptId => {
+    if (scriptId) {
+      this.scriptService.addRequeteToScript(scriptId, requeteId)
+        .subscribe({
+          next: () => {
+            // Refresh the queries list after successful addition
+            this.getReq(Number(localStorage.getItem('userId')));
+          },
+          error: (error) => {
+            console.error('Error adding query to script:', error);
+          }
+        });
+    }
+  });
 }
 
 }

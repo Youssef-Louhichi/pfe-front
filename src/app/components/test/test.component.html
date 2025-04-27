@@ -1,0 +1,21 @@
+<p>test works!</p>
+<div class="results-section" *ngIf="allResults && allResults.length">
+    <h3>Query Results</h3>
+    
+    <div *ngFor="let result of allResults; let i = index" class="result-table">
+      <h4>Query {{ i + 1 }}</h4>
+      <table class="tabdata">
+        <thead>
+          <tr>
+            <th *ngFor="let key of result.headers">{{ key }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of result.rows">
+            <td *ngFor="let key of result.headers">{{ row[key] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  

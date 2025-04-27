@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Chart } from 'chart.js';
 import { Graph } from 'src/app/models/graph';
 import { Rapport } from 'src/app/models/rapport';
+import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { UsersService } from 'src/app/services/users.service';
 
 @Component({
@@ -14,10 +15,11 @@ export class RapportsComponent implements OnInit{
 
 
     constructor(private userService:UsersService,private router:Router,
-      private el: ElementRef
+      private el: ElementRef,private scriptservice : ScriptServiceService
     ) { }
 
     rapports:Rapport[]
+    scripts: any[];
 
     ngOnInit(): void {
       this.userService.getUserRapports(Number(localStorage.getItem("userId"))).subscribe(data =>{
@@ -30,7 +32,7 @@ export class RapportsComponent implements OnInit{
           });
         })
       })
-
+this.getScripts();
     }
 
     
@@ -113,4 +115,26 @@ export class RapportsComponent implements OnInit{
     editRapport(r:Rapport){
       
     }
+
+
+
+getScripts()
+{
+  this.scriptservice.getAll().subscribe(data => {
+    this.scripts = data 
+    console.log(this.scripts.length)
+  })
+}
+
+openScript(scriptId: number): void {
+  this.router.navigate(['/main/dashboard/edit/', scriptId]);
+}
+
+deleteScript(id : number) : void 
+{
+  this.scriptservice.deleteScript(id).subscribe({
+    next: () => console.log('Script deleted'),
+  });
+
+}
 }

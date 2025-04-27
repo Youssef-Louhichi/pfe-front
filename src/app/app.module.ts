@@ -27,6 +27,10 @@ import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
 import { LmdInsertComponent } from './components/lmd-insert/lmd-insert.component';
 import { LmdUpdateComponent } from './components/lmd-update/lmd-update.component';
 import { LmdDeleteComponent } from './components/lmd-delete/lmd-delete.component';
+import { TestComponent } from './components/test/test.component';
+import { ScriptSelectionDialogComponent } from './components/script-selection-dialog/script-selection-dialog.component';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -52,6 +56,8 @@ import { LmdDeleteComponent } from './components/lmd-delete/lmd-delete.component
     LmdInsertComponent,
     LmdUpdateComponent,
     LmdDeleteComponent,
+    TestComponent,
+    ScriptSelectionDialogComponent,
     
   ],
   imports: [
@@ -62,7 +68,9 @@ import { LmdDeleteComponent } from './components/lmd-delete/lmd-delete.component
     BrowserAnimationsModule,
     ReactiveFormsModule,
     MatDialogModule ,
-    DragDropModule
+    DragDropModule,
+    MatListModule,
+    MatButtonModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

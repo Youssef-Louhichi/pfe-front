@@ -1,6 +1,7 @@
 import { CdkDragDrop, copyArrayItem, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Analyst } from 'src/app/models/analyst';
 import { Column } from 'src/app/models/column';
 import { Creator } from 'src/app/models/creator';
@@ -11,6 +12,7 @@ import { AnalystService } from 'src/app/services/analyst.service';
 import { ConnexionsService } from 'src/app/services/connexions.service';
 //import { WhereClause } from 'src/app/models/where-clause';
 import { RequeteService } from 'src/app/services/requete.service';
+import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
 const apiKey = environment.openRouterApiKey;
@@ -53,11 +55,11 @@ interface ColumnWithTable extends Column {
 export class QueryBuilderComponent implements OnInit {
 
   constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService,
-    private analystservice:AnalystService,private connexionservice:ConnexionsService
+    private analystservice:AnalystService,private connexionservice:ConnexionsService,private scriptService: ScriptServiceService,private route: ActivatedRoute
   ) { }
 
 
-
+  allResults: { headers: string[], rows: any[] }[] = [];
   databases: Database[];
   queryForm: FormGroup;
   showColumns: { [key: string]: boolean } = {};
@@ -108,6 +110,12 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
         this.addJoinCondition();
       }
     });
+
+
+    const scriptId = this.route.snapshot.paramMap.get('scriptId');
+    if (scriptId) {
+      this.fetchResults(Number(scriptId));
+    }
   }
 
 
@@ -674,15 +682,40 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
   @Output() newItemEvent = new EventEmitter<Graph>();
 
-  addTableToWorkspace() {
-    if (this.tableData.length) {
 
+  addTableToWorkspace() {
+    // Emit script results if present
+    if (this.allResults.length > 0) {
+      this.allResults.forEach((table, index) => {
+        if (table.rows.length) {
+          this.newItemEvent.emit(
+            new Graph(
+              Date.now() + index,
+              [...table.headers],
+              [...table.rows],
+              'table',
+              300,
+              200,
+              100 + index * 50,
+              100 + index * 50,
+              null,
+              null,
+              null,
+              null,
+              null
+            )
+          );
+        }
+      });
+    }
+    // Emit query builder/AI results if present
+    else if (this.tableData.length) {
       this.newItemEvent.emit(
         new Graph(
           Date.now(),
           [...this.tableHeaders],
           [...this.tableData],
-          "table",
+          'table',
           300,
           200,
           100,
@@ -692,10 +725,10 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
           null,
           null,
           null
-        ));
+        )
+      );
     }
   }
-
 
   switch(){
     this.toggle = !this.toggle
@@ -776,6 +809,28 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
       console.error("Error fetching response:", err);
     });
 
+  }
+
+
+
+
+  fetchResults(scriptId: number): void {
+    this.scriptService.executeScript(scriptId).subscribe(
+      (result: any[][]) => {
+        this.allResults = result.map(queryResult => {
+          const headers = queryResult.length > 0 ? Object.keys(queryResult[0]) : [];
+          return {
+            headers,
+            rows: queryResult
+          };
+        });
+        this.tableData = []; // Clear query builder results when script results are loaded
+        this.tableHeaders = [];
+      },
+      error => {
+        console.error('Error fetching results:', error);
+      }
+    );
   }
 
 }

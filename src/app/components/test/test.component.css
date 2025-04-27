@@ -1,0 +1,617 @@
+.query-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    justify-content: flex-start;
+  }
+  
+  .side {
+    width: 230px;
+    height: 100%;
+    background-color: #f5f5f5;
+    border-right: 1px solid #ddd;
+    padding: 15px;
+    overflow-y: auto;
+  }
+  
+  .db-selector {
+    margin-bottom: 20px;
+  }
+  
+  .db-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+    margin: 10px 0;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .tables-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .table-item {
+    margin-bottom: 4px;
+  }
+  
+  .table-header {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .table-header:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .expander {
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .expander svg {
+    transition: transform 0.2s;
+  }
+  
+  .expander svg.expanded {
+    transform: rotate(90deg);
+  }
+  
+  .table-name {
+    font-weight: 500;
+  }
+  
+  .columns-container {
+    padding-left: 20px;
+  }
+  
+  .columns-list {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0;
+  }
+  
+  .column-item {
+    padding: 6px 8px;
+    border-radius: 3px;
+    margin-bottom: 2px;
+    background-color: #fff;
+    border: 1px solid #eee;
+    cursor: move;
+    display: flex;
+    align-items: center;
+  }
+  
+  .column-item:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .column-type {
+    font-size: 12px;
+    color: #777;
+    margin-left: 5px;
+  }
+  
+  /* Content Area */
+  .query-area {
+    overflow-y: auto;
+    padding: 20px;
+  }
+  
+  .content-area {
+    width:500px;
+  }
+  
+  /* Form Styles */
+  .query-form {
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-header {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+  }
+  
+  .form-header h2 {
+    font-size: 18px;
+    margin: 0;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+    width: 100%;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  .selected-columns {
+    min-height: 60px;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .column-tag {
+    background-color: #e9f5ff;
+    border: 1px solid #b3d7ff;
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-size: 13px;
+    cursor: move;
+  }
+  
+  .placeholder {
+    color: #999;
+    font-style: italic;
+  }
+  
+  /* Where conditions */
+  .conditions-list {
+    margin-bottom: 15px;
+  }
+  
+  .condition-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  
+  .operator {
+    width: 80px;
+  }
+  
+  .value {
+    width: 100%;
+  }
+  
+  .btn-remove {
+    background-color: #ff5252;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .btn-add {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* Results Table */
+  .results-section {
+    margin-top: 30px;
+  }
+  
+  .results-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .tabdata {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tabdata th {
+    background-color: #f5f5f5;
+    padding: 10px 15px;
+    text-align: left;
+    font-weight: 500;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  .tabdata td {
+    padding: 8px 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .tabdata tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  /* Drag and drop styles */
+  .cdk-drag-preview {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+    opacity: 0.8;
+  }
+  
+  .cdk-drag-placeholder {
+    opacity: 0.3;
+  }
+  
+  .cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  /* Styles for disabled columns */
+.column-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    background-color: #f3f3f3;
+    border-color: #ddd;
+  }
+  
+  /* Styles for the remove button on column tags */
+  .column-tag {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 5px;
+  }
+  
+  .remove-column {
+    margin-left: 5px;
+    border: none;
+    background: none;
+    color: #999;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .remove-column:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #555;
+  }
+  
+  /* Empty state message for the drop area */
+  .placeholder {
+    color: #999;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+  }
+  
+  /* Make the drop area more visible when empty */
+  .selected-columns:empty::after {
+    content: "Drag columns here";
+    display: block;
+    color: #999;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .condition-drop-area {
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    min-height: 50px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.condition-drop-area h4 {
+    color: #888;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.condition-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 50px;
+}
+
+.condition-column {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.condition-column button {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.condition-drop-area.cdk-drag-hover {
+    background-color: #f5f5f5;
+    border-color: #999;
+}
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.5;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.condition-columns.cdk-drop-list-dragging .condition-column:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.dropzone {
+  min-height: 50px;
+  padding: 20px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.dropzone.cdk-drag-over {
+  background-color: #f0f0f0;
+}
+
+/* Join Conditions Styling */
+.join-conditions {
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+.join-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.join-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.join-table-select,
+.join-column-select {
+  flex: 2;
+}
+
+.join-type-select {
+  flex: 1.5;
+}
+
+.btn-remove {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-add-join {
+  align-self: flex-start;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-add-join:hover {
+  background-color: #40a9ff;
+}
+
+
+/* Aggregation Section Styles */
+.aggregation-section, .group-by-section {
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+
+.aggregation-row, .group-by-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.agg-column-select {
+  flex: 2;
+  margin-right: 10px;
+}
+
+.agg-function-select {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.btn-add-agg, .btn-add-group {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.btn-add-agg:hover, .btn-add-group:hover {
+  background-color: #45a049;
+}
+
+/* Group By Styles */
+.group-by-container {
+  margin-top: 10px;
+}
+
+.dropzone {
+  min-height: 60px;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  margin-top: 10px;
+}
+
+.dropzone p {
+  text-align: center;
+  color: #999;
+  margin: 15px 0;
+}
+
+.group-by-item {
+  background-color: #e3f2fd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-group-columns {
+  margin-top: 10px;
+}
+
+.remove-column {
+  background: none;
+  border: none;
+  color: #f44336;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+/* Make form controls more consistent */
+.form-control {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+}
+
+/* Make the containers more visually distinct */
+.condition-row, .join-row, .aggregation-row {
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.ai-input{
+  min-height: 60px;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 90%;
+}
+
+.text-zone{
+  resize: none;
+  width: 100%;
+  height:100px;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  background-color: #f0f0f0; 
+  cursor: not-allowed;
+}
