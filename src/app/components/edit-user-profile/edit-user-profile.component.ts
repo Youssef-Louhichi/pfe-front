@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import {  Router } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { finalize, last } from 'rxjs/operators';
 import { Requete } from 'src/app/models/requete';
 import { User } from 'src/app/models/user';
 import { RequeteService } from 'src/app/services/requete.service';
@@ -21,7 +21,7 @@ export class EditUserProfileComponent implements OnInit {
   user: User | null = null;
   isLoading = false;
   reqs : Requete[] ;
-
+lastreq : Requete;
   constructor(
     private fb: FormBuilder,
     private usersService: UsersService,
@@ -97,7 +97,13 @@ this.usersService.getUserById(userId).subscribe(data =>{
 
 getReq(senderId : any)  {
 
-this.reqService.getUserReq(senderId).subscribe(data => {this.reqs = data});
+this.reqService.getUserReq(senderId).subscribe(data => {this.reqs = data
+
+  this.lastreq = this.reqs[this.reqs.length-1];
+  console.log(this.lastreq)
+
+
+});
 
 
 }
@@ -109,19 +115,42 @@ openScriptSelectionDialog(requeteId: number): void {
     data: { requeteId }
   });
 
-  dialogRef.afterClosed().subscribe(scriptId => {
-    if (scriptId) {
-      this.scriptService.addRequeteToScript(scriptId, requeteId)
-        .subscribe({
-          next: () => {
-            // Refresh the queries list after successful addition
+  dialogRef.afterClosed().subscribe(result => {
+    if (result && typeof result === 'object') {
+      const { scriptIds, removedIds } = result;
+  
+      if (Array.isArray(scriptIds) && scriptIds.length > 0) {
+        this.scriptService.addRequeteToScripts(scriptIds, requeteId).subscribe({
+          next: (response) => {
             this.getReq(Number(localStorage.getItem('userId')));
+            console.log('Requete added to scripts:', response);
           },
           error: (error) => {
-            console.error('Error adding query to script:', error);
+            console.error('Error adding requete to scripts:', error);
           }
         });
+      }
+  
+      if (Array.isArray(removedIds) && removedIds.length > 0) {
+        this.scriptService.removeRequeteFromScripts(removedIds, requeteId).subscribe({
+          next: (response) => {
+            this.getReq(Number(localStorage.getItem('userId')));
+            console.log('Requete removed from scripts:', response);
+          },
+          error: (error) => {
+            console.error('Error removing requete from scripts:', error);
+          }
+        });
+      }
     }
+  });
+}
+
+
+deleteReq(id : number)
+{
+  this.reqService.deleteReq(id).subscribe({
+    next: () => console.log('req deleted'),
   });
 }
 

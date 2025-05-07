@@ -17,7 +17,9 @@
         <h3 class="section-title">Tables</h3>
         <ul class="tables-list">
           <li *ngFor="let table of databases[selectedDbIndex]?.tables" class="table-item">
+            
             <div class="table-header" (click)="toggleTable(table)">
+             
               <span class="expander">
                 <svg width="10" height="10" viewBox="0 0 10 10" 
                      [class.expanded]="showColumns[table.name]">
@@ -25,6 +27,7 @@
                 </svg>
               </span>
               <span class="table-name">{{ table.name }}</span>
+              <input type="checkbox" (click)="$event.stopPropagation(); selectAllTableColumns(table)" [checked]="isTableFullySelected(table)">
             </div>
   
             <!-- Columns list for selected table -->
@@ -51,10 +54,29 @@
   
     <div class="query-area">
       <div class="content-area">
+        <div class="script-selector">
+          <label for="scriptSelect">Select a Script:</label>
+          <select
+            id="scriptSelect"
+            class="script-select"
+            [(ngModel)]="selectedScriptIndex"
+            [ngModelOptions]="{standalone: true}">
+            <option *ngFor="let script of scripts; let i = index" [value]="i">
+              {{ script.name | titlecase }}
+            </option>
+          </select>
+          <button 
+            class="launch-button" 
+            (click)="fetchResults(scripts[selectedScriptIndex].id)">
+            Launch
+          </button>
+        </div>
         <form [formGroup]="queryForm" (ngSubmit)="onSubmit()" class="query-form" *ngIf="toggle">
-          <div class="form-header">
-            <h2>Query Builder</h2>
-          </div>
+       
+<div class="form-header">
+  <h2>Build your query or</h2>
+  
+</div>
   
           <!-- Selected Tables -->
           <div class="selected-tables">
@@ -300,7 +322,7 @@
         <!-- Results Display -->
         <div class="results-section">
           <!-- Script Results (Multiple Tables) -->
-          <div *ngIf="allResults && allResults.length > 0">
+          <div *ngIf="resultSource === 'script' && allResults && allResults.length > 0">
             <div *ngFor="let table of allResults; let i = index">
               <h3>Query {{ i + 1 }} Results</h3>
               <div class="result-table" *ngIf="table.rows.length">
@@ -319,10 +341,11 @@
               </div>
             </div>
           </div>
-  
+        
           <!-- Query Builder/AI Results (Single Table) -->
-          <div *ngIf="tableData && tableData.length && allResults.length === 0">
+          <div *ngIf="resultSource === 'query' && tableData && tableData.length">
             <h3>Query Results</h3>
+            <button *ngIf="showSqlButton" class="show-sql-btn" (click)="showSql()">Show SQL</button>
             <div class="result-table">
               <table class="tabdata">
                 <thead>

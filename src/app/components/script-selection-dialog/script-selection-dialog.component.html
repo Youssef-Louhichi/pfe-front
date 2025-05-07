@@ -1,13 +1,37 @@
-<h2 mat-dialog-title>Select Script</h2>
-<mat-dialog-content>
-  <mat-selection-list #scriptList>
-    <mat-list-option *ngFor="let script of scripts" [value]="script.id">
-      {{ script.name }}
-    </mat-list-option>
-  </mat-selection-list>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-button [disabled]="!scriptList.selectedOptions.selected.length" 
-          (click)="onSelect()">Add to Script</button>
-</mat-dialog-actions>
+
+<div class="script-dialog-container">
+  <h2 class="dialog-title">Select Scripts</h2>
+  
+  <div class="dialog-content">
+    <ul class="script-list">
+      <li *ngFor="let script of scripts" class="script-item">
+        <div class="script-name">{{ script.name }}</div>
+      
+        <!-- If originally selected -->
+        <button *ngIf="originalSelectedScripts.includes(script.id)"
+                class="btn remove-btn"
+                [disabled]="secondtable.includes(script.id)"
+                (click)="toggleRemove(script.id)">
+          {{ secondtable.includes(script.id) ? 'Removed' : 'Remove' }}
+        </button>
+      
+        <!-- If not originally selected -->
+        <button *ngIf="!originalSelectedScripts.includes(script.id)"
+                class="btn add-btn"
+                [disabled]="selectedScripts.includes(script.id)"
+                (click)="toggleAdd(script.id)">
+          {{ selectedScripts.includes(script.id) ? 'Added' : 'Add' }}
+        </button>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="dialog-actions">
+    <button class="btn cancel-btn" (click)="onCancel()">Cancel</button>
+    <button class="btn confirm-btn" 
+            [disabled]="selectedScripts.length === 0" 
+            (click)="onConfirm()">
+      Confirm
+    </button>
+  </div>
+</div>

@@ -615,3 +615,40 @@
   background-color: #f0f0f0; 
   cursor: not-allowed;
 }
+
+.table-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox-container {
+  display: inline-block;
+  margin-right: 8px;
+  z-index: 10;
+}
+
+.checkbox-container input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.toggle-area {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.expander {
+  margin-right: 5px;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.expander svg.expanded {
+  transform: rotate(90deg);
+}
+
+.table-name {
+  margin-left: 5px;
+}

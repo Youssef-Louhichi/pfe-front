@@ -1,10 +1,13 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Chart } from 'chart.js';
 import { Graph } from 'src/app/models/graph';
 import { Rapport } from 'src/app/models/rapport';
+import { Script } from 'src/app/models/script';
 import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { UsersService } from 'src/app/services/users.service';
+import { ScriptdetailsComponent } from '../scriptdetails/scriptdetails.component';
 
 @Component({
   selector: 'app-rapports',
@@ -12,10 +15,10 @@ import { UsersService } from 'src/app/services/users.service';
   styleUrls: ['./rapports.component.css']
 })
 export class RapportsComponent implements OnInit{
-
+  showCreateScriptPopup: boolean = false;
 
     constructor(private userService:UsersService,private router:Router,
-      private el: ElementRef,private scriptservice : ScriptServiceService
+      private el: ElementRef,private scriptservice : ScriptServiceService,private dialog: MatDialog
     ) { }
 
     rapports:Rapport[]
@@ -120,7 +123,7 @@ this.getScripts();
 
 getScripts()
 {
-  this.scriptservice.getAll().subscribe(data => {
+  this.scriptservice.getByUser(Number(localStorage.getItem("userId"))).subscribe(data => {
     this.scripts = data 
     console.log(this.scripts.length)
   })
@@ -134,6 +137,45 @@ deleteScript(id : number) : void
 {
   this.scriptservice.deleteScript(id).subscribe({
     next: () => console.log('Script deleted'),
+  });
+
+}
+
+
+openCreateScriptPopup() {
+  this.showCreateScriptPopup = true;
+}
+
+closeCreateScriptPopup() {
+  this.showCreateScriptPopup = false;
+}
+
+onScriptCreated(newScript: Script) {
+  this.scripts.push(newScript);
+  this.closeCreateScriptPopup();
+}
+
+
+
+openScriptSelectionDialog(scriptId: number): void {
+
+  const selectedScripts: number[] = [];
+  selectedScripts.push(scriptId);
+  const dialogRef = this.dialog.open(ScriptdetailsComponent, {
+    width: '400px',
+    data: { scriptId }
+    
+  });
+  dialogRef.afterClosed().subscribe((removedRequetes: number[] | undefined) => {
+    if (removedRequetes && removedRequetes.length > 0) {
+      removedRequetes.forEach((requeteId) => {
+        this.scriptservice.removeRequeteFromScripts(selectedScripts, requeteId)
+          .subscribe({
+            next: () => console.log(`Requête ${requeteId} removed from script ${scriptId}`),
+            error: (err) => console.error(`Failed to remove requête ${requeteId}:`, err)
+          });
+      });
+    }
   });
 
 }

@@ -1,3 +1,11 @@
+<html>
+    <head>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>  
+
+<body>
+
 <div class="header">
     <h1>Your dashboard</h1>
 </div>
@@ -67,12 +75,18 @@
         </div>
         <div class="button-container">
             <!-- Added new script button -->
-            <button class="btn new-script-btn" >
+            <button class="btn new-script-btn" (click)="openCreateScriptPopup()">
                 <i class="fa fa-solid fa-plus"></i>
                 Create a new script
             </button>
         </div>
     </div>
+
+    <app-create-script
+    *ngIf="showCreateScriptPopup"
+    (close)="closeCreateScriptPopup()"
+    (createScript)="onScriptCreated($event)"
+  ></app-create-script>
 
     <!-- Scripts section with scrollable container -->
     <div class="scripts-container">
@@ -85,7 +99,7 @@
                 <button class="script-action-btn" (click)="openScript(s.id)" title="Execute">
                     <i class="fa fa-play"></i>
                 </button>
-                <button class="script-action-btn" title="Update">
+                <button class="script-action-btn" title="Update" (click)="openScriptSelectionDialog(s.id)">
                     <i class="fa fa-pencil"></i>
                 </button>
                 <button class="script-action-btn" title="Delete" (click)="deleteScript(s.id)">
@@ -95,3 +109,5 @@
         </div>
     </div>
 </div>
+
+</body></html>

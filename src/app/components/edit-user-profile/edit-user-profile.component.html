@@ -58,11 +58,12 @@
               <th>Query</th>
               <th>Date & Time</th>
               <th>Script</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let r of reqs">
-              <td>{{r.content}}</td>
+              <td>{{r.id}}</td>
               <td>{{r.sentAt | date:'medium'}}</td>
               <td>
                 <ng-container *ngIf="r.script; else noScript">
@@ -70,10 +71,13 @@
                 </ng-container>
                 <ng-template #noScript>
                   <button type="button" class="add-script-btn" (click)="openScriptSelectionDialog(r.id)">
-                    <i class="fas fa-plus"></i> Add to Script
+                    <i class="fas fa-pen"></i> Scripts
                   </button>
                 </ng-template>
               </td>
+              <td><button type="button" (click)="deleteReq(r.id)">
+                <i class="fa fa-trash"></i>
+              </button></td>
             </tr>
           </tbody>
         </table>

@@ -31,6 +31,9 @@ import { TestComponent } from './components/test/test.component';
 import { ScriptSelectionDialogComponent } from './components/script-selection-dialog/script-selection-dialog.component';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { CreateScriptComponent } from './components/create-script/create-script.component';
+import { ScriptdetailsComponent } from './components/scriptdetails/scriptdetails.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +61,8 @@ import { MatButtonModule } from '@angular/material/button';
     LmdDeleteComponent,
     TestComponent,
     ScriptSelectionDialogComponent,
+    CreateScriptComponent,
+    ScriptdetailsComponent,
     
   ],
   imports: [
@@ -71,6 +76,7 @@ import { MatButtonModule } from '@angular/material/button';
     DragDropModule,
     MatListModule,
     MatButtonModule,
+    MatCheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]

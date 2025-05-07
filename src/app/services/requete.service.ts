@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Requete } from '../models/requete';
 import { Observable } from 'rxjs';
@@ -13,6 +13,9 @@ export class RequeteService {
   private UpdateUrl = 'http://localhost:8087/api/query/update';
   private DeleteUrl = 'http://localhost:8087/api/query/delete';
   private ReqUrl = 'http://localhost:8087/api/requete/user'
+   private ReqUrl2 = 'http://localhost:8087/api/requete'
+
+  headers = new HttpHeaders({ 'Content-Type': 'application/json' });
   constructor(private http: HttpClient) {}
 
   fetchTableData(request: any): Observable<any> {
@@ -39,4 +42,15 @@ export class RequeteService {
     return this.http.get<any>(`${this.ReqUrl}/${senderId}`);
   }
   
+
+
+
+  deleteReq(id : number):  Observable<any>{
+    return this.http.delete<any>(`${this.ReqUrl2}/${id}`);
+  }
+
+
+  getReqById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.ReqUrl2}/${id}`);
+  }
 }

@@ -4,5 +4,5 @@ import { User } from "./user";
 
 export class Requete {
 
-    constructor(public id : number,public sentAt: Date,public sender : User , public content : String,public tableReq : DbTable, public script : Script){}
+    constructor(public id : number,public sentAt: Date,public sender : User , public content : String,public tableReq : DbTable, public script : Script[]){}
 }

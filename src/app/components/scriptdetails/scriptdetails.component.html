@@ -1,0 +1,23 @@
+<h2>Script Details</h2>
+
+<div *ngIf="script">
+  <p><strong>Title:</strong> {{ script.name }}</p>
+  <p><strong>Created At:</strong> {{ script.createdAt | date:'medium' }}</p>
+
+  <h3>Requêtes</h3>
+  <ul>
+    <li *ngFor="let req of script.reqs">
+      {{ req.id }} created on : {{req.sentAt | date:'medium'}} <!-- or another field -->
+      <button 
+        (click)="removeRequete(req.id)"
+        [disabled]="isRemoved(req.id)">
+        {{ isRemoved(req.id) ? 'Removed' : 'Remove' }}
+      </button>
+    </li>
+  </ul>
+</div>
+
+<div class="actions">
+  <button (click)="confirm()">Confirm</button>
+  <button (click)="cancel()">Cancel</button>
+</div>

@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Script } from '../models/script';
 
 @Injectable({
   providedIn: 'root'
@@ -30,10 +31,40 @@ export class ScriptServiceService {
     return this.http.delete(`${this.reqUrl}/${id}`);
   }
 
-  addRequeteToScript(scriptId: number, requeteId: number): Observable<string> {
-    const url = `${this.apiUrl}/${scriptId}/add-requete/${requeteId}`;
-    return this.http.post(url, null, { responseType: 'text' });
+  addRequeteToScripts(scriptIds: number[], requeteId: number): Observable<string> {
+    const url = `${this.apiUrl}/add-requete/${requeteId}`;
+    let params = new HttpParams();
+    scriptIds.forEach(id => {
+      params = params.append('scriptIds', id.toString());
+    });
+    return this.http.post(url, null, { params, responseType: 'text' });
   }
+
+  removeRequeteFromScripts(scriptIds: number[], requeteId: number): Observable<string> {
+    const url = `${this.apiUrl}/remove-requete/${requeteId}`;
+    let params = new HttpParams();
+    scriptIds.forEach(id => {
+      params = params.append('scriptIds', id.toString());
+    });
+    return this.http.post(url, null, { params, responseType: 'text' });
+  }
+
+  getByUser(id : number): Observable<any[]>
+  {
+    return this.http.get<any[]>(`${this.reqUrl}/${id}/scripts`);
+  }
+
+
+  
+  createScript(script : any ): Observable<Script> {
+    return this.http.post<Script>(this.reqUrl, script);
+  }
+
+
+  getReqScriptById(id: number): Observable<Script> {
+    return this.http.get<Script>(`${this.reqUrl}/${id}`);
+  }
+
 
 
 }

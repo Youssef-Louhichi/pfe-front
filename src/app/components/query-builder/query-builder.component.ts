@@ -8,6 +8,8 @@ import { Creator } from 'src/app/models/creator';
 import { Database } from 'src/app/models/database';
 import { DbTable } from 'src/app/models/db-table';
 import { Graph } from 'src/app/models/graph';
+import { Requete } from 'src/app/models/requete';
+import { Script } from 'src/app/models/script';
 import { AnalystService } from 'src/app/services/analyst.service';
 import { ConnexionsService } from 'src/app/services/connexions.service';
 //import { WhereClause } from 'src/app/models/where-clause';
@@ -58,7 +60,7 @@ export class QueryBuilderComponent implements OnInit {
     private analystservice:AnalystService,private connexionservice:ConnexionsService,private scriptService: ScriptServiceService,private route: ActivatedRoute
   ) { }
 
-
+ scripts: Script[];
   allResults: { headers: string[], rows: any[] }[] = [];
   databases: Database[];
   queryForm: FormGroup;
@@ -75,6 +77,7 @@ export class QueryBuilderComponent implements OnInit {
   selectedColumns: ColumnWithTable[] = [];
   whereConditionColumns: ColumnWithTable[] = [];
   selectedColumnIds: Set<number> = new Set();
+  resultSource: 'script' | 'query' | null = null;
 
   groupByColumns: ColumnWithTable[] = [];
 availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
@@ -85,9 +88,11 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   columns:string = ""
   tables:string = ""
 
-  
-  
-
+    reqs : Requete[] ;
+  lastreq : Requete;
+  showSqlButton: boolean = false;
+  isDbMode: boolean = true;
+  selectedScriptIndex: number = 0;
   ngOnInit(): void {
     this.queryForm = this.fb.group({
       table: ['', Validators.required],
@@ -99,6 +104,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     });
   
     this.getDbs();
+    this.getScripts();
   
     if (this.databases && this.databases.length > 0) {
       this.selectedDbIndex = 0;
@@ -118,7 +124,54 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     }
   }
 
+  toggleSelectionMode(): void {
+    this.isDbMode = !this.isDbMode;
+  }
 
+  selectAllTableColumns(table: DbTable, event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation(); // Prevent toggleTable from being called
+    }
+    
+    // Create a column with table object for each column in the table
+    const columnsWithTable: ColumnWithTable[] = table.columns.map(column => {
+      return {
+        ...column,
+        table: table
+      };
+    });
+    
+    // For each column, check if it already exists in selectedColumns
+    columnsWithTable.forEach(columnWithTable => {
+      // Only add if not already present
+      if (!this.selectedColumns.some(c => c.id === columnWithTable.id)) {
+        this.selectedColumns.push(columnWithTable);
+        
+        // Add table to selected tables if not already present
+        this.addTableToSelectedTables(table);
+      }
+    });
+    
+    // Update form
+    this.updateFormColumns();
+  }
+  
+  /**
+   * Checks if all columns of a table are already selected
+   */
+  isTableFullySelected(table: DbTable): boolean {
+    // If there are no columns in the table, return false
+    if (table.columns.length === 0) {
+      return false;
+    }
+    
+    // Check if all columns from this table are in the selectedColumns array
+    return table.columns.every(column => 
+      this.selectedColumns.some(selectedColumn => 
+        selectedColumn.id === column.id
+      )
+    );
+  }
 
   get aggregationControls(): FormArray {
     return this.queryForm.get('aggregations') as FormArray;
@@ -548,18 +601,18 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
   onSubmit(): void {
     const userId = Number(localStorage.getItem('userId'));
-
+  
     if (!userId) {
       console.error('User ID not found in localStorage');
       alert('Error: User not logged in.');
       return;
     }
-
+  
     if (this.queryForm.valid) {
       this.userservice.getUserById(userId).subscribe({
         next: (user) => {
           const formData = this.queryForm.value;
-
+  
           // Prepare where conditions
           const whereConditions: WhereClause[] = formData.whereClauses.map((condition: any) => ({
             columnName: condition.columnName,
@@ -567,20 +620,20 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
             operator: condition.operator,
             value: condition.value
           }));
-
+  
           // Get aggregations
           const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
             columnId: agg.columnId,
             functionagg: agg.functionagg
           }));
-
+  
           // Get group by column IDs
           const groupByColumnIds = this.groupByColumns.map(column => column.id);
-
+  
           // Validate SQL rules
           let isValid = true;
           let errorMessage = "";
-
+  
           // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
           if (aggregations.length > 0) {
             // Get all selected column IDs that are not part of aggregations
@@ -602,22 +655,21 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
               errorMessage = `SQL Error: Non-aggregated columns ${missingColumns} must appear in GROUP BY clause`;
             }
           }
-
+  
           // Rule 2: If using GROUP BY, you should have at least one aggregation function
           if (groupByColumnIds.length > 0 && aggregations.length === 0) {
             console.warn("Warning: Using GROUP BY without any aggregation functions");
             // This is a warning, not an error, so we don't set isValid to false
           }
-
+  
           if (!isValid) {
             alert(errorMessage);
             return;
           }
-
+  
           // Construct request payload
           const requestPayload = {
             req: {
-              
               sentAt: new Date().toISOString(),
               sender: {
                 identif: user.identif,
@@ -640,14 +692,19 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
             },
             filters: whereConditions
           };
-
+  
           console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
-
+          this.resultSource = 'query';
+          console.log(this.resultSource) ;
+          console.log("submit"); // Set result source to query
+          this.allResults = [];
           this.reqservice.fetchTableData(requestPayload).subscribe(
             response => {
               this.tableData = response;
               if (this.tableData.length > 0) {
                 this.tableHeaders = Object.keys(this.tableData[0]);
+                this.getReq(); 
+                this.showSqlButton = true;
               }
             },
             error => console.error('Error fetching data:', error)
@@ -655,12 +712,12 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
         },
         error: (error) => {
           console.error('Error fetching user:', error);
+          this.showSqlButton = false;
           alert('Error retrieving user data.');
         }
       });
     }
   }
-
 
   // Existing methods for where clauses
   get whereClauses(): FormArray {
@@ -742,7 +799,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   "Tables (IDs): " + this.tables + ".\n" +
   "Columns (IDs): " + this.columns + ".\n" +
   "Convert the following user input into a JSON object representing an SQL query using table and column IDs. Format:\n" +
-  "{ id: 1, sentAt: date, sender: {}, tableId: [id], columnId: [id], groupByColumns: [id], aggregations: [{ columnId, functionagg}], joinRequest: { joinConditions: [{firstTableId:,firstColumnName,secondTableId,secondColumnName,joinType=INNER}] }, filters: [{ columnName:string, operator:string, value:string, tableName:string } ]}\n" +
+  "{  'req': {'sentAt': '2025-05-06T14:00:16.256Z','sender': {'identif': 49,'mail': 'n@g.com','password': 'sb_RVW!MuUYl'},'content': 'Fetching data' }, tableId: [id], columnId: [id], groupByColumns: [id], aggregations: [{ columnId, functionagg}], joinRequest: { joinConditions: [{firstTableId:,firstColumnName,secondTableId,secondColumnName,joinType=INNER}] }, filters: [{ columnName:string, operator:string, value:string, tableName:string } ]}\n" +
   "Notes : In filter we use column name and table name not id and in join we use Table Id and column name, columnId define the columns of the select, aggregations define the aggregation,every column id present in aggregation can't be present in columnId, tableid define all the table used in the query. every joinCondition define join between two table . Don't give any comments or any explanaition or options just the object i asked for and don't change any key name ever \n" +
   "Important : First step make the query normally than transform it into the object\n"+
   "User input: '" + s + "'";
@@ -815,6 +872,12 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
 
   fetchResults(scriptId: number): void {
+    this.resultSource = 'script';
+    console.log(this.resultSource) ;
+    console.log("script");// Set result source to script
+    this.tableData = []; // Clear query results
+    this.tableHeaders = [];
+    this.showSqlButton = false;
     this.scriptService.executeScript(scriptId).subscribe(
       (result: any[][]) => {
         this.allResults = result.map(queryResult => {
@@ -824,8 +887,6 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
             rows: queryResult
           };
         });
-        this.tableData = []; // Clear query builder results when script results are loaded
-        this.tableHeaders = [];
       },
       error => {
         console.error('Error fetching results:', error);
@@ -833,4 +894,36 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     );
   }
 
+
+  getReq()  {
+
+    this.reqservice.getUserReq(Number(localStorage.getItem("userId"))).subscribe(data => {this.reqs = data
+    
+      this.lastreq = this.reqs[this.reqs.length-1];
+      //console.log(this.lastreq)
+      this.showSqlButton = !!this.lastreq;
+    
+    });
+    
+    
+    }
+
+
+    showSql(): void {
+      if (this.lastreq && this.lastreq.content) {
+        alert(this.lastreq.content); // Replace with modal or other display method if needed
+      } else {
+        alert('No SQL content available.');
+      }
+    }
+
+
+
+    getScripts()
+{
+  this.scriptService.getByUser(Number(localStorage.getItem("userId"))).subscribe(data => {
+    this.scripts = data 
+    console.log(this.scripts.length)
+  })
+}
 }
