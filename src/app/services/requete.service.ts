@@ -22,6 +22,10 @@ export class RequeteService {
     return this.http.post<any>(this.apiUrl, request);
   }
 
+  executeSqlQuery(request: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl+"-string", request);
+  }
+
 
 
   insertTableData(request: any): Observable<any> {

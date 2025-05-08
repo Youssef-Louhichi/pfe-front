@@ -15,6 +15,7 @@ import { ConnexionsService } from 'src/app/services/connexions.service';
 //import { WhereClause } from 'src/app/models/where-clause';
 import { RequeteService } from 'src/app/services/requete.service';
 import { ScriptServiceService } from 'src/app/services/script-service.service';
+import { SuggestionsService } from 'src/app/services/suggestions.service';
 import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
 const apiKey = environment.openRouterApiKey;
@@ -58,6 +59,7 @@ export class QueryBuilderComponent implements OnInit {
 
   constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService,
     private analystservice:AnalystService,private connexionservice:ConnexionsService,private scriptService: ScriptServiceService,private route: ActivatedRoute
+    ,private suggestionsservice:SuggestionsService
   ) { }
 
  scripts: Script[];
@@ -85,8 +87,11 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   originalTableColumns: { [tableId: number]: Column[] } = {};
 
   toggle:boolean = true
-  columns:string = ""
-  tables:string = ""
+  ai_input:string = ""
+  sug_queries:String[]
+
+
+
 
     reqs : Requete[] ;
   lastreq : Requete;
@@ -545,6 +550,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
               this.originalTableColumns[table.id] = [...table.columns];
             });
           });
+
         })
       }
       else {
@@ -580,12 +586,16 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
     //lel ai
     db.tables.forEach(table => {
-      this.tables += table.name +":" + table.id + "|" 
+      this.ai_input += table.name + " [" 
       table.columns.forEach(c => {
-        this.columns += c.name +":" + c.id + "|" 
+        this.ai_input += c.name +", "
       }
     )
+    this.ai_input += " ], " 
     });
+
+    this.getSuggestions()
+
   }
 
   toggleTable(table: DbTable): void {
@@ -796,12 +806,10 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     console.log(1)
 
     let prompt = 
-  "Tables (IDs): " + this.tables + ".\n" +
-  "Columns (IDs): " + this.columns + ".\n" +
-  "Convert the following user input into a JSON object representing an SQL query using table and column IDs. Format:\n" +
-  "{  'req': {'sentAt': '2025-05-06T14:00:16.256Z','sender': {'identif': 49,'mail': 'n@g.com','password': 'sb_RVW!MuUYl'},'content': 'Fetching data' }, tableId: [id], columnId: [id], groupByColumns: [id], aggregations: [{ columnId, functionagg}], joinRequest: { joinConditions: [{firstTableId:,firstColumnName,secondTableId,secondColumnName,joinType=INNER}] }, filters: [{ columnName:string, operator:string, value:string, tableName:string } ]}\n" +
-  "Notes : In filter we use column name and table name not id and in join we use Table Id and column name, columnId define the columns of the select, aggregations define the aggregation,every column id present in aggregation can't be present in columnId, tableid define all the table used in the query. every joinCondition define join between two table . Don't give any comments or any explanaition or options just the object i asked for and don't change any key name ever \n" +
-  "Important : First step make the query normally than transform it into the object\n"+
+  "This is the Tables and their columns: " + this.ai_input + ".\n" +
+  "Convert the following user input into a SQL query representing an SQL query using table and column names." +
+  "Important: write ONLY the query don't say anything else at all and write it on the same line"+".\n" +
+  "Important: the query must be compatible for this database type :"+ this.databases[this.selectedDbIndex].dbtype+".\n" +
   "User input: '" + s + "'";
 
   const tokenCount = Math.ceil(prompt.length / 4.5);
@@ -840,32 +848,78 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
       const reply = data.choices[0]?.message?.content;
 
       if (reply) {
-        const start = reply.indexOf('{');
-        const end = reply.lastIndexOf('}');
-        const jsonString = reply.slice(start, end + 1);
-        console.log(jsonString)
+        let query = reply.replace(/```sql\s*([\s\S]*?)\s*```/, '$1');
+
+         query = query.substring(query.indexOf("SELECT"));
+
+
+        console.log(query)
+
+        const userId = Number(localStorage.getItem('userId'));
+
+
+        const jsonString = {
+          query:query,
+          dbId:this.databases[this.selectedDbIndex].id,
+          senderId:userId
+        }
+
 
       
-        try {
-          const parsedObject = JSON.parse(jsonString);
-          console.log(parsedObject)
-          this.reqservice.fetchTableData(parsedObject).subscribe(data=>{
+       
+          this.reqservice.executeSqlQuery(jsonString).subscribe(data=>{
+            console.log(data)
             this.tableData = data;
             if (this.tableData.length > 0) {
               this.tableHeaders = Object.keys(this.tableData[0]);
             }
 
           })
-          } catch (error) {
-          console.error("Failed to parse JSON:", error);
+        
         }
 
     }
-  })
+  )
     .catch(err => {
       console.error("Error fetching response:", err);
     });
 
+  }
+
+
+  getSuggestions(){
+    const userId = Number(localStorage.getItem('userId'));
+
+    const payload = {
+      user_id: userId,
+    database: this.databases[this.selectedDbIndex]
+    }
+    console.log(payload)
+    this.suggestionsservice.getSuggestions(payload).subscribe(data =>{
+      console.log(data)
+        this.sug_queries = data.suggestions
+    })
+  }
+
+  executeQuery(s:String){
+
+    const userId = Number(localStorage.getItem('userId'));
+
+
+    const jsonString = {
+      query:s,
+      dbId:this.databases[this.selectedDbIndex].id,
+      senderId:userId
+    }
+
+    this.reqservice.executeSqlQuery(jsonString).subscribe(data=>{
+      console.log(data)
+      this.tableData = data;
+      if (this.tableData.length > 0) {
+        this.tableHeaders = Object.keys(this.tableData[0]);
+      }
+
+    })
   }
 
 

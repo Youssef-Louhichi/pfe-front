@@ -312,10 +312,22 @@
             <h3>Ask What You Want</h3>
             <textarea class="text-zone" #text></textarea>
           </div>
+          
           <div class="form-actions">
             <button type="button" class="btn-primary" (click)="send(text.value)">Execute</button>
             <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Results</button>
             <button type="button" class="btn-primary" (click)="switch()">Builder</button>
+          </div>
+
+
+          <div class="suggestions-area">
+            <h4>Suggested Queries</h4>
+            <div class="suggestion-list">
+              <div *ngFor="let s of sug_queries" class="suggestion-item">
+                <span class="suggestion-text">{{s}}</span>
+                <button class="suggestion-button" (click)="executeQuery(s)">Execute</button>
+              </div>
+            </div>
           </div>
         </div>
   
