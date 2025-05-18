@@ -2,6 +2,7 @@ import { CdkDragDrop, copyArrayItem, moveItemInArray, transferArrayItem } from '
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { forkJoin, map, Observable, of } from 'rxjs';
 import { Analyst } from 'src/app/models/analyst';
 import { Column } from 'src/app/models/column';
 import { Creator } from 'src/app/models/creator';
@@ -20,12 +21,23 @@ import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
 const apiKey = environment.openRouterApiKey;
 
+interface HavingCondition {
+  functionhaving: string;
+  columnId: number;
+  operator: string;
+  value: string;
+  subqueryComparator?: string;
+  test: boolean;
+}
+
 
 interface WhereClause {
   columnName: string;
   operator: string;
   value: string;
-  tableName: string
+  tableName: string;
+  test: boolean; // To determine if the value is a subquery or not
+  subqueryComparator?: string; // Optional field for subquery comparison (IN, NOT IN)
 }
 interface AggregationWithColumn {
   columnId: number;
@@ -35,15 +47,19 @@ interface AggregationWithColumn {
 }
 interface Aggregation {
   columnId: number;
-  functionagg: string;
+  functionagg: string[]; // List of functions
 }
-
 interface JoinCondition {
   firstTableId: number;
   firstColumnName: string;
   secondTableId: number;
   secondColumnName: string;
   joinType: string;
+}
+interface orderBy
+{
+  colId: number;
+  orderType : string;
 }
 
 interface ColumnWithTable extends Column {
@@ -80,9 +96,10 @@ export class QueryBuilderComponent implements OnInit {
   whereConditionColumns: ColumnWithTable[] = [];
   selectedColumnIds: Set<number> = new Set();
   resultSource: 'script' | 'query' | null = null;
-
+  havingConditionColumns: ColumnWithTable[] = [];
+  availableHavingFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   groupByColumns: ColumnWithTable[] = [];
-availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
+  availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
   originalTableColumns: { [tableId: number]: Column[] } = {};
 
@@ -91,9 +108,10 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   sug_queries:String[]
 
 
+  savedRequests: Requete[] = [];
+  subqueryPayload: any = null;
 
-
-    reqs : Requete[] ;
+  reqs : Requete[] ;
   lastreq : Requete;
   showSqlButton: boolean = false;
   isDbMode: boolean = true;
@@ -101,16 +119,20 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   ngOnInit(): void {
     this.queryForm = this.fb.group({
       table: ['', Validators.required],
-      column: ['', Validators.required],
+      column: [''],
       whereClauses: this.fb.array([]),
       joinClauses: this.fb.array([]),
       aggregations: this.fb.array([]),
-      groupByColumns: this.fb.array([])
+      groupByColumns: this.fb.array([]),
+      havingClauses: this.fb.array([]),
+      orderBy : this.fb.array([]),
+      limit: ['']
     });
   
     this.getDbs();
     this.getScripts();
-  
+  this.loadSavedRequests();
+
     if (this.databases && this.databases.length > 0) {
       this.selectedDbIndex = 0;
       this.toggleDb(this.databases[0]);
@@ -129,6 +151,137 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     }
   }
 
+
+  get havingClauses(): FormArray {
+  return this.queryForm.get('havingClauses') as FormArray;
+}
+
+// Method to handle column drop for HAVING condition
+onColumnDropForHaving(event: CdkDragDrop<Column[]>) {
+  const draggedColumn = event.previousContainer.data[event.previousIndex];
+  
+  // Check if column is already used in having condition
+  const columnExists = this.havingClauses.controls.some(
+    control => control.get('columnId').value === draggedColumn.id
+  );
+  
+  if (!columnExists) {
+    const table = this.getTableForColumn(draggedColumn);
+    
+    // Create a new having condition with subquery support
+    const havingCondition = this.fb.group({
+      functionhaving: ['COUNT', Validators.required],
+      columnId: [draggedColumn.id, Validators.required],
+      columnName: [draggedColumn.name, Validators.required],
+      tableName: [table.name, Validators.required],
+      operator: ['>', Validators.required],
+      value: ['0', Validators.required],
+      subqueryComparator: ['in'],
+      test: [false]  // Default to simple condition, not subquery
+    });
+    
+    this.havingClauses.push(havingCondition);
+    this.addTableToSelectedTables(table);
+  }
+}
+
+getRequestById(reqId: number): Observable<any> {
+  return this.reqservice.getReqById(reqId).pipe(
+    map(req => {
+      // Return the request data that will be used as a subquery
+      return req;
+    })
+  );
+}
+
+
+// Method to remove a having condition
+removeHavingCondition(index: number) {
+  if (index >= 0 && index < this.havingClauses.length) {
+    this.havingClauses.removeAt(index);
+  }
+}
+loadSavedRequests(): void {
+  const userId = Number(localStorage.getItem('userId'));
+  if (userId) {
+    this.reqservice.getUserReq(userId).subscribe({
+      next: (requests) => {
+        this.savedRequests = requests;
+      },
+      error: (error) => {
+        console.error('Error loading saved requests:', error);
+      }
+    });
+  }
+}
+
+// Handle subquery toggle
+onSubqueryToggle(index: number): void {
+  const havingControl = this.havingClauses.at(index);
+  const isSubquery = havingControl.get('test').value;
+  
+  if (isSubquery) {
+    // Reset value when switching to subquery mode
+    havingControl.get('value').setValue('');
+    
+    // Make sure we've loaded the saved requests
+    if (this.savedRequests.length === 0) {
+      this.loadSavedRequests();
+    }
+  }
+}
+
+processHavingConditions(conditions: any[]): Observable<any[]> {
+  if (!conditions || conditions.length === 0) {
+    return of([]);
+  }
+  
+  const havingConditionsProcessing: Observable<any>[] = conditions.map(condition => {
+  if (condition.test) { // This is a subquery
+    return this.getRequestById(condition.value).pipe(
+      map(subqueryReq => {
+        // Map only the specific fields we need
+        const mappedSubquery = {
+          sentAt: subqueryReq.sentAt,
+          sender: {
+            identif: subqueryReq.sender?.identif,
+            mail: subqueryReq.sender?.mail,
+            password: subqueryReq.sender?.password
+          },
+          content: subqueryReq.content,
+          tableId: subqueryReq.tableId,
+          columnId: subqueryReq.columnId,
+          aggregation: subqueryReq.aggregation || [],
+          groupByColumns: subqueryReq.groupByColumns || [],
+          joinConditions: subqueryReq.joinConditions || [],
+          filters: subqueryReq.filters || [],
+          havingConditions: subqueryReq.havingConditions || []
+        };
+        
+        return {
+          function: condition.functionhaving,
+          columnId: condition.columnId,
+          operator: condition.operator,
+          test: true,
+          subqueryComparator: condition.subqueryComparator,
+          value: mappedSubquery // Only the needed fields
+        };
+      })
+    );
+  } else {
+    // For non-subquery conditions, create a resolved observable
+    return of({
+      function: condition.functionhaving,
+      columnId: condition.columnId,
+      operator: condition.operator,
+      value: condition.value,
+      test: false
+    });
+  }
+});
+  
+  return forkJoin(havingConditionsProcessing);
+}
   toggleSelectionMode(): void {
     this.isDbMode = !this.isDbMode;
   }
@@ -178,62 +331,93 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     );
   }
 
-  get aggregationControls(): FormArray {
-    return this.queryForm.get('aggregations') as FormArray;
+// Form control getters
+get aggregationControls(): FormArray {
+  return this.queryForm.get('aggregations') as FormArray;
+}
+
+get groupByControls(): FormArray {
+  return this.queryForm.get('groupByColumns') as FormArray;
+}
+
+// Method to add an aggregation
+addAggregation() {
+  const aggregation = this.fb.group({
+    columnId: ['', Validators.required],
+    columnName: ['', Validators.required],
+    tableId: ['', Validators.required],
+    functionagg: this.fb.array([this.fb.control('COUNT')]) // Default to COUNT function
+  });
+  this.aggregationControls.push(aggregation);
+}
+
+// Method to handle change in aggregation function via dropdown
+onAggregationFunctionChange(aggregationIndex: number, event: any) {
+  const selectedFunction = event.target.value;
+  const aggregation = this.aggregationControls.at(aggregationIndex);
+  const functionsArray = aggregation.get('functionagg') as FormArray;
+  
+  // Clear the array and add the new function
+  functionsArray.clear();
+  functionsArray.push(this.fb.control(selectedFunction));
+}
+
+// Method to add an aggregation function (for future multi-function support)
+addAggregationFunction(index: number, functionType: string = 'COUNT') {
+  const aggregation = this.aggregationControls.at(index);
+  const functionsArray = aggregation.get('functionagg') as FormArray;
+  
+  // If UI only supports one function at a time, clear existing functions first
+  if (functionsArray.length > 0) {
+    functionsArray.clear();
   }
   
-  get groupByControls(): FormArray {
-    return this.queryForm.get('groupByColumns') as FormArray;
-  }
+  functionsArray.push(this.fb.control(functionType));
+}
+/*
+// Method to remove an aggregation function (for future multi-function support)
+removeAggregationFunction(aggregationIndex: number, functionIndex: number) {
+  const aggregation = this.aggregationControls.at(aggregationIndex);
+  const functionsArray = aggregation.get('functionagg') as FormArray;
   
-  // Method to add an aggregation
-  addAggregation() {
+  if (functionIndex >= 0 && functionIndex < functionsArray.length) {
+    functionsArray.removeAt(functionIndex);
+  }
+}
+*/
+// Method to remove an aggregation
+removeAggregation(index: number) {
+  if (index >= 0 && index < this.aggregationControls.length) {
+    this.aggregationControls.removeAt(index);
+    // Update group by columns after removing aggregation
+    this.updateGroupByColumnsAfterAggregation();
+  }
+}
+
+// Method to handle column drop for aggregation
+onColumnDropForAggregation(event: CdkDragDrop<Column[]>) {
+  const draggedColumn = event.previousContainer.data[event.previousIndex];
+  
+  const columnExists = this.aggregationControls.controls.some(
+    control => control.get('columnId').value === draggedColumn.id
+  );
+  
+  if (!columnExists) {
+    const table = this.getTableForColumn(draggedColumn);
+    
     const aggregation = this.fb.group({
-      columnId: ['', Validators.required],
-      columnName: ['', Validators.required],
-      tableId: ['', Validators.required],
-      functionagg: ['COUNT', Validators.required]
+      columnId: [draggedColumn.id, Validators.required],
+      columnName: [draggedColumn.name, Validators.required],
+      tableId: [table.id, Validators.required],
+      functionagg: this.fb.array([this.fb.control('COUNT')]) // Default to COUNT function
     });
+    
     this.aggregationControls.push(aggregation);
+    this.addTableToSelectedTables(table);
+    this.updateGroupByColumnsAfterAggregation();
   }
-  // Method to remove an aggregation
-  removeAggregation(index: number) {
-    if (index >= 0 && index < this.aggregationControls.length) {
-      this.aggregationControls.removeAt(index);
-      // Update group by columns after removing aggregation
-      this.updateGroupByColumnsAfterAggregation();
-    }
-  }
-  
-  onColumnDropForAggregation(event: CdkDragDrop<Column[]>) {
-    const draggedColumn = event.previousContainer.data[event.previousIndex];
-    
-    // Check if column already exists in aggregations
-    const columnExists = this.aggregationControls.controls.some(
-      control => control.get('columnId').value === draggedColumn.id
-    );
-    
-    if (!columnExists) {
-      // Get the table for this column
-      const table = this.getTableForColumn(draggedColumn);
-      
-      // Create a new aggregation form group
-      const aggregation = this.fb.group({
-        columnId: [draggedColumn.id, Validators.required],
-        columnName: [draggedColumn.name, Validators.required],
-        tableId: [table.id, Validators.required],
-        functionagg: ['COUNT', Validators.required]
-      });
-      
-      this.aggregationControls.push(aggregation);
-      
-      // Add table to selected tables if not already present
-      this.addTableToSelectedTables(table);
-      
-      // Add all non-aggregated columns from selected columns to group by
-      this.updateGroupByColumnsAfterAggregation();
-    }
-  }
+}
+
 
 
   updateGroupByColumnsAfterAggregation() {
@@ -241,7 +425,7 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     const aggregatedColumnIds = this.aggregationControls.controls.map(
       control => Number(control.get('columnId').value)
     );
-    
+   console.log("soiiososososos");
     // Add all selected columns that are not aggregated to group by
     this.selectedColumns.forEach(column => {
       if (!aggregatedColumnIds.includes(column.id) && 
@@ -365,31 +549,97 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     }
   }
 
-  onColumnDropForCondition(event: CdkDragDrop<Column[]>) {
-    // Check if column already exists in conditions
-    const draggedColumn = event.previousContainer.data[event.previousIndex];
+onColumnDropForCondition(event: CdkDragDrop<Column[]>) {
+  const draggedColumn = event.previousContainer.data[event.previousIndex];
 
-    const columnExists = this.whereClauses.controls.some(
-      control => control.get('columnName').value === draggedColumn.name
-    );
+  const columnExists = this.whereClauses.controls.some(
+    control => control.get('columnName').value === draggedColumn.name
+  );
 
-    if (!columnExists) {
-      // Create a new where clause form group
-      console.log("taw");
-      const whereCondition = this.fb.group({
-        columnName: [draggedColumn.name, Validators.required],
-        tableName: [draggedColumn.table.name, Validators.required],
-        operator: ['=', Validators.required],
-        value: ['', Validators.required]
-      });
+  if (!columnExists) {
+    const table = this.getTableForColumn(draggedColumn);
+    
+    const whereCondition = this.fb.group({
+      columnName: [draggedColumn.name, Validators.required],
+      tableName: [table.name, Validators.required],
+      operator: ['=', Validators.required],
+      value: ['', Validators.required],
+      test: [false],  // Default to simple condition (not a subquery)
+      subqueryComparator: ['in'] // Default subquery comparator
+    });
 
-      // Add the condition to the form array
-      this.whereClauses.push(whereCondition);
+    this.whereClauses.push(whereCondition);
+    this.addTableToSelectedTables(table);
+  }
+}
 
-      // Ensure the table is added to selected tables
-      this.addTableToSelectedTables(draggedColumn.table);
+onWhereSubqueryToggle(index: number): void {
+  const whereControl = this.whereClauses.at(index);
+  const isSubquery = whereControl.get('test').value;
+  
+  if (isSubquery) {
+    // Reset value when switching to subquery mode
+    whereControl.get('value').setValue('');
+    
+    // Make sure we've loaded the saved requests
+    if (this.savedRequests.length === 0) {
+      this.loadSavedRequests();
     }
   }
+}
+
+
+processWhereConditions(conditions: any[]): Observable<any[]> {
+  if (!conditions || conditions.length === 0) {
+    return of([]);
+  }
+  
+  const whereConditionsProcessing: Observable<any>[] = conditions.map(condition => {
+    if (condition.test) { // This is a subquery
+      return this.getRequestById(condition.value).pipe(
+        map(subqueryReq => {
+          // Map only the specific fields we need
+          const mappedSubquery = {
+            sentAt: subqueryReq.sentAt,
+            sender: {
+              identif: subqueryReq.sender?.identif,
+              mail: subqueryReq.sender?.mail,
+              password: subqueryReq.sender?.password
+            },
+            content: subqueryReq.content,
+            tableId: subqueryReq.tableId,
+            columnId: subqueryReq.columnId,
+            aggregation: subqueryReq.aggregation || [],
+            groupByColumns: subqueryReq.groupByColumns || [],
+            joinConditions: subqueryReq.joinConditions || [],
+            filters: subqueryReq.filters || [],
+            havingConditions: subqueryReq.havingConditions || []
+          };
+          
+          return {
+            columnName: condition.columnName,
+            tableName: condition.tableName,
+            operator: condition.operator,
+            test: true,
+            subqueryComparator: condition.subqueryComparator,
+            value: mappedSubquery // Only the needed fields
+          };
+        })
+      );
+    } else {
+      // For non-subquery conditions, create a resolved observable
+      return of({
+        columnName: condition.columnName,
+        tableName: condition.tableName,
+        operator: condition.operator,
+        value: condition.value,
+        test: false
+      });
+    }
+  });
+  
+  return forkJoin(whereConditionsProcessing);
+} 
 
   drop(event: CdkDragDrop<ColumnWithTable[]>, type: 'columns' | 'conditions') {
     const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
@@ -523,18 +773,22 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
   }
 
   // Update form columns
-  updateFormColumns() {
-    // Combine column IDs from both lists
-    const columnIds = [
-      ...this.selectedColumns.map(c => c.id),
-      ...this.whereConditionColumns.map(c => c.id)
-    ];
+  // Update form columns
+updateFormColumns() {
+  const columnIds = [
+    ...this.selectedColumns.map(c => c.id),
+    ...this.whereConditionColumns.map(c => c.id)
+  ];
 
-    this.queryForm.patchValue({
-      column: columnIds,
-      table: this.selectedTables.map(t => t.name).join(', ')
-    });
-  }
+  this.queryForm.patchValue({
+    column: columnIds,
+    table: this.selectedTables.map(t => t.name).join(', ')
+  });
+
+  // Adjust group by columns based on new aggregation structure
+  //this.updateGroupByColumnsAfterAggregation();
+}
+
   getDbs() {
     let idConnexion = Number(localStorage.getItem("idConnection"));
     let idUser = Number(localStorage.getItem("userId"));
@@ -609,143 +863,216 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     this.allColumns = [...t.columns];
   }
 
-  onSubmit(): void {
-    const userId = Number(localStorage.getItem('userId'));
+ onSubmit(): void {
+  const userId = Number(localStorage.getItem('userId'));
   
-    if (!userId) {
-      console.error('User ID not found in localStorage');
-      alert('Error: User not logged in.');
-      return;
-    }
-  
-    if (this.queryForm.valid) {
-      this.userservice.getUserById(userId).subscribe({
-        next: (user) => {
-          const formData = this.queryForm.value;
-  
-          // Prepare where conditions
-          const whereConditions: WhereClause[] = formData.whereClauses.map((condition: any) => ({
-            columnName: condition.columnName,
-            tableName: condition.tableName,
-            operator: condition.operator,
-            value: condition.value
-          }));
-  
-          // Get aggregations
-          const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
-            columnId: agg.columnId,
-            functionagg: agg.functionagg
-          }));
-  
-          // Get group by column IDs
-          const groupByColumnIds = this.groupByColumns.map(column => column.id);
-  
-          // Validate SQL rules
-          let isValid = true;
-          let errorMessage = "";
-  
-          // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
-          if (aggregations.length > 0) {
-            // Get all selected column IDs that are not part of aggregations
-            const nonAggregatedColumnIds = this.selectedColumns
-              .filter(col => !aggregations.some(agg => agg.columnId === col.id))
-              .map(col => col.id);
-            
-            // Check if all non-aggregated columns are in GROUP BY
-            const missingGroupByColumns = nonAggregatedColumnIds
-              .filter(colId => !groupByColumnIds.includes(colId));
-            
-            if (missingGroupByColumns.length > 0) {
-              isValid = false;
-              const missingColumns = this.selectedColumns
-                .filter(col => missingGroupByColumns.includes(col.id))
-                .map(col => `${col.name} (${col.table.name})`)
-                .join(', ');
-              
-              errorMessage = `SQL Error: Non-aggregated columns ${missingColumns} must appear in GROUP BY clause`;
-            }
-          }
-  
-          // Rule 2: If using GROUP BY, you should have at least one aggregation function
-          if (groupByColumnIds.length > 0 && aggregations.length === 0) {
-            console.warn("Warning: Using GROUP BY without any aggregation functions");
-            // This is a warning, not an error, so we don't set isValid to false
-          }
-  
-          if (!isValid) {
-            alert(errorMessage);
-            return;
-          }
-  
-          // Construct request payload
-          const requestPayload = {
-            req: {
-              sentAt: new Date().toISOString(),
-              sender: {
-                identif: user.identif,
-                mail: user.mail,
-                password: user.password
-              },
-              content: "Fetching data"
-            },
-            tableId: this.selectedTables.map(t => t.id),
-            // If we have aggregations, include only non-aggregated columns in columnId
-            columnId: aggregations.length > 0 
-              ? this.selectedColumns
-                  .filter(col => !aggregations.some(agg => agg.columnId === col.id))
-                  .map(c => c.id)
-              : this.selectedColumns.map(c => c.id),
-            groupByColumns: groupByColumnIds,
-            aggregations: aggregations,
-            joinRequest: {
-              joinConditions: this.generateJoinConditions()
-            },
-            filters: whereConditions
-          };
-  
-          console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
-          this.resultSource = 'query';
-          console.log(this.resultSource) ;
-          console.log("submit"); // Set result source to query
-          this.allResults = [];
-          this.reqservice.fetchTableData(requestPayload).subscribe(
-            response => {
-              this.tableData = response;
-              if (this.tableData.length > 0) {
-                this.tableHeaders = Object.keys(this.tableData[0]);
-                this.getReq(); 
-                this.showSqlButton = true;
-              }
-            },
-            error => console.error('Error fetching data:', error)
-          );
-        },
-        error: (error) => {
-          console.error('Error fetching user:', error);
-          this.showSqlButton = false;
-          alert('Error retrieving user data.');
-        }
-      });
-    }
+  if (!userId) {
+    console.error('User ID not found in localStorage');
+    alert('Error: User not logged in.');
+    return;
   }
+  
+  if (this.queryForm.valid) {
+    this.userservice.getUserById(userId).subscribe({
+      next: (user) => {
+        const formData = this.queryForm.value;
 
+        // Process where conditions first (with potential subqueries)
+        this.processWhereConditions(formData.whereClauses).subscribe({
+          next: (whereConditions) => {
+            // Then process having conditions
+            this.processHavingConditions(formData.havingClauses).subscribe({
+              next: (havingConditions) => {
+                // Get aggregations
+                const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
+                  columnId: agg.columnId,
+                  functionagg: agg.functionagg
+                }));
+
+                // Get group by column IDs
+                const groupByColumnIds = this.groupByColumns.map(column => column.id);
+
+                const orderByConditions: orderBy = this.orderByControls.value.map((order: any) => ({
+                  colId: order.colId,
+                  orderType: order.orderType
+                }));
+
+                // Validate SQL rules
+                let isValid = true;
+                let errorMessage = "";
+                
+                // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
+                if (aggregations.length > 0) {
+                  // Get all selected column IDs that are not part of aggregations
+                  const nonAggregatedColumnIds = this.selectedColumns
+                    .filter(col => !aggregations.some(agg => agg.columnId === col.id))
+                    .map(col => col.id);
+                  
+                  // Check if all non-aggregated columns are in GROUP BY
+                  const missingGroupByColumns = nonAggregatedColumnIds
+                    .filter(colId => !groupByColumnIds.includes(colId));
+                  
+                  if (missingGroupByColumns.length > 0) {
+                    isValid = false;
+                    const missingColumns = this.selectedColumns
+                      .filter(col => missingGroupByColumns.includes(col.id))
+                      .map(col => `${col.name} (${col.table.name})`)
+                      .join(', ');
+                    
+                    errorMessage = `SQL Error: Non-aggregated columns ${missingColumns} must appear in GROUP BY clause`;
+                  }
+                }
+                
+                if (!isValid) {
+                  alert(errorMessage);
+                  return;
+                }
+
+                // Construct request payload
+                const requestPayload = {
+                  req: {
+                    sentAt: new Date().toISOString(),
+                    sender: {
+                      identif: user.identif,
+                      mail: user.mail,
+                      password: user.password
+                    },
+                    content: "Fetching data"
+                  },
+                  tableId: this.selectedTables.map(t => t.id),
+                  columnId: aggregations.length > 0 
+                    ? this.selectedColumns
+                        .filter(col => !aggregations.some(agg => agg.columnId === col.id))
+                        .map(c => c.id)
+                    : this.selectedColumns.map(c => c.id),
+                  groupByColumns: groupByColumnIds,
+                  aggregations: aggregations,
+                  joinRequest: {
+                    joinConditions: this.generateJoinConditions()
+                  },
+                  filters: whereConditions,
+                  havingConditions: havingConditions,
+                   orderBy: orderByConditions ? orderByConditions : null,
+                   limit: formData.limit ? parseInt(formData.limit) : null
+                };
+
+                console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
+                this.resultSource = 'query';
+                this.allResults = [];
+                this.reqservice.fetchTableData(requestPayload).subscribe(
+                  response => {
+                    this.tableData = response;
+                    if (this.tableData.length > 0) {
+                      this.tableHeaders = Object.keys(this.tableData[0]);
+                      this.getReq();
+                      this.showSqlButton = true;
+                    }
+                  },
+                  error => console.error('Error fetching data:', error)
+                );
+              },
+              error: (error) => {
+                console.error('Error processing having conditions:', error);
+                alert('Error processing having conditions');
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error processing where conditions:', error);
+            alert('Error processing where conditions');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error fetching user:', error);
+        this.showSqlButton = false;
+        alert('Error retrieving user data.');
+      }
+    });
+  }
+}
   // Existing methods for where clauses
   get whereClauses(): FormArray {
     return this.queryForm.get('whereClauses') as FormArray;
   }
 
-  addWhereCondition() {
-    const whereCondition = this.fb.group({
-      columnName: ['', Validators.required],
-      operator: ['=', Validators.required],
-      value: ['', Validators.required]
-    });
-    this.whereClauses.push(whereCondition);
-  }
+addWhereCondition() {
+  const whereCondition = this.fb.group({
+    columnName: ['', Validators.required],
+    tableName: ['', Validators.required],
+    operator: ['=', Validators.required],
+    value: ['', Validators.required],
+    test: [false], // Default to false (not a subquery)
+    subqueryComparator: ['in'] // Default to 'in' for subqueries
+  });
+  this.whereClauses.push(whereCondition);
+}
+
 
   removeWhereCondition(index: number) {
     this.whereClauses.removeAt(index);
   }
+
+
+
+
+// Add getter for orderBy FormArray
+get orderByControls(): FormArray {
+  return this.queryForm.get('orderBy') as FormArray;
+}
+
+// Method to add an order by condition
+addOrderByCondition() {
+  const orderByCondition = this.fb.group({
+    colId: ['', Validators.required],
+    columnName: ['', Validators.required],
+    tableName: ['', Validators.required],
+    orderType: ['ASC', Validators.required]
+  });
+  this.orderByControls.push(orderByCondition);
+}
+
+// Method to remove an order by condition
+removeOrderByCondition(index: number) {
+  if (index >= 0 && index < this.orderByControls.length) {
+    this.orderByControls.removeAt(index);
+  }
+}
+
+// Method to handle column drop for order by
+onColumnDropForOrderBy(event: CdkDragDrop<Column[]>) {
+  const draggedColumn = event.previousContainer.data[event.previousIndex];
+  
+  // Check if column already exists in order by
+  const columnExists = this.orderByControls.controls.some(
+    control => control.get('columnId').value === draggedColumn.id
+  );
+  
+  if (!columnExists) {
+    const table = this.getTableForColumn(draggedColumn);
+    
+    const orderByCondition = this.fb.group({
+      colId: [draggedColumn.id, Validators.required],
+      columnName: [draggedColumn.name, Validators.required],
+      tableName: [table.name, Validators.required],
+      orderType: ['ASC', Validators.required]
+    });
+    
+    this.orderByControls.push(orderByCondition);
+    this.addTableToSelectedTables(table);
+  }
+}
+
+// Method to toggle order type (ASC/DESC)
+toggleOrderType(index: number) {
+  const orderByControl = this.orderByControls.at(index);
+  const currentType = orderByControl.get('orderType').value;
+  const newType = currentType === 'ASC' ? 'DESC' : 'ASC';
+  orderByControl.get('orderType').setValue(newType);
+}
+
+
+
 
   @Output() newItemEvent = new EventEmitter<Graph>();
 
@@ -801,7 +1128,78 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     this.toggle = !this.toggle
   }
 
-  send(s:string){
+  
+
+  fetchResults(scriptId: number): void {
+    this.resultSource = 'script';
+    console.log(this.resultSource) ;
+    console.log("script");// Set result source to script
+    this.tableData = []; // Clear query results
+    this.tableHeaders = [];
+    this.showSqlButton = false;
+    this.scriptService.executeScript(scriptId).subscribe(
+      (result: any[][]) => {
+        this.allResults = result.map(queryResult => {
+          const headers = queryResult.length > 0 ? Object.keys(queryResult[0]) : [];
+          return {
+            headers,
+            rows: queryResult
+          };
+        });
+      },
+      error => {
+        console.error('Error fetching results:', error);
+      }
+    );
+  }
+
+
+  getReq()  {
+
+    this.reqservice.getUserReq(Number(localStorage.getItem("userId"))).subscribe(data => {this.reqs = data
+    
+      this.lastreq = this.reqs[this.reqs.length-1];
+      //console.log(this.lastreq)
+      this.showSqlButton = !!this.lastreq;
+    
+    });
+    
+    
+    }
+
+
+    showSql(): void {
+      if (this.lastreq && this.lastreq.content) {
+        alert(this.lastreq.content); // Replace with modal or other display method if needed
+      } else {
+        alert('No SQL content available.');
+      }
+    }
+
+
+
+    getScripts()
+{
+  this.scriptService.getByUser(Number(localStorage.getItem("userId"))).subscribe(data => {
+    this.scripts = data 
+    console.log(this.scripts.length)
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+send(s:string){
 
     console.log(1)
 
@@ -924,60 +1322,4 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
 
 
 
-
-  fetchResults(scriptId: number): void {
-    this.resultSource = 'script';
-    console.log(this.resultSource) ;
-    console.log("script");// Set result source to script
-    this.tableData = []; // Clear query results
-    this.tableHeaders = [];
-    this.showSqlButton = false;
-    this.scriptService.executeScript(scriptId).subscribe(
-      (result: any[][]) => {
-        this.allResults = result.map(queryResult => {
-          const headers = queryResult.length > 0 ? Object.keys(queryResult[0]) : [];
-          return {
-            headers,
-            rows: queryResult
-          };
-        });
-      },
-      error => {
-        console.error('Error fetching results:', error);
-      }
-    );
-  }
-
-
-  getReq()  {
-
-    this.reqservice.getUserReq(Number(localStorage.getItem("userId"))).subscribe(data => {this.reqs = data
-    
-      this.lastreq = this.reqs[this.reqs.length-1];
-      //console.log(this.lastreq)
-      this.showSqlButton = !!this.lastreq;
-    
-    });
-    
-    
-    }
-
-
-    showSql(): void {
-      if (this.lastreq && this.lastreq.content) {
-        alert(this.lastreq.content); // Replace with modal or other display method if needed
-      } else {
-        alert('No SQL content available.');
-      }
-    }
-
-
-
-    getScripts()
-{
-  this.scriptService.getByUser(Number(localStorage.getItem("userId"))).subscribe(data => {
-    this.scripts = data 
-    console.log(this.scripts.length)
-  })
-}
 }

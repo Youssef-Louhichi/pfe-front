@@ -140,13 +140,13 @@
                     
                     <!-- Function Selection -->
                     <div class="agg-function-select">
-                      <select formControlName="functionagg" class="form-control">
-                        <option value="COUNT">COUNT</option>
-                        <option value="SUM">SUM</option>
-                        <option value="AVG">AVG</option>
-                        <option value="MIN">MIN</option>
-                        <option value="MAX">MAX</option>
-                      </select>
+                        <select class="form-control" (change)="onAggregationFunctionChange(i, $event)">
+      <option value="COUNT" selected>COUNT</option>
+      <option value="SUM">SUM</option>
+      <option value="AVG">AVG</option>
+      <option value="MIN">MIN</option>
+      <option value="MAX">MAX</option>
+    </select>
                     </div>
                     
                     <!-- Remove Button -->
@@ -182,6 +182,99 @@
               </div>
             </div>
           </div>
+          <div class="having-conditions">
+  <h3>Having Conditions </h3>
+  <div class="having-drop-area">
+    <div cdkDropList 
+         id="havingDropZone"
+         (cdkDropListDropped)="onColumnDropForHaving($event)"
+         class="dropzone">
+      <p *ngIf="!havingClauses.length">Drag Columns Here for HAVING Conditions</p>
+    </div>
+    
+    <!-- HAVING Condition Inputs -->
+  <div formArrayName="havingClauses">
+  <div *ngFor="let condition of havingClauses.controls; let i = index" 
+       [formGroupName]="i" class="having-row">
+    
+    <!-- Function Selection -->
+    <select formControlName="functionhaving" class="form-control function">
+      <option *ngFor="let func of availableHavingFunctions" [value]="func">{{func}}</option>
+    </select>
+    
+    <!-- Column Display -->
+    <span class="bracket">(</span>
+    <input type="text" 
+          formControlName="columnName" 
+          class="form-control column-name" 
+          readonly>
+    <span class="bracket">)</span>
+    
+    <!-- Hidden input for column ID -->
+    <input type="hidden" 
+          formControlName="columnId" 
+          class="form-control">
+    
+    <!-- Hidden input for table name -->
+    <input type="hidden" 
+          formControlName="tableName" 
+          class="form-control">
+    
+    <!-- Operator Selection -->
+    <select formControlName="operator" class="form-control operator">
+      <option value="=">=</option>
+      <option value="!=">!=</option>
+      <option value=">">></option>
+      <option value="<"><</option>
+      <option value=">=">>=</option>
+      <option value="<="><=</option>
+      <option value="IN">IN</option>
+      <option value="NOT IN">NOT IN</option>
+    </select>
+    
+    <!-- Subquery Checkbox -->
+    <div class="subquery-toggle">
+      <label>
+        <input type="checkbox" [formControlName]="'test'" (change)="onSubqueryToggle(i)"> Subquery
+      </label>
+    </div>
+    
+    <!-- Standard Value Input (shown when subquery is OFF) -->
+    <input *ngIf="!condition.get('test').value" 
+          type="text" 
+          formControlName="value" 
+          placeholder="Value" 
+          class="form-control value">
+    
+    <!-- Subquery Options (shown when subquery is ON) -->
+    <div *ngIf="condition.get('test').value" class="subquery-options">
+      <select formControlName="subqueryComparator" 
+              class="form-control subquery-comparator">
+        <option value="in">IN</option>
+        <option value="not in">NOT IN</option>
+        <option value="=">= ANY</option>
+        <option value=">"> &gt; ANY</option>
+        <option value="<"> &lt; ANY</option>
+      </select>
+      
+      <!-- Dropdown for saved requests -->
+      <select formControlName="value" 
+              class="form-control saved-requests">
+        <option value="">Select a saved query</option>
+        <option *ngFor="let req of savedRequests" [value]="req.id">
+          {{ req.content }} (ID: {{ req.id }})
+        </option>
+      </select>
+    </div>
+    
+    <!-- Remove Button -->
+    <button type="button" class="btn-remove" (click)="removeHavingCondition(i)">
+      <span>×</span>
+    </button>
+  </div>
+</div>
+  </div>
+</div>  
   
           <!-- Join Conditions -->
           <div class="join-conditions" *ngIf="selectedTables.length > 1">
@@ -250,61 +343,148 @@
               </button>
             </div>
           </div>
+
+
+          <div class="order-by-conditions">
+  <h3>Order By</h3>
+  <div class="order-by-drop-area">
+    <div cdkDropList 
+         id="orderByDrop"
+         (cdkDropListDropped)="onColumnDropForOrderBy($event)"
+         class="dropzone">
+      <p *ngIf="!orderByControls.length">Drag Columns Here for ORDER BY</p>
+    </div>
+
+    <!-- ORDER BY Condition Inputs -->
+    <div formArrayName="orderBy">
+      <div *ngFor="let condition of orderByControls.controls; let i = index" 
+           [formGroupName]="i" class="order-by-row">
+        
+        <!-- Column Display -->
+        <input type="text" 
+               formControlName="columnName" 
+               class="form-control column-name" 
+               readonly>
+        
+        <!-- Hidden input for column ID -->
+        <input type="hidden" 
+               formControlName="colId" 
+               class="form-control">
+        
+        <!-- Hidden input for table name -->
+        <input type="hidden" 
+               formControlName="tableName" 
+               class="form-control">
+        
+        <!-- Order Type Toggle -->
+        <button type="button" 
+                class="btn-toggle-order" 
+                (click)="toggleOrderType(i)">
+          {{ condition.get('orderType').value }}
+        </button>
+        
+        <!-- Remove Button -->
+        <button type="button" 
+                class="btn-remove" 
+                (click)="removeOrderByCondition(i)">
+          <span>×</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
   
           <!-- Where Conditions -->
           <div class="where-conditions">
-            <h3>Where Conditions</h3>
-            <div class="condition-drop-area">
-              <div cdkDropList 
-                  id="dropzone2"
-                  (cdkDropListDropped)="onColumnDropForCondition($event)"
-                  class="dropzone">
-                <h4>Drag Columns Here for Conditions</h4>
-              </div>
+  <h3>Where Conditions</h3>
+  <div class="condition-drop-area">
+    <div cdkDropList 
+        id="dropzone2"
+        (cdkDropListDropped)="onColumnDropForCondition($event)"
+        class="dropzone">
+      <h4>Drag Columns Here for Conditions</h4>
+    </div>
+    
+    <!-- Condition Inputs -->
+    <div formArrayName="whereClauses">
+      <div *ngFor="let condition of whereClauses.controls; let i = index" 
+          [formGroupName]="i" class="condition-row">
+        
+        <input type="text" 
+              formControlName="columnName" 
+              class="form-control column-name" 
+              readonly>
+        
+        <!-- Hidden input for table name -->
+        <input type="hidden" 
+              formControlName="tableName" 
+              class="form-control table-name">
+        
+        <select formControlName="operator" class="form-control operator">
+          <option value="=">=</option>
+          <option value="!=">!=</option>
+          <option value="like">LIKE</option>
+          <option value=">">></option>
+          <option value="<"><</option>
+          <option value=">=">>=</option>
+          <option value="<="><=</option>
+          <option value="in">IN</option>
+        </select>
+        
+        <!-- Subquery checkbox -->
+        <div class="form-check subquery-toggle">
+          <input type="checkbox" class="form-check-input" formControlName="test" 
+                (change)="onWhereSubqueryToggle(i)">
+          <label class="form-check-label">Subquery</label>
+        </div>
+
+        <!-- Conditionally display input field or dropdown based on subquery selection -->
+        <ng-container *ngIf="!condition.get('test').value; else subqueryDropdown">
+          <input type="text" 
+                formControlName="value" 
+                placeholder="Value" 
+                class="form-control value">
+        </ng-container>
+        <ng-template #subqueryDropdown>
+          <select formControlName="value" class="form-control subquery-select">
+            <option value="">Select a saved query</option>
+            <option *ngFor="let req of savedRequests" [value]="req.id">
+              {{ req.content }} ({{ req.sentAt | date:'short' }})
+            </option>
+          </select>
+          
+          <select formControlName="subqueryComparator" class="form-control subquery-comparator" 
+                  *ngIf="condition.get('operator').value === 'in'">
+            <option value="in">IN</option>
+            <option value="not in">NOT IN</option>
+          </select>
+        </ng-template>
+        
+        <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
+          <span>×</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+<div class="form-group">
+  <label for="limit">Limit Results</label>
+  <input type="number" 
+         id="limit" 
+         formControlName="limit" 
+         class="form-control" 
+         placeholder="Enter result limit"
+         min="0">
+</div>
+
+
+  <div class="form-actions">
+    <button type="submit" class="btn-primary">Execute Query</button>
+    <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Results</button>
+    <button type="button" class="btn-primary" (click)="switch()">AI <i class="fas fa-robot"></i></button>
+  </div>
+</div>
               
-              <!-- Condition Inputs -->
-              <div formArrayName="whereClauses">
-                <div *ngFor="let condition of whereClauses.controls; let i = index" 
-                    [formGroupName]="i" class="condition-row">
-                  
-                  <input type="text" 
-                        formControlName="columnName" 
-                        class="form-control column-name" 
-                        readonly>
-                  
-                  <!-- Hidden input for table name -->
-                  <input type="hidden" 
-                        formControlName="tableName" 
-                        class="form-control table-name">
-                  
-                  <select formControlName="operator" class="form-control operator">
-                    <option value="=">=</option>
-                    <option value="!=">!=</option>
-                    <option value="like">LIKE</option>
-                    <option value=">">></option>
-                    <option value="<"><</option>
-                    <option value=">=">>=</option>
-                    <option value="<="><=</option>
-                    <option value="in">IN</option>
-                  </select>
-                  
-                  <input type="text" 
-                        formControlName="value" 
-                        placeholder="Value" 
-                        class="form-control value">
-                  
-                  <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
-                    <span>×</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn-primary">Execute Query</button>
-              <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Results</button>
-              <button type="button" class="btn-primary" (click)="switch()">AI <i class="fas fa-robot"></i></button>
-            </div>
-          </div>
         </form>
   
         <div class="query-form" *ngIf="!toggle">

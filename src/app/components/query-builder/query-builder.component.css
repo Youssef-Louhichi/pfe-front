@@ -715,3 +715,152 @@
 .suggestion-button:hover {
   background-color: #0069d9;
 }
+.having-conditions {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.having-drop-area {
+  margin-top: 10px;
+}
+
+.having-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.having-row .form-control {
+  margin-right: 8px;
+}
+
+.having-row .function {
+  width: 100px;
+}
+
+.having-row .column-name {
+  width: 150px;
+  background-color: #f5f5f5;
+}
+
+.having-row .operator {
+  width: 80px;
+}
+
+.having-row .value {
+  width: 120px;
+}
+
+.having-row .bracket {
+  font-weight: bold;
+  margin: 0 2px;
+}
+
+.having-row .subquery-toggle {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.having-row .subquery-toggle label {
+  margin-right: 8px;
+  font-size: 0.9em;
+}
+
+.having-row .subquery-comparator {
+  width: 100px;
+}
+
+.having-row .btn-remove {
+  background-color: #ff5252;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.having-row .btn-remove:hover {
+  background-color: #ff1744;
+}
+
+.having-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.having-row .function {
+  width: 100px;
+}
+
+.having-row .column-name {
+  width: 120px;
+  background-color: #f9f9f9;
+}
+
+.having-row .bracket {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.having-row .operator {
+  width: 100px;
+}
+
+.having-row .value {
+  width: 120px;
+}
+
+.subquery-toggle {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.subquery-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subquery-comparator {
+  width: 100px;
+}
+
+.saved-requests {
+  width: 200px;
+  background-color: #f0f8ff;
+}
+
+.btn-remove {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-remove:hover {
+  background-color: #ff4f4f;
+}
