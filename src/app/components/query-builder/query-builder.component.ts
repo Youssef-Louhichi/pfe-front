@@ -19,6 +19,7 @@ import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { SuggestionsService } from 'src/app/services/suggestions.service';
 import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
+import { trigger, transition, style, animate } from '@angular/animations';
 const apiKey = environment.openRouterApiKey;
 
 interface HavingCondition {
@@ -69,7 +70,18 @@ interface ColumnWithTable extends Column {
 @Component({
   selector: 'app-query-builder',
   templateUrl: './query-builder.component.html',
-  styleUrls: ['./query-builder.component.css']
+  styleUrls: ['./query-builder.component.css'],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class QueryBuilderComponent implements OnInit {
 
@@ -78,7 +90,10 @@ export class QueryBuilderComponent implements OnInit {
     ,private suggestionsservice:SuggestionsService
   ) { }
 
- scripts: Script[];
+  @Output() newItemEvent = new EventEmitter<Graph>();
+  @Output() hideQueryBuilder = new EventEmitter<void>();
+
+  scripts: Script[];
   allResults: { headers: string[], rows: any[] }[] = [];
   databases: Database[];
   queryForm: FormGroup;
@@ -116,6 +131,8 @@ export class QueryBuilderComponent implements OnInit {
   showSqlButton: boolean = false;
   isDbMode: boolean = true;
   selectedScriptIndex: number = 0;
+  showNotification = false;
+
   ngOnInit(): void {
     this.queryForm = this.fb.group({
       table: ['', Validators.required],
@@ -155,6 +172,8 @@ export class QueryBuilderComponent implements OnInit {
   get havingClauses(): FormArray {
   return this.queryForm.get('havingClauses') as FormArray;
 }
+
+
 
 // Method to handle column drop for HAVING condition
 onColumnDropForHaving(event: CdkDragDrop<Column[]>) {
@@ -966,6 +985,7 @@ updateFormColumns() {
                       this.tableHeaders = Object.keys(this.tableData[0]);
                       this.getReq();
                       this.showSqlButton = true;
+                      //this.showAddedNotification();
                     }
                   },
                   error => console.error('Error fetching data:', error)
@@ -1072,9 +1092,6 @@ toggleOrderType(index: number) {
 }
 
 
-
-
-  @Output() newItemEvent = new EventEmitter<Graph>();
 
 
   addTableToWorkspace() {
@@ -1320,6 +1337,15 @@ send(s:string){
     })
   }
 
+  returnToDashboard() {
+    this.hideQueryBuilder.emit();
+  }
 
+  showAddedNotification() {
+    this.showNotification = true;
+    setTimeout(() => {
+      this.showNotification = false;
+    }, 3000); // Hide after 3 seconds
+  }
 
 }
