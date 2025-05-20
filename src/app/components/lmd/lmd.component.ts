@@ -8,6 +8,7 @@ import { ConnexionsService } from 'src/app/services/connexions.service';
 import { RequeteService } from 'src/app/services/requete.service';
 import { Analyst } from 'src/app/models/analyst';
 import { Creator } from 'src/app/models/creator';
+import { User } from 'src/app/models/user';
 
 interface InsertPayload {
   tableId: number;
@@ -41,6 +42,7 @@ export class LMDComponent implements OnInit {
   showDatabases: { [key: string]: boolean } = {};
   formMode: 'insert' | 'update' | 'delete' | null = null;
   availableTables: DbTable[] = [];
+  user:User
 
   constructor(
     private userService: UsersService,
@@ -59,6 +61,7 @@ export class LMDComponent implements OnInit {
     const idUser = Number(localStorage.getItem('userId'));
 
     this.userService.getUserById(idUser).subscribe(data => {
+      this.user = data
       if (data.type === 'Creator') {
         this.connexionService.getConnexionDatabases(idConnection).subscribe(d => {
           this.databases = d;
@@ -67,15 +70,7 @@ export class LMDComponent implements OnInit {
             this.toggleDb(d[0]);
           }
         });
-      } else {
-        this.analystService.getAnalystsDatabasess(idUser).subscribe(d => {
-          this.databases = d;
-          if (d.length > 0) {
-            this.selectedDbIndex = 0;
-            this.toggleDb(d[0]);
-          }
-        });
-      }
+      } 
     });
   }
 

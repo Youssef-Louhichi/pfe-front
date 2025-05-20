@@ -18,6 +18,8 @@ import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { SuggestionsService } from 'src/app/services/suggestions.service';
 import { UsersService } from 'src/app/services/users.service';
 import { environment } from 'src/environments/environment';
+import { DatabaseDiagramComponent } from '../database-diagram/database-diagram.component';
+import { MatDialog } from '@angular/material/dialog';
 const apiKey = environment.openRouterApiKey;
 
 
@@ -59,7 +61,7 @@ export class QueryBuilderComponent implements OnInit {
 
   constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService,
     private analystservice:AnalystService,private connexionservice:ConnexionsService,private scriptService: ScriptServiceService,private route: ActivatedRoute
-    ,private suggestionsservice:SuggestionsService
+    ,private suggestionsservice:SuggestionsService , private dialog: MatDialog
   ) { }
 
  scripts: Script[];
@@ -542,7 +544,6 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     this.userservice.getUserById(idUser).subscribe(data => {
 
       if (data.type == "Creator") {
-        let creator = data as Creator
         this.connexionservice.getConnexionDatabases(idConnexion).subscribe(d =>{
           this.databases = d
           this.databases.forEach(db => {
@@ -554,9 +555,8 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
         })
       }
       else {
-        let analyst = data as Analyst
         this.analystservice.getAnalystsDatabasess(idUser).subscribe(d =>{
-          this.databases = d
+          this.databases = d.filter(d=> d.connexion.id == idConnexion)
           this.databases.forEach(db => {
             db.tables.forEach(table => {
               this.originalTableColumns[table.id] = [...table.columns];
@@ -979,5 +979,18 @@ availableAggFunctions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'];
     this.scripts = data 
     console.log(this.scripts.length)
   })
+}
+
+
+showRelations(){
+ this.dialog.open(DatabaseDiagramComponent, {
+        data:this.databases[this.selectedDbIndex].id,
+        width: '65vw',
+        maxHeight: '80vh'
+      }
+            
+      );
+  
+      
 }
 }

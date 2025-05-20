@@ -2,6 +2,7 @@
     <section class="side">
       <!-- Database dropdown selector -->
       <div class="db-selector">
+        <div >
         <label for="dbSelect">Select Database:</label>
         <select id="dbSelect" class="db-select" 
                 [(ngModel)]="selectedDbIndex" 
@@ -10,7 +11,12 @@
             {{db.name | titlecase}}
           </option>
         </select>
-      </div>
+        </div>
+<button class="i-button" (click)="showRelations()" [disabled]="!databases[selectedDbIndex]" > 
+  <i class="fas fa-info" alt="Relations"></i>
+</button>      
+</div>
+
   
       <!-- Tables list for selected database -->
       <div class="tables-container" *ngIf="selectedDbIndex != null">

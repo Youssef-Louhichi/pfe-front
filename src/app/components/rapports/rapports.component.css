@@ -11,7 +11,7 @@
   --border-radius: 12px;
 }
 
-body {
+.container-dash {
   margin: 0;
   padding: 0;
   background-color: #f0f2f5;
@@ -24,6 +24,8 @@ body {
   padding: 15px 5%;
   margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
 }
 
 .header h1 {

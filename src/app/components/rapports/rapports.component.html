@@ -1,113 +1,104 @@
-<html>
-    <head>
-
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>  
-
-<body>
-
-<div class="header">
-    <h1>Your dashboard</h1>
-</div>
-
-<div class="content">
-    <!-- Reports section with header and buttons -->
-    <div class="section-header">
-        <div class="section-title">
-            <h2>Your Reports</h2>
-        </div>
-        <div class="button-container">
-            <button class="btn new-rapport-btn" (click)="openNewRapport()">
-                <i class="fa fa-solid fa-plus"></i>
-                Create a new report
-            </button>
-        </div>
+<div class="container-dash">
+    <div class="header" *ngIf="user">
+        <h1>Your dashboard</h1>
+        <button (click)="goToStats()" class="btn new-rapport-btn" *ngIf="user.type == 'Creator'">Show
+            Statistics</button>
     </div>
 
-    <!-- Reports section with scrollable container -->
-    <div class="rapports-container">
-        <div class="rapport-item" *ngFor="let r of rapports" (click)="openRapport(r)">
-            <div class="rapport-preview">
-                <div class="page" *ngIf="r">
-                    <div *ngFor="let table of r.graphs" class="draggable resizable-table"
-                        [ngClass]="{'text-zone': table.format == 'text'}"
-                        [style.width.px]="table.width/5.5" [style.height.px]="table.height/5.5"
-                        [style.top.px]="table.toppos/5.5" [style.left.px]="table.leftpos/5.5">
-                        <table class="tab" *ngIf="table.format == 'table'">
-                            <thead>
-                                <tr>
-                                    <th *ngFor="let header of table.headers">{{ header | titlecase }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let row of table.data">
-                                    <td *ngFor="let key of table.headers">{{ row[key] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <canvas id="chartCanvas-{{table.id}}" class="charts"
-                            [width]="table.width/4.4" [height]="table.height/4.4"
-                            *ngIf="table.format === 'chart'"></canvas>
-                        <textarea *ngIf="table.format === 'text'" class="text" [style.color]="table.colors[0]">
+    <div class="content">
+        <!-- Reports section with header and buttons -->
+        <div class="section-header">
+            <div class="section-title">
+                <h2>Your Reports</h2>
+            </div>
+            <div class="button-container">
+                <button class="btn new-rapport-btn" (click)="openNewRapport()">
+                    <i class="fa fa-solid fa-plus"></i>
+                    Create a new report
+                </button>
+            </div>
+        </div>
+
+        <!-- Reports section with scrollable container -->
+        <div class="rapports-container">
+            <div class="rapport-item" *ngFor="let r of rapports" (click)="openRapport(r)">
+                <div class="rapport-preview">
+                    <div class="page" *ngIf="r">
+                        <div *ngFor="let table of r.graphs" class="draggable resizable-table"
+                            [ngClass]="{'text-zone': table.format == 'text'}" [style.width.px]="table.width/5.5"
+                            [style.height.px]="table.height/5.5" [style.top.px]="table.toppos/5.5"
+                            [style.left.px]="table.leftpos/5.5">
+                            <table class="tab" *ngIf="table.format == 'table'">
+                                <thead>
+                                    <tr>
+                                        <th *ngFor="let header of table.headers">{{ header | titlecase }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let row of table.data">
+                                        <td *ngFor="let key of table.headers">{{ row[key] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <canvas id="chartCanvas-{{table.id}}" class="charts" [width]="table.width/4.4"
+                                [height]="table.height/4.4" *ngIf="table.format === 'chart'"></canvas>
+                            <textarea *ngIf="table.format === 'text'" class="text" [style.color]="table.colors[0]">
                             {{table.data[0].text}}
                         </textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="rapport-info">
+                    <h3>{{r.titre}}</h3>
+                    <p class="update-date">Last updated: {{r.updatedAt | date:'mediumDate'}}</p>
+                    <div class="actions">
+                        <button class="action-btn" (click)="openRapport(r); $event.stopPropagation()">
+                            <i class="fa fa-eye"></i> View
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="rapport-info">
-                <h3>{{r.titre}}</h3>
-                <p class="update-date">Last updated: {{r.updatedAt | date:'mediumDate'}}</p>
-                <div class="actions">
-                    <button class="action-btn" (click)="openRapport(r); $event.stopPropagation()">
-                        <i class="fa fa-eye"></i> View
+        </div>
+
+        <!-- Separator -->
+        <hr>
+        <!-- Scripts section with header and buttons -->
+        <div class="section-header">
+            <div class="section-title">
+                <h2>Your Scripts</h2>
+            </div>
+            <div class="button-container">
+                <!-- Added new script button -->
+                <button class="btn new-script-btn" (click)="openCreateScriptPopup()">
+                    <i class="fa fa-solid fa-plus"></i>
+                    Create a new script
+                </button>
+            </div>
+        </div>
+
+        <app-create-script *ngIf="showCreateScriptPopup" (close)="closeCreateScriptPopup()"
+            (createScript)="onScriptCreated($event)"></app-create-script>
+
+        <!-- Scripts section with scrollable container -->
+        <div class="scripts-container">
+            <div class="script-item" *ngFor="let s of scripts">
+                <div class="script-info">
+                    <h3>{{s.name}}</h3>
+                    <p class="script-date">Created on: {{s.createdAt | date:'mediumDate'}}</p>
+                </div>
+                <div class="script-actions">
+                    <button class="script-action-btn" (click)="openScript(s.id)" title="Execute">
+                        <i class="fa fa-play"></i>
+                    </button>
+                    <button class="script-action-btn" title="Update" (click)="openScriptSelectionDialog(s.id)">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="script-action-btn" title="Delete" (click)="deleteScript(s.id)">
+                        <i class="fa fa-trash"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Separator -->
-<hr>
-    <!-- Scripts section with header and buttons -->
-    <div class="section-header">
-        <div class="section-title">
-            <h2>Your Scripts</h2>
-        </div>
-        <div class="button-container">
-            <!-- Added new script button -->
-            <button class="btn new-script-btn" (click)="openCreateScriptPopup()">
-                <i class="fa fa-solid fa-plus"></i>
-                Create a new script
-            </button>
-        </div>
-    </div>
-
-    <app-create-script
-    *ngIf="showCreateScriptPopup"
-    (close)="closeCreateScriptPopup()"
-    (createScript)="onScriptCreated($event)"
-  ></app-create-script>
-
-    <!-- Scripts section with scrollable container -->
-    <div class="scripts-container">
-        <div class="script-item" *ngFor="let s of scripts">
-            <div class="script-info">
-                <h3>{{s.name}}</h3>
-                <p class="script-date">Created on: {{s.createdAt | date:'mediumDate'}}</p>
-            </div>
-            <div class="script-actions">
-                <button class="script-action-btn" (click)="openScript(s.id)" title="Execute">
-                    <i class="fa fa-play"></i>
-                </button>
-                <button class="script-action-btn" title="Update" (click)="openScriptSelectionDialog(s.id)">
-                    <i class="fa fa-pencil"></i>
-                </button>
-                <button class="script-action-btn" title="Delete" (click)="deleteScript(s.id)">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </div>
-        </div>
-    </div>
 </div>
-
-</body></html>

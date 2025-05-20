@@ -1,5 +1,5 @@
 <div class="cont">
-    <div class="database-arch" [class.disabled]="selectedAnalystId === null">
+    <div class="database-arch" [class.disabled]="selectedAnalystId === null || user.type == 'Analyst'">
         <input type="checkbox" (change)="onDatabaseCheckboxChange($event, selectedDb)" [checked]="selectedDbId !== null">
         {{selectedDb.name}}
         <ul>
@@ -31,6 +31,7 @@
           <td class="user-row">
             <div class="user-element">
               <input 
+                [disabled]="analyst.identif == user.identif"
                 type="checkbox" 
                 [checked]="selectedAnalystId === analyst" 
                 (change)="toggleCheck(analyst)"

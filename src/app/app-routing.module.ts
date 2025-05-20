@@ -10,12 +10,14 @@ import { RapportsComponent } from './components/rapports/rapports.component';
 import { EditUserProfileComponent } from './components/edit-user-profile/edit-user-profile.component';
 import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
 import { TestComponent } from './components/test/test.component';
+import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statistics.component';
 
 const routes: Routes = [
   {path:"login",title:"EasySql",component:LoginPageComponent},
   {path:"main",title:"EasySql",component:MainComponent,children:[
     {path:"dashboard",component:RapportsComponent},
     {path:"dashboard/edit",component:DashboardComponent},
+    {path:"dashboard/statistics",component:DbsStatisticsComponent},
     {path:"users",component:UsersComponent},
     {path:"rapports",component:RapportsComponent},
     {path:"LMD",component:LMDComponent},

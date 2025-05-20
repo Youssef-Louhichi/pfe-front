@@ -28,6 +28,9 @@ export class HomeComponent implements OnInit{
       if(data.type == "Creator"){
         let creator = data as Creator
         this.connexions = creator.connexions
+        if(this.connexions.length == 0){
+          this.openPopup()
+        }
       }
       else{
         this.analystservice.getAnalystsConnexions(Number(id)).subscribe(data2=>{

@@ -34,6 +34,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CreateScriptComponent } from './components/create-script/create-script.component';
 import { ScriptdetailsComponent } from './components/scriptdetails/scriptdetails.component';
+import { DatabaseDiagramComponent } from './components/database-diagram/database-diagram.component';
+import { FilesizePipe } from './pipes/filesize.pipe';
+import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statistics.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +66,9 @@ import { ScriptdetailsComponent } from './components/scriptdetails/scriptdetails
     ScriptSelectionDialogComponent,
     CreateScriptComponent,
     ScriptdetailsComponent,
+    DatabaseDiagramComponent,
+    FilesizePipe,
+    DbsStatisticsComponent,
     
   ],
   imports: [

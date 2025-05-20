@@ -8,6 +8,7 @@ import { Script } from 'src/app/models/script';
 import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { UsersService } from 'src/app/services/users.service';
 import { ScriptdetailsComponent } from '../scriptdetails/scriptdetails.component';
+import { User } from 'src/app/models/user';
 
 @Component({
   selector: 'app-rapports',
@@ -23,8 +24,13 @@ export class RapportsComponent implements OnInit{
 
     rapports:Rapport[]
     scripts: any[];
+    user:User
 
     ngOnInit(): void {
+      this.userService.getUserById(Number(localStorage.getItem("userId"))).subscribe(data =>{
+        this.user = data
+        })
+      
       this.userService.getUserRapports(Number(localStorage.getItem("userId"))).subscribe(data =>{
         this.rapports = data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         this.rapports = this.rapports.filter(r => r.cnxrapport.id == Number(localStorage.getItem("idConnection")))
@@ -177,6 +183,11 @@ openScriptSelectionDialog(scriptId: number): void {
       });
     }
   });
+
+}
+
+goToStats(){
+        this.router.navigate(["/main/dashboard/statistics"])
 
 }
 }

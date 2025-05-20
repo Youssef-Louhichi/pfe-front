@@ -1,4 +1,4 @@
-<div class="insert-form-container">
+<div class="insert-form-container" *ngIf="user" [class.disabled]="user.type == 'Analyst'">
   <!-- Sidebar with Database and Table Selection -->
   <section class="side">
     <!-- Database dropdown selector -->
