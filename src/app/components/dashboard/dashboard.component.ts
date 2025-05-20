@@ -11,12 +11,25 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog'
 import { TitlePopupComponent } from '../title-popup/title-popup.component'
 import { SharedToggleSidebarService } from 'src/app/services/shared-toggle-sidebar.service'
 import { PdfExportService } from 'src/app/services/pdf-export.service'
+import { trigger, transition, style, animate } from '@angular/animations'
+
 Chart.register(...registerables)
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class DashboardComponent implements OnInit {
   constructor(private el: ElementRef, private rapportService: RapportService,
@@ -40,6 +53,7 @@ export class DashboardComponent implements OnInit {
   selectedColors: string[] = []
   selectedChartType = ""
   tools: string
+  showingQueryBuilder = false
 
   @ViewChild('page') pageRef: ElementRef
   @ViewChildren('text') textAreas: QueryList<ElementRef<HTMLTextAreaElement>>
@@ -53,6 +67,11 @@ export class DashboardComponent implements OnInit {
       this.isCollapsed = c
     })
 
+    // Initialize rapport if needed
+    if (!this.rapport) {
+      this.rapport = new Rapport(null, "", [], null, null, null, null)
+    }
+
     const storedData = localStorage.getItem('rapport')
     if (storedData) {
       const myObject = JSON.parse(storedData)
@@ -63,8 +82,28 @@ export class DashboardComponent implements OnInit {
           setTimeout(() => this.createChart(graph), 0)
       })
     }
-    this.rapport.user = new User(null, null, Number(localStorage.getItem("userId")), [], null)
-    this.rapport.cnxrapport = new Connexion(Number(localStorage.getItem("idConnection")), null, null, null, null, null, null, null, [], [])
+    
+    if (localStorage.getItem("userId")) {
+      this.rapport.user = new User(null, null, Number(localStorage.getItem("userId")), [], null)
+    }
+    
+    if (localStorage.getItem("idConnection")) {
+      this.rapport.cnxrapport = new Connexion(Number(localStorage.getItem("idConnection")), null, null, null, null, null, null, null, [], [])
+    }
+  }
+
+  showQueryBuilder() {
+    this.showingQueryBuilder = true
+  }
+
+  hideQueryBuilder() {
+    this.showingQueryBuilder = false
+    // Re-render charts if needed
+    this.rapportGraphs.forEach(graph => {
+      if (graph.format == "chart") {
+        setTimeout(() => this.createChart(graph), 0)
+      }
+    })
   }
 
   saveState() {

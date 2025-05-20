@@ -1,68 +1,58 @@
-<div class="cont">
-    <div class="layer">
+<div class="login-container">
+    <div class="login-background">
+        <div class="login-content">
+            <div class="brand-section">
+                <h1 class="brand-title">easySQL</h1>
+                <p class="brand-subtitle">Your SQL Query Assistant For Beginners</p>
+            </div>
 
-    <div class="title_container">
-        <div class="title">
-            easySQL
+            <div class="auth-window" [ngClass]="{'signup-mode': !switch}">
+                <div class="auth-header">
+                    <h2>Welcome Back !</h2>
+                    
+                </div>
+
+                <form [formGroup]="logForm" class="auth-form">
+                    <div class="form-group">
+                        <input type="email" formControlName="login" placeholder="Email Address" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" formControlName="pwd" placeholder="Password" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+
+                    <div *ngIf="!switch" class="form-group">
+                        <input type="text" placeholder="Full Name" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+
+                    <div *ngIf="!switch" class="form-group">
+                        <input type="password" placeholder="Confirm Password" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-button" (click)=" signIn()">
+                       Sign In
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>
+                        {{ switch ? "Don't have an account?" : "Already have an account?" }}
+                        <a href="#" (click)="toggle()">{{ switch ? 'Sign Up' : 'Sign In' }}</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="login-window" [ngClass]="{'turn-off': !switch, 'turn-on': switch}" [formGroup]="logForm">
-        <div class="up-bar">
-            <div class="delete-icon">X</div>
-        </div>
-
-        <div class="login_title">Sign in</div>
-
-        <div class="inputs-container">
-
-            <input type="text" class="inputs" placeholder="Your Email" formControlName="login">
-            <input type="password" class="inputs" placeholder="Your Password" formControlName="pwd">
-
-        </div>
-
-        <div class="remember">
-            <label class="checkbox-label">
-                <input type="checkbox"> Remember me
-            </label>
-            <label class="help-label">
-                <i class="fa-regular fa-circle-question"></i> Need Help
-            </label>
-        </div>
-
-        <div class="btn-container">
-            <button (click)="signIn()">Sign in</button>
-            <button (click)="toggle()">Sign up</button>
-        </div>
-
-    </div>
-
-
-    <div class="signup-window"  [ngClass]="{'turn-off': switch, 'turn-on': !switch}">
-        <div class="up-bar">
-            <div class="delete-icon">X</div>
-        </div>
-
-        <div class="login_title">Sign up</div>
-
-        <div class="inputs-container-sign">
-
-            <input type="text" class="inputs" placeholder="Your Email">
-            <input type="text" class="inputs" placeholder="Your Name">
-            <input type="password" class="inputs" placeholder="Your Password">
-            <input type="password" class="inputs" placeholder="Confirm Password">
-
-
-        </div>
-
-
-
-        <div class="btn-container">
-            <button>Sign up</button>
-            <button (click)="toggle()"> Sign in</button>
-        </div>
-
-    </div>
-
-</div>
 </div>

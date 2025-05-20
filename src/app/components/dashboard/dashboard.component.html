@@ -1,23 +1,79 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+<body>
+
 <main cdkDropListGroup>
-  <app-query-builder (newItemEvent)="onDataAdded($event)"></app-query-builder>
+  <div class="sidebar" *ngIf="!showingQueryBuilder" [@fadeInOut]>
+    <div class="sidebar-header">
+      <h3>Dashboard {{rapport.titre}} </h3>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-button" (click)="save()">
+        <i class="fas fa-save"></i>
+        <span>Save</span>
+      </div>
+      <div class="sidebar-button" (click)="showQueryBuilder()">
+        <i class="fas fa-chart-bar"></i>
+        <span>Add Chart</span>
+      </div>
+      <div class="sidebar-button" (click)="addText()">
+        <i style="font-family: times new roman;">T</i>
+        <span>Add Text</span>
+      </div>
+      <div class="sidebar-button" [ngClass]="{'disabled': !selectedGraph || selectedGraph.format != 'chart'}" (click)="changeToolBar('data')">
+        <i class="fas fa-chart-bar"></i>
+        <span>Chart Type</span>
+      </div>
+      <div class="sidebar-button" [ngClass]="{'disabled':!selectedGraph || selectedGraph.format != 'chart'}" (click)="changeToolBar('colors')">
+        <i style="font-style: normal;">🎨</i>
+        <span>Colors</span>
+      </div>
+      <div class="sidebar-button" [ngClass]="{'disabled':rapportHistory.length === 0}" (click)="undo()">
+        <i class="fas fa-rotate-left"></i>
+        <span>Undo</span>
+      </div>
+      <div class="sidebar-button" [ngClass]="{'disabled':redoStack.length === 0}" (click)="redo()">
+        <i class="fas fa-rotate-right"></i>
+        <span>Redo</span>
+      </div>
+      <div class="sidebar-button" [ngClass]="{'disabled': !selectedGraph}" (click)="deleteGraph()">
+        <i class="fas fa-trash"></i>
+        <span>Delete</span>
+      </div>
+      <div class="sidebar-button" (click)="exportToPdf()">
+        <i class="fas fa-share"></i>
+        <span>Export PDF</span>
+      </div>
+    </div>
+  </div>
 
-  <div class="workspace">
-    <div class="tool-bar" >
+  <div class="main-content">
+    <!-- Query Builder (Hidden by default) -->
+    <div class="query-builder-container" *ngIf="showingQueryBuilder" [@fadeInOut]>
+      <app-query-builder 
+        (newItemEvent)="onDataAdded($event)" 
+        (hideQueryBuilder)="hideQueryBuilder()">
+      </app-query-builder>
+    </div>
 
-
-          <div class="chart-axes" *ngIf="selectedGraph && tools=='data' ">
+    <!-- Main Dashboard (Hidden when Query Builder is shown) -->
+    <div class="dashboard-container" *ngIf="!showingQueryBuilder" [@fadeInOut]>
+      <!-- Tool options panel -->
+      <div class="tool-options" *ngIf="selectedGraph">
+        <div class="tool-options-content" *ngIf="tools=='data' && selectedGraph && selectedGraph.format == 'chart'">
+          <div class="chart-axes">
             <div class="chart-axes-inputs">
               <input type="text" readonly [value]="selectedX">
               <input type="text" readonly [value]="selectedY">
             </div>
-            <button (click)="switchAxes()"><i class="fas fa-exchange-alt" style="transform: rotate(90deg);"></i>
+            <button (click)="switchAxes()">
+              <i class="fas fa-exchange-alt" style="transform: rotate(90deg);"></i>
             </button>
           </div>
 
-          <div class="vertical-line" *ngIf="selectedGraph && tools=='data' "></div>
-
-
-          <div class="chart-type" *ngIf="selectedGraph && tools=='data' ">
+          <div class="chart-type">
             <select [(ngModel)]="selectedChartType" (change)="updateChart()">
               <option value="bar">Bar</option>
               <option value="line">Line</option>
@@ -25,73 +81,69 @@
               <option value="doughnut">Doughnut</option>
               <option value="polarArea">Polar Area</option>
               <option value="radar">Radar</option>
-              <!--<option value="scatter">scatter</option>
-              <option value="bubble">bubble</option>-->
             </select>
           </div>
+        </div>
 
-
-
-        <div class="color-contanier" *ngIf="selectedGraph && tools=='colors' ">
+        <div class="tool-options-content" *ngIf="tools=='colors' && selectedGraph && selectedGraph.format == 'chart'">
+          <div class="color-contanier">
             <div *ngFor="let d of selectedGraph.data;let i = index" class="color-element">
               {{ d[selectedGraph.columnX] | titlecase}}
               <input type="color" [(ngModel)]="selectedColors[i]" (change)="updateChartColors()" class="color-input" />
             </div>
+          </div>
         </div>
 
-
-        <div class="text-tool-bar" *ngIf="selectedGraph && tools == 'text'">
-          Police :
-          <input type="number" (change)="updateText(police.value,null)" class="text-input-police" #police>
-          Color : 
-          <input type="color" (change)="updateText(null,color.value)" [(ngModel)]="selectedGraph.colors[0]" class="color-element" #color>
+        <div class="tool-options-content" *ngIf="tools=='text' && selectedGraph && selectedGraph.format == 'text'">
+          <div class="text-tool-bar">
+            Police:
+            <input type="number" (change)="updateText(police.value,null)" class="text-input-police" #police>
+            Color:
+            <input type="color" (change)="updateText(null,color.value)" [(ngModel)]="selectedGraph.colors[0]" class="color-element" #color>
+          </div>
         </div>
 
-        <div class="text-tool-bar" *ngIf="selectedGraph && tools == 'table'">
-          <input type="color" class="color-element" >
+        <div class="tool-options-content" *ngIf="tools=='table' && selectedGraph && selectedGraph.format == 'table'">
+          <div class="text-tool-bar">
+            <input type="color" class="color-element">
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div class="page" #page>
-      <div *ngFor="let graph of rapportGraphs" class="draggable resizable-graph"  [ngClass]="{'text-zone':graph.format == 'text'}"
-      [style.width.px]="graph.width"
-        [style.height.px]="graph.height" [style.top.px]="graph.toppos" [style.left.px]="graph.leftpos"
-        (mousedown)="startDrag($event, graph, page)" (click)="selectGraph(graph)" >
-        <div class="resize-handle" (mousedown)="startResize($event, graph)" *ngIf="graph == selectedGraph"></div>
-        <div class="change-handle" (click)="changeFormat(graph)" *ngIf="graph.format != 'text' && graph.headers.length == 2"
-        ><i class="fas fa-sync-alt" style="font-size: 10px;"></i></div>
+      <div class="page-container">
+        <div class="page" #page>
+          <div *ngFor="let graph of rapportGraphs" class="draggable resizable-graph" [ngClass]="{'text-zone':graph.format == 'text'}"
+            [style.width.px]="graph.width" [style.height.px]="graph.height" [style.top.px]="graph.toppos" [style.left.px]="graph.leftpos"
+            (mousedown)="startDrag($event, graph, page)" (click)="selectGraph(graph)">
+            <div class="resize-handle" (mousedown)="startResize($event, graph)" *ngIf="graph == selectedGraph"></div>
+            <div class="change-handle" (click)="changeFormat(graph)" *ngIf="graph.format != 'text' && graph.headers.length == 2">
+              <i class="fas fa-sync-alt" style="font-size: 10px;"></i>
+            </div>
 
-        <table class="tab" *ngIf="graph.format == 'table'">
-          <thead>
-            <tr>
-              <th *ngFor="let header of graph.headers">{{ header | titlecase}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let row of graph.data">
-              <td *ngFor="let key of graph.headers">{{ row[key] }}</td>
-            </tr>
-          </tbody>
-        </table>
+            <table class="tab" *ngIf="graph.format == 'table'">
+              <thead>
+                <tr>
+                  <th *ngFor="let header of graph.headers">{{ header | titlecase}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of graph.data">
+                  <td *ngFor="let key of graph.headers">{{ row[key] }}</td>
+                </tr>
+              </tbody>
+            </table>
 
-        <canvas id="chartCanvas-{{graph.id}}" class="charts" *ngIf="graph.format === 'chart'"
-        [width]="graph.width" [height]="graph.height"></canvas>
-        
-        <textarea *ngIf="graph.format === 'text'" class="text"  (blur)="changingText(graph,text.value)" 
-          [style.color]="graph.colors[0]" [attr.data-id]="graph.id"  #text>{{graph.data[0].text}}</textarea>
-
+            <canvas id="chartCanvas-{{graph.id}}" class="charts" *ngIf="graph.format === 'chart'"
+              [width]="graph.width" [height]="graph.height"></canvas>
+            
+            <textarea *ngIf="graph.format === 'text'" class="text" (blur)="changingText(graph,text.value)" 
+              [style.color]="graph.colors[0]" [attr.data-id]="graph.id" #text>{{graph.data[0].text}}</textarea>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <div [hidden]="!isCollapsed" class="side-tool-bar">
-    <i class="fas fa-save" (click)="save()"></i>
-    <i style="font-family: times new roman;" (click)="addText()" >T</i>
-    <i style="font-style: normal;" (click)="changeToolBar('colors')" [ngClass]="{'disabled':!selectedGraph || selectedGraph.format != 'chart'}">🎨</i>
-    <i class="fas fa-chart-bar" (click)="changeToolBar('data')" [ngClass]="{'disabled': !selectedGraph || selectedGraph.format != 'chart'}"></i>
-    <i class="fas fa-rotate-left" (click)="undo()" [ngClass]="{'disabled':rapportHistory.length === 0}"></i>
-    <i class="fas fa-rotate-right" (click)="redo()" [ngClass]="{'disabled':redoStack.length === 0}"></i>
-    <i class="fas fa-trash" [ngClass]="{'disabled': !selectedGraph}" (click)="deleteGraph()"></i>
-    <i class="fas fa-share" (click)="exportToPdf()"></i>
-  </div>
 </main>
+
+</body>
+</html>

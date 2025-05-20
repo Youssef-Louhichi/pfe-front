@@ -14,13 +14,13 @@
 .container-dash {
   margin: 0;
   padding: 0;
-  background-color: #f0f2f5;
+  background-color: #ffffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .header {
   
-  color: black;
+  color: #004B91;
   padding: 15px 5%;
   margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -54,6 +54,7 @@
 
 .section-title {
   margin: 0;
+  color:#004B91;
 }
 
 .section-title h2 {
@@ -78,6 +79,9 @@
 .button-container {
   display: flex;
   gap: 15px;
+  color: #004B91;
+  background-color: #e5e5e695;
+  border-radius: 10px;
 }
 
 .btn {
@@ -141,8 +145,8 @@
 }
 
 .rapport-item {
-  background-color: var(--white);
-  border-radius: var(--border-radius);
+  background-color: white ;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
@@ -150,6 +154,7 @@
   display: flex;
   flex-direction: column;
   height: 270px;
+  border: 1px solid rgba(0, 0, 0, 0.177);
 }
 
 .rapport-item:hover {
@@ -176,6 +181,7 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  background-color: #e5e5e695;
 }
 
 .rapport-info h3 {
@@ -251,14 +257,15 @@
 }
 
 .script-item {
-  background-color: var(--white);
-  border-radius: var(--border-radius);
+  background-color: #e5e5e695;
+  
   padding: 13px;
-  box-shadow: var(--shadow);
+  border: 1px solid rgba(0, 0, 0, 0.177);
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s ease;
+  border-radius: 10px;
 }
 
 .script-item:hover {

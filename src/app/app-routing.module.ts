@@ -11,6 +11,7 @@ import { EditUserProfileComponent } from './components/edit-user-profile/edit-us
 import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
 import { TestComponent } from './components/test/test.component';
 import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statistics.component';
+import { QueryBuilderComponent } from './components/query-builder/query-builder.component';
 
 const routes: Routes = [
   {path:"login",title:"EasySql",component:LoginPageComponent},
@@ -24,7 +25,7 @@ const routes: Routes = [
     {path:"profile",component:EditUserProfileComponent},
     {path:"tasks",component:MyTasksComponent},
     { path: 'dashboard/edit/:scriptId', component: DashboardComponent },
-    {path:"tests",component:TestComponent},
+    {path:"tests",component:QueryBuilderComponent},
 
 
     {path:"",redirectTo:"dashboard",pathMatch:'full'}
