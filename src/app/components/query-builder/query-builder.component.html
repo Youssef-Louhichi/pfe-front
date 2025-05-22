@@ -132,32 +132,57 @@
                 <input type="hidden" formControlName="column">
               </div>
               
-              <!-- Where Conditions -->
-              <div class="where-conditions">
-                <h3>Where Conditions</h3>
-                <div class="condition-drop-area">
+              <!-- Unified Filters Section (replacing Where & Having) -->
+              <div class="filters-section">
+                <h3>Filters</h3>
+                <div class="filters-drop-area">
                   <div cdkDropList 
-                      id="dropzone2"
-                      (cdkDropListDropped)="onColumnDropForCondition($event)"
+                      id="filtersDropZone"
+                      (cdkDropListDropped)="onColumnDropForFilter($event)"
                       class="dropzone">
-                    <h4>Drag Columns Here for Conditions</h4>
+                    <p *ngIf="!filterClauses.length">Drag Columns Here for Filters</p>
                   </div>
                   
-                  <!-- Condition Inputs -->
-                  <div formArrayName="whereClauses">
-                    <div *ngFor="let condition of whereClauses.controls; let i = index" 
-                        [formGroupName]="i" class="condition-row">
+                  <!-- Filter Condition Inputs -->
+                  <div formArrayName="filterClauses">
+                    <div *ngFor="let condition of filterClauses.controls; let i = index" 
+                        [formGroupName]="i" class="filter-row">
                       
+                      <!-- Function Menu Button -->
+                      <div class="function-menu">
+                        <button type="button" class="btn-menu" (click)="toggleFunctionMenu(i)">
+                          <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="function-dropdown" *ngIf="condition.get('showFunctionMenu').value">
+                          <p>Add a function?</p>
+                          <select formControlName="functionType" (change)="onFunctionTypeChange(i)">
+                            <option value="">No Aggregation</option>
+                            <option *ngFor="let func of availableAggFunctions" [value]="func">{{func}}</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Function Display (if selected) -->
+                      <div class="function-display" *ngIf="condition.get('functionType').value">
+                        <span class="function-name">{{condition.get('functionType').value}}</span>
+                        <span class="bracket">(</span>
+                      </div>
+                      
+                      <!-- Column Display -->
                       <input type="text" 
                             formControlName="columnName" 
                             class="form-control column-name" 
                             readonly>
                       
-                      <!-- Hidden input for table name -->
-                      <input type="hidden" 
-                            formControlName="tableName" 
-                            class="form-control table-name">
+                      <!-- Closing bracket for function (if selected) -->
+                      <span class="bracket" *ngIf="condition.get('functionType').value">)</span>
                       
+                      <!-- Hidden inputs -->
+                      <input type="hidden" formControlName="columnId" class="form-control">
+                      <input type="hidden" formControlName="tableName" class="form-control">
+                      <input type="hidden" formControlName="showFunctionMenu" class="form-control">
+                      
+                      <!-- Operator Selection -->
                       <select formControlName="operator" class="form-control operator">
                         <option value="=">=</option>
                         <option value="!=">!=</option>
@@ -167,12 +192,13 @@
                         <option value=">=">>=</option>
                         <option value="<="><=</option>
                         <option value="in">IN</option>
+                        <option value="not in">NOT IN</option>
                       </select>
                       
-                      <!-- Subquery checkbox -->
+                      <!-- Subquery Checkbox -->
                       <div class="form-check subquery-toggle">
                         <input type="checkbox" class="form-check-input" formControlName="test" 
-                              (change)="onWhereSubqueryToggle(i)">
+                              (change)="onFilterSubqueryToggle(i)">
                         <label class="form-check-label">Subquery</label>
                       </div>
 
@@ -198,7 +224,8 @@
                         </select>
                       </ng-template>
                       
-                      <button type="button" class="btn-remove" (click)="removeWhereCondition(i)">
+                      <!-- Remove Button -->
+                      <button type="button" class="btn-remove" (click)="removeFilterCondition(i)">
                         <span>×</span>
                       </button>
                     </div>
@@ -357,101 +384,6 @@
                 </div>
               </div>
               
-              <!-- Having Conditions -->
-              <div class="having-conditions">
-                <h3>Having Conditions </h3>
-                <div class="having-drop-area">
-                  <div cdkDropList 
-                      id="havingDropZone"
-                      (cdkDropListDropped)="onColumnDropForHaving($event)"
-                      class="dropzone">
-                    <p *ngIf="!havingClauses.length">Drag Columns Here for HAVING Conditions</p>
-                  </div>
-                  
-                  <!-- HAVING Condition Inputs -->
-                  <div formArrayName="havingClauses">
-                    <div *ngFor="let condition of havingClauses.controls; let i = index" 
-                        [formGroupName]="i" class="having-row">
-                      
-                      <!-- Function Selection -->
-                      <select formControlName="functionhaving" class="form-control function">
-                        <option *ngFor="let func of availableHavingFunctions" [value]="func">{{func}}</option>
-                      </select>
-                      
-                      <!-- Column Display -->
-                      <span class="bracket">(</span>
-                      <input type="text" 
-                            formControlName="columnName" 
-                            class="form-control column-name" 
-                            readonly>
-                      <span class="bracket">)</span>
-                      
-                      <!-- Hidden input for column ID -->
-                      <input type="hidden" 
-                            formControlName="columnId" 
-                            class="form-control">
-                      
-                      <!-- Hidden input for table name -->
-                      <input type="hidden" 
-                            formControlName="tableName" 
-                            class="form-control">
-                      
-                      <!-- Operator Selection -->
-                      <select formControlName="operator" class="form-control operator">
-                        <option value="=">=</option>
-                        <option value="!=">!=</option>
-                        <option value=">">></option>
-                        <option value="<"><</option>
-                        <option value=">=">>=</option>
-                        <option value="<="><=</option>
-                        <option value="IN">IN</option>
-                        <option value="NOT IN">NOT IN</option>
-                      </select>
-                      
-                      <!-- Subquery Checkbox -->
-                      <div class="subquery-toggle">
-                        <label>
-                          <input type="checkbox" [formControlName]="'test'" (change)="onSubqueryToggle(i)"> Subquery
-                        </label>
-                      </div>
-                      
-                      <!-- Standard Value Input (shown when subquery is OFF) -->
-                      <input *ngIf="!condition.get('test').value" 
-                            type="text" 
-                            formControlName="value" 
-                            placeholder="Value" 
-                            class="form-control value">
-                      
-                      <!-- Subquery Options (shown when subquery is ON) -->
-                      <div *ngIf="condition.get('test').value" class="subquery-options">
-                        <select formControlName="subqueryComparator" 
-                                class="form-control subquery-comparator">
-                          <option value="in">IN</option>
-                          <option value="not in">NOT IN</option>
-                          <option value="=">= ANY</option>
-                          <option value=">"> &gt; ANY</option>
-                          <option value="<"> &lt; ANY</option>
-                        </select>
-                        
-                        <!-- Dropdown for saved requests -->
-                        <select formControlName="value" 
-                                class="form-control saved-requests">
-                          <option value="">Select a saved query</option>
-                          <option *ngFor="let req of savedRequests" [value]="req.id">
-                            {{ req.content }} (ID: {{ req.id }})
-                          </option>
-                        </select>
-                      </div>
-                      
-                      <!-- Remove Button -->
-                      <button type="button" class="btn-remove" (click)="removeHavingCondition(i)">
-                        <span>×</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <!-- Order By Conditions -->
               <div class="order-by-conditions">
                 <h3>Order By</h3>
