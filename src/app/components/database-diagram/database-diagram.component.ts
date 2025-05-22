@@ -18,24 +18,14 @@ interface TableRelation {
 export class DatabaseDiagramComponent implements OnInit {
   @ViewChild('graphContainer', { static: true }) graphContainer!: ElementRef;
 
-  schema: TableRelation[] = [];
-  isLoading = true;
 
-  constructor(private databaseService: DatabaseService,private dialogRef: MatDialogRef<DatabaseDiagramComponent>,
-      @Inject(MAT_DIALOG_DATA) public id: number) {}
+  constructor(private dialogRef: MatDialogRef<DatabaseDiagramComponent>,
+      @Inject(MAT_DIALOG_DATA) private schema: TableRelation[]) {}
 
   ngOnInit(): void {
-    this.databaseService.getStructure(this.id).subscribe({
-      next: (data) => {
-        this.schema = data;
-        this.isLoading = false;
+ 
         setTimeout(() => this.createStaticDiagram(), 0);
-      },
-      error: (err) => {
-        console.error('Error loading schema:', err);
-        this.isLoading = false;
-      }
-    });
+      
   }
 
  private createStaticDiagram(): void {
