@@ -583,98 +583,6 @@ export class QueryBuilderComponent implements OnInit {
   }
 
 
-  onColumnDropForCondition(event: CdkDragDrop<Column[]>) {
-    const draggedColumn = event.previousContainer.data[event.previousIndex];
-
-    const columnExists = this.whereClauses.controls.some(
-      control => control.get('columnName').value === draggedColumn.name
-    );
-
-    if (!columnExists) {
-      const table = this.getTableForColumn(draggedColumn);
-
-      const whereCondition = this.fb.group({
-        columnName: [draggedColumn.name, Validators.required],
-        tableName: [table.name, Validators.required],
-        operator: ['=', Validators.required],
-        value: ['', Validators.required],
-        test: [false],  // Default to simple condition (not a subquery)
-        subqueryComparator: ['in'] // Default subquery comparator
-      });
-
-      this.whereClauses.push(whereCondition);
-      this.addTableToSelectedTables(table);
-    }
-  }
-
-  onWhereSubqueryToggle(index: number): void {
-    const whereControl = this.whereClauses.at(index);
-    const isSubquery = whereControl.get('test').value;
-
-    if (isSubquery) {
-      // Reset value when switching to subquery mode
-      whereControl.get('value').setValue('');
-
-      // Make sure we've loaded the saved requests
-      if (this.savedRequests.length === 0) {
-        this.loadSavedRequests();
-      }
-    }
-  }
-
-
-  processWhereConditions(conditions: any[]): Observable<any[]> {
-    if (!conditions || conditions.length === 0) {
-      return of([]);
-    }
-
-    const whereConditionsProcessing: Observable<any>[] = conditions.map(condition => {
-      if (condition.test) { // This is a subquery
-        return this.getRequestById(condition.value).pipe(
-          map(subqueryReq => {
-            // Map only the specific fields we need
-            const mappedSubquery = {
-              sentAt: subqueryReq.sentAt,
-              sender: {
-                identif: subqueryReq.sender?.identif,
-                mail: subqueryReq.sender?.mail,
-                password: subqueryReq.sender?.password
-              },
-              content: subqueryReq.content,
-              tableId: subqueryReq.tableId,
-              columnId: subqueryReq.columnId,
-              aggregation: subqueryReq.aggregation || [],
-              groupByColumns: subqueryReq.groupByColumns || [],
-              joinConditions: subqueryReq.joinConditions || [],
-              filters: subqueryReq.filters || [],
-              havingConditions: subqueryReq.havingConditions || []
-            };
-
-            return {
-              columnName: condition.columnName,
-              tableName: condition.tableName,
-              operator: condition.operator,
-              test: true,
-              subqueryComparator: condition.subqueryComparator,
-              value: mappedSubquery // Only the needed fields
-            };
-          })
-        );
-      } else {
-        // For non-subquery conditions, create a resolved observable
-        return of({
-          columnName: condition.columnName,
-          tableName: condition.tableName,
-          operator: condition.operator,
-          value: condition.value,
-          test: false
-        });
-      }
-    });
-
-    return forkJoin(whereConditionsProcessing);
-  }
-
   drop(event: CdkDragDrop<ColumnWithTable[]>, type: 'columns' | 'conditions') {
     const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
 
@@ -1117,6 +1025,9 @@ private getTableByName(name: string): DbTable | undefined {
     }
   }
 
+
+ 
+
   loadSavedRequests(): void {
     const userId = Number(localStorage.getItem('userId'));
     if (userId) {
@@ -1305,4 +1216,135 @@ private getTableByName(name: string): DbTable | undefined {
 
 
   }
+
+
+   getRequestById(reqId: number): Observable<any> {
+  return this.reqservice.getReqById(reqId).pipe(
+    map(req => {
+      // Return the request data that will be used as a subquery
+      return req;
+    })
+  );
+}
+
+ fetchResults(scriptId: number): void {
+  this.resultSource = 'script';
+  this.tableData = []; // Clear query results
+  this.tableHeaders = [];
+  this.showSqlButton = false;
+  this.scriptService.executeScript(scriptId).subscribe(
+    (result: any[][]) => {
+      this.allResults = result.map(queryResult => {
+        const headers = queryResult.length > 0 ? Object.keys(queryResult[0]) : [];
+        return {
+          headers,
+          rows: queryResult
+        };
+      });
+    },
+    error => {
+      console.error('Error fetching results:', error);
+    }
+  );
+}
+
+  
+addOrderByCondition() {
+  const orderByCondition = this.fb.group({
+    colId: ['', Validators.required],
+    columnName: ['', Validators.required],
+    tableName: ['', Validators.required],
+    orderType: ['ASC', Validators.required]
+  });
+  this.orderByControls.push(orderByCondition);
+}
+
+removeOrderByCondition(index: number) {
+  if (index >= 0 && index < this.orderByControls.length) {
+    this.orderByControls.removeAt(index);
+  }
+}
+
+  
+onColumnDropForOrderBy(event: CdkDragDrop<Column[]>) {
+  const draggedColumn = event.previousContainer.data[event.previousIndex];
+  
+  // Check if column already exists in order by
+  const columnExists = this.orderByControls.controls.some(
+    control => control.get('columnId').value === draggedColumn.id
+  );
+  
+  if (!columnExists) {
+    const table = this.getTableForColumn(draggedColumn);
+    
+    const orderByCondition = this.fb.group({
+      colId: [draggedColumn.id, Validators.required],
+      columnName: [draggedColumn.name, Validators.required],
+      tableName: [table.name, Validators.required],
+      orderType: ['ASC', Validators.required]
+    });
+    
+    this.orderByControls.push(orderByCondition);
+    this.addTableToSelectedTables(table);
+  }
+}
+
+toggleOrderType(index: number) {
+  const orderByControl = this.orderByControls.at(index);
+  const currentType = orderByControl.get('orderType').value;
+  const newType = currentType === 'ASC' ? 'DESC' : 'ASC';
+  orderByControl.get('orderType').setValue(newType);
+}
+
+
+addTableToWorkspace() {
+  // Emit script results if present
+  if (this.allResults.length > 0) {
+    this.allResults.forEach((table, index) => {
+      if (table.rows.length) {
+        this.newItemEvent.emit(
+          new Graph(
+            Date.now() + index,
+            [...table.headers],
+            [...table.rows],
+            'table',
+            300,
+            200,
+            100 + index * 50,
+            100 + index * 50,
+            null,
+            null,
+            null,
+            null,
+            null
+          )
+        );
+      }
+    });
+  }
+  // Emit query builder/AI results if present
+  else if (this.tableData.length) {
+    this.newItemEvent.emit(
+      new Graph(
+        Date.now(),
+        [...this.tableHeaders],
+        [...this.tableData],
+        'table',
+        300,
+        200,
+        100,
+        100,
+        null,
+        null,
+        null,
+        null,
+        null
+      )
+    );
+  }
+}
+
+  switch() {
+  this.toggle = !this.toggle;
+}
 }
