@@ -38,6 +38,8 @@ import { DatabaseDiagramComponent } from './components/database-diagram/database
 import { FilesizePipe } from './pipes/filesize.pipe';
 import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statistics.component';
 import { RelationsDatabaseComponent } from './components/relations-database/relations-database.component';
+import { QueryExplainComponent } from './components/query-explain/query-explain.component';
+import { MarkdownToHtmlPipe } from './pipes/markdown-to-html.pipe';
 
 @NgModule({
   declarations: [
@@ -72,6 +74,8 @@ import { RelationsDatabaseComponent } from './components/relations-database/rela
     DbsStatisticsComponent,
     RelationsDatabaseComponent,
     
+    QueryExplainComponent,
+    MarkdownToHtmlPipe,
   ],
   imports: [
     BrowserModule,
