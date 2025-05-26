@@ -1,11 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
 <div class="container-dash">
     <div class="header" *ngIf="user">
         <h1>Your dashboard</h1>
-        <button (click)="goToStats()" class="btn new-rapport-btn" *ngIf="user.type == 'Creator'">Show
-            Statistics</button>
+        <button (click)="goToStats()" class="btn new-stats-btn" *ngIf="user.type == 'Creator'"> <i class="fa fa-solid fa-chart-line"></i> Show Statistics</button>
+    </div>
+
+    <!-- Slideshow Section -->
+    <div class="slideshow-container">
+        <div class="slide" *ngFor="let slide of slides; let i = index" [ngClass]="{'active': currentSlide === i}">
+            <div class="slide-content">
+                <div class="slide-info">
+                    <h2>{{slide.title}}</h2>
+                    <p>{{slide.description}}</p>
+                    <div class="slide-stats">
+                        <div class="stat-box">
+                            <div class="stat-value">{{slide.stats.queries}}</div>
+                            <div class="stat-label">QUERIES TODAY</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">{{slide.stats.reports}}</div>
+                            <div class="stat-label">NEW REPORTS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">{{slide.stats.scripts}}</div>
+                            <div class="stat-label">ACTIVE SCRIPTS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="slideshow-prev" (click)="prevSlide()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="slideshow-next" (click)="nextSlide()">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div class="slideshow-dots">
+            <span class="dot" *ngFor="let slide of slides; let i = index" 
+                  [ngClass]="{'active': currentSlide === i}"
+                  (click)="goToSlide(i)"></span>
+        </div>
     </div>
 
     <div class="content">
+
+        <div class="reports-section">
         <!-- Reports section with header and buttons -->
         <div class="section-header">
             <div class="section-title">
@@ -20,9 +66,9 @@
         </div>
 
         <!-- Reports section with scrollable container -->
-        <div class="rapports-container">
-            <div class="rapport-item" *ngFor="let r of rapports" (click)="openRapport(r)">
-                <div class="rapport-preview">
+        <div class="reports-grid" *ngIf="rapports && rapports.length > 0">
+            <div class="report-card" *ngFor="let r of rapports">
+                <div class="report-preview">
                     <div class="page" *ngIf="r">
                         <div *ngFor="let table of r.graphs" class="draggable resizable-table"
                             [ngClass]="{'text-zone': table.format == 'text'}" [style.width.px]="table.width/5.5"
@@ -44,61 +90,83 @@
                                 [height]="table.height/4.4" *ngIf="table.format === 'chart'"></canvas>
                             <textarea *ngIf="table.format === 'text'" class="text" [style.color]="table.colors[0]">
                             {{table.data[0].text}}
-                        </textarea>
+                            </textarea>
                         </div>
                     </div>
                 </div>
-                <div class="rapport-info">
+                <div class="report-details">
                     <h3>{{r.titre}}</h3>
                     <p class="update-date">Last updated: {{r.updatedAt | date:'mediumDate'}}</p>
-                    <div class="actions">
-                        <button class="action-btn" (click)="openRapport(r); $event.stopPropagation()">
+                    <div class="report-actions">
+                        <button class="btn-view" (click)="openRapport(r)">
                             <i class="fa fa-eye"></i> View
+                        </button>
+                        <button class="btn-delete">
+                            <i class="fa fa-trash"></i> Delete
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Separator -->
-        <hr>
-        <!-- Scripts section with header and buttons -->
-        <div class="section-header">
-            <div class="section-title">
-                <h2>Your Scripts</h2>
-            </div>
-            <div class="button-container">
-                <!-- Added new script button -->
-                <button class="btn new-script-btn" (click)="openCreateScriptPopup()">
-                    <i class="fa fa-solid fa-plus"></i>
-                    Create a new script
-                </button>
-            </div>
+        <!-- No Reports Message -->
+        <div class="no-reports-message" *ngIf="!rapports || rapports.length === 0">
+            <i class="fas fa-file-alt"></i>
+            <h3>No Reports Yet</h3>
+            <p>Create your first report to start visualizing your data</p>
+            <button class="btn new-rapport-btn" (click)="openNewRapport()">
+                <i class="fa fa-solid fa-plus"></i>
+                Create a new report
+            </button>
         </div>
 
-        <app-create-script *ngIf="showCreateScriptPopup" (close)="closeCreateScriptPopup()"
-            (createScript)="onScriptCreated($event)"></app-create-script>
 
-        <!-- Scripts section with scrollable container -->
-        <div class="scripts-container">
-            <div class="script-item" *ngFor="let s of scripts">
-                <div class="script-info">
-                    <h3>{{s.name}}</h3>
-                    <p class="script-date">Created on: {{s.createdAt | date:'mediumDate'}}</p>
+    </div>
+
+        <!-- Separator -->
+        <hr class="section-divider">
+        
+        <!-- Scripts Section -->
+        <div class="scripts-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2>Your Scripts</h2>
                 </div>
-                <div class="script-actions">
-                    <button class="script-action-btn" (click)="openScript(s.id)" title="Execute">
-                        <i class="fa fa-play"></i>
+                <div class="button-container">
+                    <button class="btn new-script-btn" (click)="openCreateScriptPopup()">
+                        <i class="fa fa-solid fa-plus"></i>
+                        Create a new script
                     </button>
-                    <button class="script-action-btn" title="Update" (click)="openScriptSelectionDialog(s.id)">
-                        <i class="fa fa-pencil"></i>
-                    </button>
-                    <button class="script-action-btn" title="Delete" (click)="deleteScript(s.id)">
-                        <i class="fa fa-trash"></i>
-                    </button>
+                </div>
+            </div>
+
+            <!-- Script Creation Component -->
+            <app-create-script *ngIf="showCreateScriptPopup" (close)="closeCreateScriptPopup()"
+                (createScript)="onScriptCreated($event)"></app-create-script>
+
+            <!-- Scripts Grid -->
+            <div class="scripts-container">
+                <div class="script-item" *ngFor="let s of scripts">
+                    <div class="script-info">
+                        <h3>{{s.name}}</h3>
+                        <p class="script-date">Created on: {{s.createdAt | date:'mediumDate'}}</p>
+                    </div>
+                    <div class="script-actions">
+                        <button class="script-action-btn" (click)="openScript(s.id)" title="Execute">
+                            <i class="fa fa-play"></i>
+                        </button>
+                        <button class="script-action-btn" title="Update" (click)="openScriptSelectionDialog(s.id)">
+                            <i class="fa fa-pencil"></i>
+                        </button>
+                        <button class="script-action-btn" title="Delete" (click)="deleteScript(s.id)">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
+
+</body>
+</html>

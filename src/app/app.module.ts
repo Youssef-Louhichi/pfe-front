@@ -37,6 +37,8 @@ import { ScriptdetailsComponent } from './components/scriptdetails/scriptdetails
 import { DatabaseDiagramComponent } from './components/database-diagram/database-diagram.component';
 import { FilesizePipe } from './pipes/filesize.pipe';
 import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statistics.component';
+import { QueryExplainComponent } from './components/query-explain/query-explain.component';
+import { MarkdownToHtmlPipe } from './pipes/markdown-to-html.pipe';
 
 @NgModule({
   declarations: [
@@ -69,7 +71,8 @@ import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statisti
     DatabaseDiagramComponent,
     FilesizePipe,
     DbsStatisticsComponent,
-    
+    QueryExplainComponent,
+    MarkdownToHtmlPipe,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,52 @@
+<div class="query-explain-container">
+  <div class="dialog-header">
+    <h2>SQL Query</h2>
+    <button class="close-button" (click)="close()">×</button>
+  </div>
+
+  <div class="tabs">
+    <button 
+      [class.active]="activeTab === 'sql'" 
+      (click)="switchTab('sql')">
+      SQL
+    </button>
+    <button 
+      [class.active]="activeTab === 'explanation'" 
+      (click)="switchTab('explanation')"
+      [disabled]="!data.explanation && !loading && !error">
+      Explanation
+    </button>
+  </div>
+
+  <div class="tab-content">
+    <!-- SQL Content Tab -->
+    <div *ngIf="activeTab === 'sql'" class="sql-tab">
+      <pre class="sql-code">{{ data.sql }}</pre>
+      <div class="action-buttons">
+        <button class="explain-button" (click)="requestExplanation()">
+          <i class="fas fa-magic"></i> 
+          Explain Query
+        </button>
+      </div>
+    </div>
+
+    <!-- Explanation Tab -->
+    <div *ngIf="activeTab === 'explanation'" class="explanation-tab">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-container">
+        <div class="loader"></div>
+        <p>Generating explanation...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="error-container">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>{{ error }}</p>
+        <button (click)="requestExplanation()">Try Again</button>
+      </div>
+
+      <!-- Explanation Content -->
+      <div *ngIf="data.explanation && !loading" class="explanation-content" [innerHTML]="data.explanation | markdownToHtml"></div>
+    </div>
+  </div>
+</div> 

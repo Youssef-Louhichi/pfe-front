@@ -23,6 +23,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { DatabaseDiagramComponent } from '../database-diagram/database-diagram.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DatabaseService } from 'src/app/services/database.service';
+import { QueryExplainComponent } from '../query-explain/query-explain.component';
 const apiKey = environment.openRouterApiKey;
 
 interface HavingCondition {
@@ -143,6 +144,12 @@ export class QueryBuilderComponent implements OnInit {
   isDbMode: boolean = true;
   selectedScriptIndex: number = 0;
   showNotification = false;
+
+  // Track which columns have open menus
+  columnMenus: Map<number, boolean> = new Map();
+  
+  // Track column aggregations
+  columnAggregations: Map<number, string> = new Map();
 
   ngOnInit(): void {
     this.queryForm = this.fb.group({
@@ -783,37 +790,38 @@ private getTableByName(name: string): DbTable | undefined {
   }
 
   removeColumn(column: ColumnWithTable, type: 'columns' | 'conditions') {
+    // Remove any aggregation for this column
+    if (type === 'columns' && this.isColumnAggregated(column.id)) {
+      this.removeAggregationFromColumn(column);
+    }
+    
     const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
   
+    // Remove column from target array
     const index = targetArray.findIndex(c => c.id === column.id);
     if (index !== -1) {
       targetArray.splice(index, 1);
     }
   
+    // Also remove from group by if present
     const groupByIndex = this.groupByColumns.findIndex(c => c.id === column.id);
     if (groupByIndex !== -1) {
       this.groupByColumns.splice(groupByIndex, 1);
     }
   
-    for (let i = this.aggregationControls.length - 1; i >= 0; i--) {
-      const control = this.aggregationControls.at(i);
-      if (control.get('columnId').value === column.id.toString()) {
-        this.aggregationControls.removeAt(i);
-      }
-    }
-  
+    // Check if table should be removed
     const tableColumns = [
       ...this.selectedColumns.filter(c => c.table.id === column.table.id),
       ...this.whereConditionColumns.filter(c => c.table.id === column.table.id)
     ];
   
+    // If no columns for this table remain, remove the table
     if (tableColumns.length === 0) {
       const tableId = column.table.id;
       this.selectedTables = this.selectedTables.filter(t => t.id !== tableId);
-
-      
     }
   
+    // Update form
     this.updateFormColumns();
   }
 
@@ -910,13 +918,13 @@ private getTableByName(name: string): DbTable | undefined {
 
   onSubmit(): void {
     const userId = Number(localStorage.getItem('userId'));
-
+    
     if (!userId) {
       console.error('User ID not found in localStorage');
       alert('Error: User not logged in.');
       return;
     }
-
+    
     if (this.queryForm.valid) {
       this.userservice.getUserById(userId).subscribe({
         next: (user) => {
@@ -924,31 +932,36 @@ private getTableByName(name: string): DbTable | undefined {
 
           this.processFilterConditions().subscribe({
             next: ({ whereConditions, havingConditions }) => {
+              // Get aggregations
               const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
                 columnId: agg.columnId,
                 functionagg: agg.functionagg
               }));
 
-                  // Get group by column IDs
-                  const groupByColumnIds = this.groupByColumns.map(column => column.id);
-
-                  //get joins
-
-                  const joins = this.generateJoinConditions()
+              // Get group by column IDs
+              const groupByColumnIds = this.groupByColumns.map(column => column.id);
+              
+              //get joins
+              const joins = this.generateJoinConditions();
 
               const orderByConditions: orderBy = this.orderByControls.value.map((order: any) => ({
                 colId: order.colId,
                 orderType: order.orderType
               }));
 
+              // Validate SQL rules
               let isValid = true;
               let errorMessage = "";
               
+              // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
               if (aggregations.length > 0 || havingConditions.length > 0) {
+                // Get all selected column IDs that are not part of aggregations
+                const aggregatedColumnIds = new Set(aggregations.map(agg => agg.columnId));
                 const nonAggregatedColumnIds = this.selectedColumns
-                  .filter(col => !aggregations.some(agg => agg.columnId === col.id))
+                  .filter(col => !aggregatedColumnIds.has(col.id))
                   .map(col => col.id);
                 
+                // Check if all non-aggregated columns are in GROUP BY
                 const missingGroupByColumns = nonAggregatedColumnIds
                   .filter(colId => !groupByColumnIds.includes(colId));
                 
@@ -968,32 +981,31 @@ private getTableByName(name: string): DbTable | undefined {
                 return;
               }
 
-                  const requestPayload = {
-                  req: {
-                    sentAt: new Date().toISOString(),
-                    sender: {
-                      identif: user.identif,
-                      mail: user.mail,
-                      password: user.password
-                    },
-                    content: "Fetching data"
+              // Construct request payload
+              const requestPayload = {
+                req: {
+                  sentAt: new Date().toISOString(),
+                  sender: {
+                    identif: user.identif,
+                    mail: user.mail,
+                    password: user.password
                   },
-                  tableId: this.selectedTables.map(t => t.id).concat(this.interTables.map(t=> t.id)),
-                  columnId: aggregations.length > 0
-                    ? this.selectedColumns
-                      .filter(col => !aggregations.some(agg => agg.columnId === col.id))
-                      .map(c => c.id)
-                    : this.selectedColumns.map(c => c.id),
-                  groupByColumns: groupByColumnIds,
-                  aggregations: aggregations,
-                  joinRequest: {
-                    joinConditions: joins
-                  },
-                  filters: whereConditions,
-                  havingConditions: havingConditions,
-                 orderBy: orderByConditions ? orderByConditions : null,
-                 limit: formData.limit ? parseInt(formData.limit) : null
-                };
+                  content: "Fetching data"
+                },
+                tableId: this.selectedTables.map(t => t.id).concat(this.interTables.map(t => t.id)),
+                columnId: this.selectedColumns
+                  .filter(col => !this.isColumnAggregated(col.id))
+                  .map(c => c.id),
+                groupByColumns: groupByColumnIds,
+                aggregations: aggregations,
+                joinRequest: {
+                  joinConditions: joins
+                },
+                filters: whereConditions,
+                havingConditions: havingConditions,
+                orderBy: orderByConditions ? orderByConditions : null,
+                limit: formData.limit ? parseInt(formData.limit) : null
+              };
 
               console.log("Sending request payload:", JSON.stringify(requestPayload, null, 2));
               this.resultSource = 'query';
@@ -1055,9 +1067,91 @@ private getTableByName(name: string): DbTable | undefined {
 
   }
 
+  /**
+   * Analyze and explain the SQL query using AI
+   * @param content SQL query to explain
+   * @returns Promise with the explanation
+   */
+  explainSql(content: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // Create a prompt for the AI to explain the SQL query
+      const prompt = 
+        "Below is an SQL query. Please analyze and explain it in detail:\n\n" +
+        content + "\n\n" +
+        "Please explain:\n" +
+        "1. What tables are being queried\n" +
+        "2. What joins are being performed and why\n" +
+        "3. What filters are being applied\n" +
+        "4. What aggregations or calculations are happening\n" +
+        "5. What the query is trying to accomplish overall\n\n" +
+        "Format your response in markdown with sections for each part of the query.";
+      
+      // Estimate token count (same as in send method)
+      const tokenCount = Math.ceil(prompt.length / 4.5);
+      const tokenLimit = 2078;
+      const responseMaxTokens = tokenLimit - tokenCount;
+      const maxTokens = Math.min(responseMaxTokens, 1000);
+      
+      // Call the OpenRouter API
+      fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + apiKey,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "model": "deepseek/deepseek-chat-v3-0324:free",
+          "messages": [
+            {
+              "role": "user",
+              "content": prompt
+            }
+          ],
+          "max_tokens": maxTokens
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("AI response:", data);
+        const explanation = data.choices?.[0]?.message?.content || "Sorry, couldn't generate an explanation.";
+        resolve(explanation);
+      })
+      .catch(err => {
+        console.error("Error explaining SQL:", err);
+        reject("Error explaining SQL query. Please try again.");
+      });
+    });
+  }
+
+  /**
+   * Show the SQL query in a dialog with option to explain it
+   */
   showSql(): void {
     if (this.lastreq && this.lastreq.content) {
-      alert(this.lastreq.content);
+      // Open the QueryExplain dialog with the SQL content
+      const dialogRef = this.dialog.open(QueryExplainComponent, {
+        width: '80%',
+        maxWidth: '800px',
+        data: {
+          sql: this.lastreq.content,
+          explanation: null
+        }
+      });
+
+      // Handle the explain button click from the dialog
+      dialogRef.componentInstance.explainRequest.subscribe(() => {
+        dialogRef.componentInstance.loading = true;
+        
+        this.explainSql(this.lastreq.content)
+          .then(explanation => {
+            dialogRef.componentInstance.data.explanation = explanation;
+            dialogRef.componentInstance.loading = false;
+          })
+          .catch(error => {
+            dialogRef.componentInstance.error = error;
+            dialogRef.componentInstance.loading = false;
+          });
+      });
     } else {
       alert('No SQL content available.');
     }
@@ -1196,14 +1290,28 @@ private getTableByName(name: string): DbTable | undefined {
     this.hideQueryBuilder.emit();
   }
 
-  showAddedNotification() {
+  /**
+   * Check if there are results available to add to workspace
+   */
+  hasResults(): boolean {
+    // Check if we have results from either query builder or script execution
+    return (this.resultSource === 'query' && this.tableData && this.tableData.length > 0) || 
+           (this.resultSource === 'script' && this.allResults && this.allResults.length > 0);
+  }
+
+  /**
+   * Show notification when results are added to workspace
+   */
+  showAddedNotification(): void {
+    if (!this.hasResults()) {
+      return; // Don't show notification if no results
+    }
+    
     this.showNotification = true;
     setTimeout(() => {
       this.showNotification = false;
-    }, 3000);
+    }, 3000); // Hide after 3 seconds
   }
-
-
 
   showRelations() {
     this.dialog.open(DatabaseDiagramComponent, {
@@ -1271,7 +1379,7 @@ onColumnDropForOrderBy(event: CdkDragDrop<Column[]>) {
   
   // Check if column already exists in order by
   const columnExists = this.orderByControls.controls.some(
-    control => control.get('columnId').value === draggedColumn.id
+    control => control.get('colId').value === draggedColumn.id
   );
   
   if (!columnExists) {
@@ -1346,5 +1454,220 @@ addTableToWorkspace() {
 
   switch() {
   this.toggle = !this.toggle;
+}
+
+// Check if a column has aggregation function applied
+isColumnAggregated(columnId: number): boolean {
+  return this.columnAggregations.has(columnId);
+}
+
+// Get the aggregation function for a column
+getColumnAggregation(columnId: number): string {
+  return this.columnAggregations.get(columnId) || '';
+}
+
+// Toggle column menu visibility
+toggleColumnMenu(columnId: number): void {
+  // Close all other menus first
+  this.columnMenus.forEach((value, key) => {
+    if (key !== columnId) {
+      this.columnMenus.set(key, false);
+    }
+  });
+  
+  // Toggle this menu
+  const isOpen = this.columnMenus.get(columnId) || false;
+  this.columnMenus.set(columnId, !isOpen);
+}
+
+// Check if a column's menu is open
+isColumnMenuOpen(columnId: number): boolean {
+  return this.columnMenus.get(columnId) || false;
+}
+
+// Apply an aggregation function to a column
+applyAggregationToColumn(column: ColumnWithTable, functionName: string): void {
+  // Save the aggregation for this column
+  this.columnAggregations.set(column.id, functionName);
+  
+  // Close the menu
+  this.columnMenus.set(column.id, false);
+  
+  // Add to aggregations form array
+  const existingAggIndex = this.findAggregationIndexForColumn(column.id);
+  
+  if (existingAggIndex === -1) {
+    // Add new aggregation
+    const aggregation = this.fb.group({
+      columnId: [column.id, Validators.required],
+      columnName: [column.name, Validators.required],
+      tableId: [column.table.id, Validators.required],
+      functionagg: this.fb.array([this.fb.control(functionName)])
+    });
+    
+    this.aggregationControls.push(aggregation);
+  } else {
+    // Update existing aggregation
+    const aggregation = this.aggregationControls.at(existingAggIndex);
+    const functionsArray = aggregation.get('functionagg') as FormArray;
+    functionsArray.clear();
+    functionsArray.push(this.fb.control(functionName));
+  }
+  
+  // Update groupBy columns if needed
+  this.updateGroupByColumnsAfterAggregation();
+}
+
+// Remove aggregation from a column
+removeAggregationFromColumn(column: ColumnWithTable): void {
+  // Remove the saved aggregation
+  this.columnAggregations.delete(column.id);
+  
+  // Close the menu
+  this.columnMenus.set(column.id, false);
+  
+  // Remove from aggregations form array
+  const existingAggIndex = this.findAggregationIndexForColumn(column.id);
+  
+  if (existingAggIndex !== -1) {
+    this.aggregationControls.removeAt(existingAggIndex);
+  }
+  
+  // Update groupBy columns
+  this.updateGroupByColumnsAfterAggregation();
+}
+
+// Helper to find an aggregation by column ID
+private findAggregationIndexForColumn(columnId: number): number {
+  for (let i = 0; i < this.aggregationControls.length; i++) {
+    const control = this.aggregationControls.at(i);
+    if (Number(control.get('columnId').value) === columnId) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// Method to refresh group by columns based on selected columns
+refreshGroupByColumns(): void {
+  // Get all aggregated column IDs
+  const aggregatedColumnIds = new Set(Array.from(this.columnAggregations.keys()));
+  
+  // Get all selected column IDs that are not aggregated
+  const nonAggregatedColumns = this.selectedColumns.filter(c => !aggregatedColumnIds.has(c.id));
+  
+  // Find columns in group by that aren't in selected columns
+  const invalidGroupByColumns = this.groupByColumns.filter(
+    groupByCol => !this.selectedColumns.some(selectCol => selectCol.id === groupByCol.id)
+  );
+  
+  // Remove invalid columns
+  if (invalidGroupByColumns.length > 0) {
+    for (const col of invalidGroupByColumns) {
+      const index = this.groupByColumns.findIndex(c => c.id === col.id);
+      if (index !== -1) {
+        this.groupByColumns.splice(index, 1);
+      }
+    }
+  }
+  
+  // Add non-aggregated columns that aren't already in group by
+  for (const col of nonAggregatedColumns) {
+    if (!this.groupByColumns.some(c => c.id === col.id)) {
+      this.groupByColumns.push(col);
+    }
+  }
+}
+
+// Method to add a column to order by
+addColumnToOrderBy(column: ColumnWithTable): void {
+  // Close the menu
+  this.columnMenus.set(column.id, false);
+  
+  // Check if column already exists in order by
+  const columnExists = this.orderByControls.controls.some(
+    control => control.get('colId').value === column.id
+  );
+  
+  if (!columnExists) {
+    const orderByCondition = this.fb.group({
+      colId: [column.id, Validators.required],
+      columnName: [column.name, Validators.required],
+      tableName: [column.table.name, Validators.required],
+      orderType: ['ASC', Validators.required]
+    });
+    
+    this.orderByControls.push(orderByCondition);
+  }
+}
+
+/**
+ * Reset all form fields and selections
+ */
+resetForm(): void {
+  // Clear all form arrays
+  this.filterClauses.clear();
+  this.aggregationControls.clear();
+  this.orderByControls.clear();
+  
+  // Reset form basic values
+  this.queryForm.patchValue({
+    table: '',
+    column: '',
+    limit: ''
+  });
+  
+  // Clear selected columns and tables
+  this.selectedColumns = [];
+  this.selectedTables = [];
+  this.whereConditionColumns = [];
+  this.groupByColumns = [];
+  this.interTables = [];
+  
+  // Clear aggregations and menus
+  this.columnAggregations.clear();
+  this.columnMenus.clear();
+  
+  // Clear results
+  this.tableData = [];
+  this.tableHeaders = [];
+  this.allResults = [];
+  this.showSqlButton = false;
+  
+  // Reset dropdown visibility
+  this.showColumns = {};
+  
+  // Reset for next query
+  this.resultSource = null;
+}
+
+/**
+ * Send column to filter section
+ * If column has aggregation, create a HAVING filter
+ * Otherwise create a WHERE filter
+ */
+sendColumnToFilter(column: ColumnWithTable): void {
+  // Close the menu
+  this.columnMenus.set(column.id, false);
+  
+  // Check if column has aggregation
+  const hasAggregation = this.isColumnAggregated(column.id);
+  const aggregationType = hasAggregation ? this.getColumnAggregation(column.id) : '';
+  
+  // Create filter condition
+  const filterCondition = this.fb.group({
+    columnName: [column.name, Validators.required],
+    columnId: [column.id, Validators.required],
+    tableName: [column.table.name, Validators.required],
+    operator: ['=', Validators.required],
+    value: ['', Validators.required],
+    functionType: [aggregationType], // Empty for WHERE, populated for HAVING
+    showFunctionMenu: [false],
+    test: [false], // Not a subquery by default
+    subqueryComparator: ['in'] // Default for subqueries
+  });
+  
+  // Add to filter clauses
+  this.filterClauses.push(filterCondition);
 }
 }
