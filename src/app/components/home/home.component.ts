@@ -45,7 +45,7 @@ export class HomeComponent implements OnInit{
       panelClass: 'custom-dialog-container',
       backdropClass: 'custom-backdrop',
       hasBackdrop: true,
-      maxWidth: '100vw',
+      width: '75vw',
       maxHeight: '100vh'
     }
           

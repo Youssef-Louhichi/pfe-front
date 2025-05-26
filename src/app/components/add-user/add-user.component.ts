@@ -15,116 +15,116 @@ import { UsersService } from 'src/app/services/users.service';
 })
 export class AddUserComponent implements OnInit {
 
-    @Input() user: User;
+  @Input() user: User;
   useradd: User;
   dbs: Database[] = []
   @Input() selectedDb: Database
   newUserform: FormGroup
-  @Input() analysts : Analyst[]
+  @Input() analysts: Analyst[]
+   filteredUsers: User[] = [];
+  
+  // Error handling variables
+  showSelectionError: boolean = false;
+  emailError: string = '';
+  formError: string = '';
+  selectedUser: User | null = null;
 
-  constructor(private userservice: UsersService, private analystservice: AnalystService, private fb: FormBuilder
-  ) { }
+  constructor(private userservice: UsersService, private analystservice: AnalystService, private fb: FormBuilder) { }
+
   ngOnInit(): void {
     this.newUserform = this.fb.group({
-      mail: [,Validators.required],
-      password: [,Validators.required],
+      mail: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
       databases: [[]],
       rapports: [[]]
     })
   }
 
-
   isDatabaseSelected: boolean = false;
-selectedTables: Set<string> = new Set(); 
+  selectedTables: Set<string> = new Set(); 
+  selectedDbId: number | null = null;
+  selectedTableIds: number[] = [];
+  selectedColumnIds: number[] = [];
 
-selectedDbId: number | null = null;
-selectedTableIds: number[] = [];
-selectedColumnIds: number[] = [];
-
-isTableDisabled(): boolean {
-  return this.selectedDbId !== null;
-}
-
-isColumnDisabled(tableId: number): boolean {
-  return this.selectedDbId !== null || this.selectedTableIds.includes(tableId);
-}
-
-onDatabaseCheckboxChange(event: any, db: Database) {
-  const isChecked = event.target.checked;
-  this.selectedDbId = isChecked ? db.id : null;
-  
-  if (isChecked) {
-    this.selectedTableIds = [];
-    this.selectedColumnIds = [];
+  isTableDisabled(): boolean {
+    return this.selectedDbId !== null;
   }
-}
 
-onTableCheckboxChange(event: any, table: any) {
-  const isChecked = event.target.checked;
-  
-  if (isChecked) {
-    this.selectedDbId = null; // Unselect database if selecting table
-    this.selectedTableIds = [...this.selectedTableIds, table.id];
-    // Remove any columns from this table
-    this.selectedColumnIds = this.selectedColumnIds.filter(colId => 
-      !table.columns.some((col: any) => col.id === colId)
-    );
-  } else {
-    this.selectedTableIds = this.selectedTableIds.filter(id => id !== table.id);
+  isColumnDisabled(tableId: number): boolean {
+    return this.selectedDbId !== null || this.selectedTableIds.includes(tableId);
   }
-}
 
-onColumnCheckboxChange(event: any, column: any) {
-  const isChecked = event.target.checked;
-  
-  if (isChecked) {
-    this.selectedColumnIds = [...this.selectedColumnIds, column.id];
-    // Make sure parent table isn't selected
-    this.selectedTableIds = this.selectedTableIds.filter(id => id !== column.tableId);
-    this.selectedDbId = null; // Unselect database if selecting column
-  } else {
-    this.selectedColumnIds = this.selectedColumnIds.filter(id => id !== column.id);
+  onDatabaseCheckboxChange(event: any, db: Database) {
+    const isChecked = event.target.checked;
+    this.selectedDbId = isChecked ? db.id : null;
+    this.showSelectionError = false;
+    
+    if (isChecked) {
+      this.selectedTableIds = [];
+      this.selectedColumnIds = [];
+    }
   }
-}
-getSelectedIds() {
-  console.log({
-    databaseId: this.selectedDbId,
-    tableIds: this.selectedTableIds,
-    columnIds: this.selectedColumnIds
-  })
-}
+
+  onTableCheckboxChange(event: any, table: any) {
+    const isChecked = event.target.checked;
+    this.showSelectionError = false;
+    
+    if (isChecked) {
+      this.selectedDbId = null;
+      this.selectedTableIds = [...this.selectedTableIds, table.id];
+      this.selectedColumnIds = this.selectedColumnIds.filter(colId => 
+        !table.columns.some((col: any) => col.id === colId)
+      );
+    } else {
+      this.selectedTableIds = this.selectedTableIds.filter(id => id !== table.id);
+    }
+  }
+
+  onColumnCheckboxChange(event: any, column: any) {
+    const isChecked = event.target.checked;
+    this.showSelectionError = false;
+    
+    if (isChecked) {
+      this.selectedColumnIds = [...this.selectedColumnIds, column.id];
+      this.selectedTableIds = this.selectedTableIds.filter(id => id !== column.tableId);
+      this.selectedDbId = null;
+    } else {
+      this.selectedColumnIds = this.selectedColumnIds.filter(id => id !== column.id);
+    }
+  }
 
   isExistingUser: boolean = true
 
   toggleForm() {
     this.isExistingUser = !this.isExistingUser;
+    this.formError = '';
+    this.emailError = '';
   }
-
-
-
-
-
-  deleteUser(id: number) {
-    if (confirm('Are you sure you want to delete this user?')) {
-      this.userservice.deleteUser(id).subscribe(() => {
-      });
-    }
-  }
-
-
-
-  filteredUsers: User[] = [];
 
   filterUsers(mail: string) {
+    this.emailError = '';
+    this.selectedUser = null;
+    
     if (this.isEmailComplete(mail)) {
       this.userservice.getUserByMail(mail).subscribe(data => {
-        if (data[0])
-          this.filteredUsers = data
+        if (data[0]) {
+          this.filteredUsers = data;
+        } else {
+          this.emailError = 'No user found with this email';
+        }
       })
-    }
-    else {
+    } else {
       this.filteredUsers = [];
     }
+  }
+
+  selectUser(user: User) {
+    this.selectedUser = user;
+    const emailInput = document.getElementById('email') as HTMLInputElement;
+    if (emailInput) {
+      emailInput.value = user.mail as string;
+    }
+    this.filteredUsers = [];
   }
 
   isEmailComplete(mail: string): boolean {
@@ -132,35 +132,68 @@ getSelectedIds() {
     return emailPattern.test(mail);
   }
 
+  validateSelection(): boolean {
+    if (this.selectedDbId === null && 
+        this.selectedTableIds.length === 0 && 
+        this.selectedColumnIds.length === 0) {
+      this.showSelectionError = true;
+      return false;
+    }
+    return true;
+  }
 
   addUser() {
+    this.formError = '';
+    this.emailError = '';
+    
+    // Validate selection
+    if (!this.validateSelection()) {
+      this.formError = 'Please select at least one database, table, or column';
+      return;
+    }
 
+    // Validate email
+    const emailInput = document.getElementById('email') as HTMLInputElement;
+    if (!emailInput || !this.isEmailComplete(emailInput.value)) {
+      this.emailError = 'Please enter a valid email';
+      return;
+    }
+
+    // Check if user is selected
+    if (!this.selectedUser && this.filteredUsers.length === 0) {
+      this.emailError = 'Please select a user from the list';
+      return;
+    }
+
+    const userToAdd = this.selectedUser || this.filteredUsers[0];
+    
     let payload = {
       databaseId: this.selectedDbId,
       tablesIds: this.selectedTableIds,
       columnsIds: this.selectedColumnIds
     }
 
-    if(payload.databaseId != null || payload.tablesIds.length != 0 || payload.columnsIds.length != 0){
-
-
-    if (this.filteredUsers.length != 0) {
-      if (this.analysts.filter(u => u.identif == this.filteredUsers[0].identif).length == 0)
-      
-        this.analystservice.linkDatabaseToAnalyst(this.filteredUsers[0].identif, payload).subscribe(data => {
+    if (this.analysts.filter(u => u.identif == userToAdd.identif).length == 0) {
+      this.analystservice.linkDatabaseToAnalyst(userToAdd.identif, payload).subscribe({
+        next: data => {
           if (data.message == "Database linked successfully") {
             this.analysts.push(data.analyst)
             this.filteredUsers = []
             this.selectedDbId = null
-          this.selectedTableIds = []
-          this.selectedColumnIds = []
+            this.selectedTableIds = []
+            this.selectedColumnIds = []
+            this.selectedUser = null;
+            if (emailInput) emailInput.value = '';
           }
-        })
+        },
+        error: err => {
+          this.formError = 'Error adding user: ' + (err.error.message || 'Unknown error');
+        }
+      });
+    } else {
+      this.formError = 'This user already has access to this database';
     }
   }
-
-  }
-
 
   generatePwd() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+';
@@ -168,10 +201,25 @@ getSelectedIds() {
     for (let i = 0; i < 12; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    this.newUserform.get("password").setValue(password)
-
+    this.newUserform.get("password").setValue(password);
+    this.newUserform.get("password").markAsTouched();
   }
+
   addNewUser() {
+    this.formError = '';
+    
+    // Validate selection
+    if (!this.validateSelection()) {
+      this.formError = 'Please select at least one database, table, or column';
+      return;
+    }
+
+    // Validate form
+    if (this.newUserform.invalid) {
+      this.newUserform.markAllAsTouched();
+      this.formError = 'Please fill all required fields correctly';
+      return;
+    }
 
     let payload = {
       databaseId: this.selectedDbId,
@@ -179,21 +227,26 @@ getSelectedIds() {
       columnsIds: this.selectedColumnIds
     }
 
-    if(payload.databaseId != null || payload.tablesIds.length != 0 || payload.columnsIds.length != 0){
-
-
-    this.analystservice.createAnalyst(this.newUserform.value).subscribe(data => {
-      this.analystservice.linkDatabaseToAnalyst(data.identif, payload).subscribe(data2 => {
-        if (data2.message == "Database linked successfully") {
-          this.analysts.push(data2.analyst as Analyst)
-          this.newUserform.reset()
-          this.selectedDbId = null
-          this.selectedTableIds = []
-          this.selectedColumnIds = []
-        }
-      })
-    })
+    this.analystservice.createAnalyst(this.newUserform.value).subscribe({
+      next: data => {
+        this.analystservice.linkDatabaseToAnalyst(data.identif, payload).subscribe({
+          next: data2 => {
+            if (data2.message == "Database linked successfully") {
+              this.analysts.push(data2.analyst as Analyst)
+              this.newUserform.reset()
+              this.selectedDbId = null
+              this.selectedTableIds = []
+              this.selectedColumnIds = []
+            }
+          },
+          error: err => {
+            this.formError = 'Error linking database: ' + (err.error.message || 'Unknown error');
+          }
+        });
+      },
+      error: err => {
+        this.formError = 'Error creating user: ' + (err.error.message || 'Unknown error');
+      }
+    });
   }
-}
-
 }

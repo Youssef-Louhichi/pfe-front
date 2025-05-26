@@ -23,6 +23,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { DatabaseDiagramComponent } from '../database-diagram/database-diagram.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DatabaseService } from 'src/app/services/database.service';
+import { RelationsDatabaseComponent } from '../relations-database/relations-database.component';
 const apiKey = environment.openRouterApiKey;
 
 interface HavingCondition {
@@ -1206,7 +1207,7 @@ private getTableByName(name: string): DbTable | undefined {
 
 
   showRelations() {
-    this.dialog.open(DatabaseDiagramComponent, {
+    this.dialog.open(RelationsDatabaseComponent, {
       data: this.relations,
       width: '65vw',
       maxHeight: '80vh'
@@ -1216,6 +1217,19 @@ private getTableByName(name: string): DbTable | undefined {
 
 
   }
+
+  showDiag() {
+    this.dialog.open(DatabaseDiagramComponent, {
+      data: {relations:this.relations,database:this.databases[this.selectedDbIndex]},
+      width: '100vw',
+      height: '100vh'
+    }
+
+    );
+
+
+  }
+
 
 
    getRequestById(reqId: number): Observable<any> {

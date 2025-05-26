@@ -1,20 +1,24 @@
 <div class="send-task-overlay">
-    <div class="send-task-popup">
-      <h2 class="popup-title">Send Task</h2>
-      
-      <div class="form-container">
-        <div class="form-group">
-          <div class="form-label">Task Description</div>
-          <textarea 
-            class="task-textarea" 
-            [(ngModel)]="description" 
-            placeholder="Describe the task here..."></textarea>
+  <div class="send-task-popup">
+    <h2 class="popup-title">Send Task</h2>
+    
+    <div class="form-container">
+      <div class="form-group">
+        <div class="form-label">Task Description</div>
+        <textarea 
+          class="task-textarea" 
+          [(ngModel)]="description" 
+          placeholder="Describe the task here..."
+          (input)="showError = false"></textarea>
+        <div *ngIf="showError" class="error-message">
+          Task description cannot be empty
         </div>
       </div>
-      
-      <div class="button-group">
-        <button class="btn btn-cancel" (click)="cancel()">Cancel</button>
-        <button class="btn btn-send" (click)="sendTask()">Send</button>
-      </div>
+    </div>
+    
+    <div class="button-group">
+      <button class="btn btn-cancel" (click)="cancel()">Cancel</button>
+      <button class="btn btn-send" (click)="sendTask()">Send</button>
     </div>
   </div>
+</div>

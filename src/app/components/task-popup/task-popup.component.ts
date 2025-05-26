@@ -7,8 +7,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   styleUrls: ['./task-popup.component.css']
 })
 export class TaskPopupComponent {
-
   description = '';
+  showError = false;
 
   constructor(
     public dialogRef: MatDialogRef<TaskPopupComponent>,
@@ -17,12 +17,14 @@ export class TaskPopupComponent {
 
   sendTask() {
     if (this.description.trim()) {
+      this.showError = false;
       this.dialogRef.close({ description: this.description });
+    } else {
+      this.showError = true;
     }
   }
 
   cancel() {
     this.dialogRef.close();
   }
-
 }

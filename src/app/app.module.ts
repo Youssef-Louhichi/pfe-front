@@ -37,6 +37,7 @@ import { ScriptdetailsComponent } from './components/scriptdetails/scriptdetails
 import { DatabaseDiagramComponent } from './components/database-diagram/database-diagram.component';
 import { FilesizePipe } from './pipes/filesize.pipe';
 import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statistics.component';
+import { RelationsDatabaseComponent } from './components/relations-database/relations-database.component';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statisti
     DatabaseDiagramComponent,
     FilesizePipe,
     DbsStatisticsComponent,
+    RelationsDatabaseComponent,
     
   ],
   imports: [

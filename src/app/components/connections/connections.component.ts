@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { User } from 'src/app/models/user';
 import { ConnexionsService } from 'src/app/services/connexions.service';
@@ -11,69 +11,78 @@ import { HomeComponent } from '../home/home.component';
   templateUrl: './connections.component.html',
   styleUrls: ['./connections.component.css']
 })
-export class ConnectionsComponent implements OnInit{
+export class ConnectionsComponent implements OnInit {
 
-  form: FormGroup
+  form: FormGroup;
+  db_type: string = "MySQL";
+  isLoading = false;
+  errorMessage: string = '';
 
-  db_type:String = "MySQL"
-  isLoading=false
+  constructor(
+    private fb: FormBuilder,
+    private connexionService: ConnexionsService,
+    private userService: UsersService,
+    private dialogRef: MatDialogRef<HomeComponent>
+  ) {}
 
-  constructor(private  fb: FormBuilder,private connexionService:ConnexionsService,private userService:UsersService,
-    private dialogRef: MatDialogRef<HomeComponent>){}
-
-  creator:User
+  creator: User;
 
   ngOnInit(): void {
+    let idUser = Number(localStorage.getItem("userId"));
 
-    let idUser = Number(localStorage.getItem("userId"))
-
-    this.userService.getUserById(idUser).subscribe(data => this.creator = data)
-    this.form = this.fb.group({
-      host: [''],
-      port:[],
-      username:[''],
-      password:[''],
-      dbtype:['MySQL'],
-      creator:[]
-      
-    })
-
-  }
-
-
-
-  changeDb(i: number){
-    if(i ==1){
-      this.form.reset()
-      this.form.get("dbtype").setValue("MySQL")
-      this.db_type="MySQL"
-    }
-    if (i==2){
-      this.form.reset()
-      this.form.get("dbtype").setValue("Oracle")
-      this.db_type="Oracle"
-      
-    }
-
-  }
-
-  insertConnection(){
-    this.isLoading=true
-
-    this.form.get("creator").setValue(this.creator)
-    console.log(this.form.value)
-    this.connexionService.insertConnexion(this.form.value).subscribe(data =>{
-      this.dialogRef.close(data)
-      this.isLoading=false
-
-    },
-    error => {
-      this.isLoading=false
-      console.error('Error fetching data:', error)
-    }
-  )
+    this.userService.getUserById(idUser).subscribe(data => this.creator = data);
     
+    this.form = this.fb.group({
+      host: ['', Validators.required],
+      port: ['', Validators.required],
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      dbtype: ['MySQL'],
+      creator: []
+    });
   }
 
+  changeDb(i: number) {
+    this.errorMessage = "";
+    
+    if (i == 1) {
+      this.form.reset();
+      this.form.get("dbtype").setValue("MySQL");
+      this.db_type = "MySQL";
+    }
+    if (i == 2) {
+      this.form.reset();
+      this.form.get("dbtype").setValue("Oracle");
+      this.db_type = "Oracle";
+    }
+  }
 
+  insertConnection() {
+    // Mark all fields as touched to show validation messages
+    this.form.markAllAsTouched();
+
+    // Check if form is invalid
+    if (this.form.invalid) {
+      return; // Don't proceed if validation fails
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.form.get("creator").setValue(this.creator);
+    this.connexionService.insertConnexion(this.form.value).subscribe(
+      data => {
+        this.dialogRef.close(data);
+        this.isLoading = false;
+      },
+      error => {
+        this.isLoading = false;
+        if (error.status == 500) {
+          this.errorMessage = "Failed to establish connection. Please check your credentials and try again.";
+        } else {
+          this.errorMessage = "An unexpected error occurred. Please try again later.";
+        }
+      }
+    );
+  }
 }

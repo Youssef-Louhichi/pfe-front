@@ -122,6 +122,12 @@
     outline: none;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
   }
+
+  .error-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 4px;
+}
   
   /* Responsive adjustments */
   @media (max-width: 640px) {
