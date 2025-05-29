@@ -348,7 +348,7 @@
               </div>
               
               <!-- Order By Conditions - Simplified -->
-              <div class="modern-card compact-card">
+              <div class="modern-card ">
                 <div class="card-header">
                   <h3>Sort by</h3>
                 </div>
@@ -378,7 +378,7 @@
               </div>
 
               <!-- Limit Results - Simplified -->
-              <div class="modern-card compact-card">
+              <div class="modern-card">
                 <div class="card-header">
                   <h3>Limit Results</h3>
                 </div>
@@ -395,14 +395,16 @@
               </div>
 
               <!-- Form Actions -->
-              <div class="form-actions modern-actions full-width-actions">
-                <button type="submit" class="btn-primary action-btn">Execute Query</button>
-                <button type="button" class="btn-add action-btn" [disabled]="!hasResults()" (click)="addTableToWorkspace(); showAddedNotification()">Add Results</button>
-                <button type="button" class="btn-reset action-btn" (click)="resetForm()">
-                  <i class="fas fa-undo"></i> Reset Form
-                </button>
-              </div>
+              
 
+            </div>
+
+            <div class="form-actions modern-actions full-width-actions">
+              <button type="submit" class="btn-primary action-btn">Execute Query</button>
+              <button type="button" class="btn-add action-btn" [disabled]="!hasResults()" (click)="addTableToWorkspace(); showAddedNotification()">Add Results</button>
+              <button type="button" class="btn-reset action-btn" (click)="resetForm()">
+                <i class="fas fa-undo"></i> Reset Form
+              </button>
             </div>
           </div>
 
