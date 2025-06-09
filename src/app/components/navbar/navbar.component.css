@@ -1,7 +1,7 @@
 .side_container {
     background-color: #004B91;
     height: 100%;
-    width: 180px; /* Reduced from 200px to account for padding */
+    width: 200px; /* Reduced from 200px to account for padding */
     display: flex;
     flex-direction: column;
     border-radius: 0 15px 15px 0;
@@ -13,7 +13,7 @@
 }
 
 .side_container.collapsed {
-    width: 45%;
+    width: 47%;
 }
 
 .toggle-btn {

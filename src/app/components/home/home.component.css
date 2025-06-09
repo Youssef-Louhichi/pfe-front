@@ -33,7 +33,7 @@
 }
 
 .navbar-brand i {
-    color: #fbab21;
+    color: #000000;
 }
 
 .nav-link {
@@ -114,7 +114,7 @@
 }
 
 .section-header h2 i {
-    color: #fbab21;
+    color: #000000;
 }
 
 .section-description {
@@ -135,12 +135,12 @@
 }
 
 .list_projects::-webkit-scrollbar-track {
-    background: #f2f0f0;
+    background: #d6d6d6;
     border-radius: 10px;
 }
 
 .list_projects::-webkit-scrollbar-thumb {
-    background: #fbab21;
+    background: #a4a4a4;
     border-radius: 10px;
 }
 
@@ -172,7 +172,7 @@
 }
 
 .project_text i {
-    color: #fbab21;
+    color: #020202;
 }
 
 .project_inside {
