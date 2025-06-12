@@ -170,6 +170,10 @@ export class LmdUpdateComponent implements OnChanges {
       if (joinConditions.length > 0) {
         payload.joins = joinConditions;
       }
+      else
+      {
+        payload.joins = null ;
+      }
       this.formSubmit.emit(payload);
     }
   }

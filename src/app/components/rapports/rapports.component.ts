@@ -9,6 +9,7 @@ import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { UsersService } from 'src/app/services/users.service';
 import { ScriptdetailsComponent } from '../scriptdetails/scriptdetails.component';
 import { User } from 'src/app/models/user';
+import { RapportService } from 'src/app/services/rapport.service';
 
 // Interface for slide data
 interface Slide {
@@ -63,7 +64,7 @@ export class RapportsComponent implements OnInit, OnDestroy {
   slideInterval: any;
 
   constructor(private userService:UsersService, private router:Router,
-    private el: ElementRef, private scriptservice: ScriptServiceService, private dialog: MatDialog
+    private el: ElementRef, private scriptservice: ScriptServiceService, private dialog: MatDialog, private rapportservice : RapportService
   ) { }
 
   rapports:Rapport[]
@@ -122,6 +123,18 @@ export class RapportsComponent implements OnInit, OnDestroy {
     this.currentSlide = index;
   }
 
+deleteRapport(id: number) {
+  console.log(id);
+  this.rapportservice.deleteRapport(id).subscribe({
+    next: () => {
+      console.log('Deleted successfully');
+      // optionally refresh data or show message
+    },
+    error: (err) => {
+      console.error('Delete failed:', err);
+    }
+  });
+}
   // Existing methods
   charts: { [key: string]: Chart } = {};
 
@@ -211,6 +224,8 @@ export class RapportsComponent implements OnInit, OnDestroy {
       next: () => console.log('Script deleted'),
     });
   }
+
+
 
   openCreateScriptPopup() {
     this.showCreateScriptPopup = true;

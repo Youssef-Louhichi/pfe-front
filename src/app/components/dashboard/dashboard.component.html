@@ -50,7 +50,7 @@
   </div>
 
   <div class="main-content">
-    <!-- Query Builder (Hidden by default) -->
+    <!-- Query Builder -->
     <div class="query-builder-container" *ngIf="showingQueryBuilder" [@fadeInOut]>
       <app-query-builder 
         (newItemEvent)="onDataAdded($event)" 
@@ -58,7 +58,7 @@
       </app-query-builder>
     </div>
 
-    <!-- Main Dashboard (Hidden when Query Builder is shown) -->
+    <!-- Main   -->
     <div class="dashboard-container" *ngIf="!showingQueryBuilder" [@fadeInOut]>
       <!-- Tool options panel -->
       <div class="tool-options" *ngIf="selectedGraph">

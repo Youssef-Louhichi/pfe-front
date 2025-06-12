@@ -22,4 +22,11 @@ export class RapportService {
   createRapport(rapport: Rapport): Observable<Rapport> {
     return this.http.post<Rapport>(this.baseUrl, rapport);
   }
+
+  deleteRapport(id : number)
+  {
+    return this.http.delete(`${this.baseUrl}/${id}`);
+  }
+
+
 }
