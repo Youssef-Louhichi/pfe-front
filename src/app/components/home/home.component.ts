@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { Creator } from 'src/app/models/creator';
 import { User } from 'src/app/models/user';
 import { AnalystService } from 'src/app/services/analyst.service';
+import { ConnexionsService } from 'src/app/services/connexions.service';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,7 @@ import { AnalystService } from 'src/app/services/analyst.service';
 })
 export class HomeComponent implements OnInit{
 
-  constructor(private userService:UsersService,private analystservice:AnalystService,private dialog: MatDialog,private router:Router){}
+  constructor(private userService:UsersService,private analystservice:AnalystService,private dialog: MatDialog,private router:Router,private cnxservice : ConnexionsService){}
 
   connexions:Connexion[]
   user:User
@@ -66,7 +67,18 @@ export class HomeComponent implements OnInit{
     this.router.navigate(["/main"])
   }
 
-
+deleteRapport(id: number) {
+  console.log(id);
+  this.cnxservice.deleteconnexion(id).subscribe({
+    next: () => {
+      console.log('Deleted successfully');
+      
+    },
+    error: (err) => {
+      console.error('Delete failed:', err);
+    }
+  });
+}
 
 
 }

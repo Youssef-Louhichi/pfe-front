@@ -29,4 +29,11 @@ export class ConnexionsService {
     
   }
 
+
+
+  deleteconnexion(id : number) 
+  {
+    return this.httpclient.delete(`${this.baseUrl}/${id}`);
+  }
+
 }

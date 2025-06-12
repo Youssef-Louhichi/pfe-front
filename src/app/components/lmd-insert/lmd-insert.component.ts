@@ -67,6 +67,7 @@ export class LmdInsertComponent implements OnChanges {
         return acc;
       }, {});
       this.formSubmit.emit({ tableId: formData.table, columnValues });
+      console.log (formData.table , columnValues);
     }
   }
 

@@ -1,4 +1,3 @@
-/* More specific selectors to completely override Material styles */
 .custom-dialog-container .mat-dialog-container,
 .custom-dialog-container .mat-mdc-dialog-container,
 .custom-dialog-container .mdc-dialog__container,
@@ -10,7 +9,6 @@
   border-radius: 30px !important;
 }
 
-/* Remove any additional shadow or background wrapper elements */
 .custom-dialog-container .mat-mdc-dialog-surface,
 .custom-dialog-container .mdc-dialog__surface {
   box-shadow: none !important;
@@ -19,16 +17,13 @@
 
 }
 
-/* Make sure your component contains the visual styling */
 .container1 {
   background-color: #ffffff;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   
-  /* Other styles remain the same */
 }
   
-  /* Header styling */
   .title {
     background: linear-gradient(135deg, #6366f1, #4338ca);
     color: white;

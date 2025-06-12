@@ -61,9 +61,8 @@ export class ConnectionsComponent implements OnInit {
     // Mark all fields as touched to show validation messages
     this.form.markAllAsTouched();
 
-    // Check if form is invalid
     if (this.form.invalid) {
-      return; // Don't proceed if validation fails
+      return; 
     }
 
     this.isLoading = true;
