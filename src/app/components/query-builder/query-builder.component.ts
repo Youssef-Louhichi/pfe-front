@@ -920,6 +920,7 @@ export class QueryBuilderComponent implements OnInit {
   }
 
   onSubmit(): void {
+     this.errorMessage = ''
     const userId = Number(localStorage.getItem('userId'));
 
     if (!userId) {

@@ -20,7 +20,7 @@
 
   <div class="query-main-content">
     <section class="side">
-      
+
       <div class="db-selector">
         <div>
           <label for="dbSelect">Select Database:</label>
@@ -39,8 +39,8 @@
         </button>
       </div>
 
-  
-      
+
+
       <div class="tables-container" *ngIf="selectedDbIndex != null">
         <h3 class="section-title">Tables</h3>
         <ul class="tables-list">
@@ -57,8 +57,8 @@
               <input type="checkbox" (click)="$event.stopPropagation(); selectAllTableColumns(table)"
                 [checked]="isTableFullySelected(table)">
             </div>
-  
-            
+
+
             <div class="columns-container" *ngIf="showColumns[table.name]">
               <ul class="columns-list" cdkDropList [cdkDropListData]="table.columns"
                 (cdkDropListDropped)="drop($event, 'columns')">
@@ -94,9 +94,9 @@
           </div>
 
           <div class="query-form-grid">
-            
+
             <div class="query-column">
-              
+
               <div class="selected-tables">
                 <h3>Selected Tables</h3>
                 <div class="tables-tags">
@@ -106,8 +106,8 @@
                   </span>
                 </div>
               </div>
-              
-              
+
+
               <div class="form-group">
                 <label>Columns to show:</label>
                 <ul class="selected-columns" cdkDropList (cdkDropListDropped)="drop($event, 'columns')"
@@ -115,15 +115,15 @@
                   <li *ngFor="let c of selectedColumns" cdkDrag class="column-tag"
                     [ngClass]="{'aggregated-column': isColumnAggregated(c.id)}">
                     <div class="column-content">
-                      
+
                       <span *ngIf="isColumnAggregated(c.id)" class="aggregation-prefix">
                         {{ getColumnAggregation(c.id) }} of
                       </span>
-                      
-                      
+
+
                       <span>{{ c.name }} ({{ c.table.name }})</span>
-                      
-                      
+
+
                       <div class="column-actions">
                         <button type="button" class="btn-menu" (click)="toggleColumnMenu(c.id)">
                           <i class="fas fa-ellipsis-v"></i>
@@ -156,16 +156,16 @@
                           </div>
                         </div>
                       </div>
-                      
-                      
+
+
                       <button type="button" class="remove-column" (click)="removeColumn(c, 'columns')">×</button>
                     </div>
                   </li>
                 </ul>
                 <input type="hidden" formControlName="column">
               </div>
-              
-              
+
+
               <div class="modern-card">
                 <div class="card-header">
                   <h3>Filters</h3>
@@ -181,13 +181,13 @@
                       <i class="fas fa-filter"></i> Drag columns here to add filter conditions
                     </p>
                   </div>
-                  
-                  
+
+
                   <div formArrayName="filterClauses" class="filter-chips">
-                    <div *ngFor="let condition of filterClauses.controls; let i = index" 
-                        [formGroupName]="i" class="filter-condition">
-                      
-                      
+                    <div *ngFor="let condition of filterClauses.controls; let i = index" [formGroupName]="i"
+                      class="filter-condition">
+
+
                       <div class="function-menu">
                         <button type="button" class="btn-menu" (click)="toggleFunctionMenu(i)"
                           title="Add aggregation function">
@@ -203,23 +203,23 @@
                         </div>
                       </div>
 
-                      
+
                       <div class="function-badge" *ngIf="condition.get('functionType').value">
                         <span class="function-name">{{condition.get('functionType').value}}</span>
                         <span class="bracket">(</span>
                       </div>
-                      
-                      
+
+
                       <div class="filter-column">
                         <input type="text" formControlName="columnName" class="form-control column-name" readonly>
                       </div>
-                      
+
                       <span class="bracket" *ngIf="condition.get('functionType').value">)</span>
-                      
+
                       <input type="hidden" formControlName="columnId" class="form-control">
                       <input type="hidden" formControlName="tableName" class="form-control">
                       <input type="hidden" formControlName="showFunctionMenu" class="form-control">
-                      
+
                       <div class="operator-wrapper">
                         <select formControlName="operator" class="form-control operator">
                           <option value="=">=</option>
@@ -238,8 +238,8 @@
                           <i class="fas fa-info-circle helper-icon" title="Select comparison operator"></i>
                         </div>
                       </div>
-                      
-                      
+
+
                       <div class="form-check subquery-toggle">
                         <input type="checkbox" class="form-check-input" formControlName="test"
                           (change)="onFilterSubqueryToggle(i)" id="subquery-{{i}}">
@@ -250,7 +250,7 @@
                         </div>
                       </div>
 
-                      
+
                       <div class="value-wrapper">
                         <ng-container *ngIf="!condition.get('test').value; else subqueryDropdown">
                           <input type="text" formControlName="value" placeholder="Value" class="form-control value">
@@ -272,9 +272,10 @@
                           </div>
                         </ng-template>
                       </div>
-                      
-                    
-                      <button type="button" class="btn-remove-modern" (click)="removeFilterCondition(i)" title="Remove filter">
+
+
+                      <button type="button" class="btn-remove-modern" (click)="removeFilterCondition(i)"
+                        title="Remove filter">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -284,12 +285,12 @@
 
             </div>
 
-            
+
             <div class="query-column">
-              
-             
-                      
-              
+
+
+
+
               <div class="modern-card">
                 <div class="card-header">
                   <h3>Group results by</h3>
@@ -322,8 +323,8 @@
                   </div>
                 </div>
               </div>
-              
-              
+
+
               <div class="modern-card ">
                 <div class="card-header">
                   <h3>Sort</h3>
@@ -351,7 +352,7 @@
                 </div>
               </div>
 
-              
+
               <div class="modern-card">
                 <div class="card-header">
                   <h3>Limit Results</h3>
@@ -364,7 +365,7 @@
                 </div>
               </div>
 
-              
+
               <div class="form-actions modern-actions full-width-actions">
                 <button type="submit" class="btn-primary action-btn">Execute</button>
                 <button type="button" class="btn-add action-btn" [disabled]="!hasResults()"
@@ -402,11 +403,11 @@
             </div>
           </div>
         </div>
-        
-  
-        
+
+
+
         <div class="results-section">
-          
+
           <div *ngIf="resultSource === 'script' && allResults && allResults.length > 0">
             <div *ngFor="let table of allResults; let i = index">
               <h3>Query {{ i + 1 }} Results</h3>
@@ -426,32 +427,36 @@
               </div>
             </div>
           </div>
-        
-          
+
+          <div *ngIf="errorMessage" class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ errorMessage }}
+          </div>
+
           <div *ngIf="resultSource === 'query' && tableData && tableData.length">
             <h3>Query Results</h3>
-           
+
 
             <!-- Success Results Display -->
-              <div class="sql-actions" *ngIf="showSqlButton">
-                <button class="show-sql-btn" (click)="showSql()">
-                  <i class="fas fa-code"></i> View SQL
-                </button>
-              </div>
-              <div class="result-table">
-                <table class="tabdata">
-                  <thead>
-                    <tr>
-                      <th *ngFor="let key of tableHeaders">{{ key }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let row of tableData">
-                      <td *ngFor="let key of tableHeaders">{{ row[key] }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="sql-actions" *ngIf="showSqlButton">
+              <button class="show-sql-btn" (click)="showSql()">
+                <i class="fas fa-code"></i> View SQL
+              </button>
+            </div>
+            <div class="result-table">
+              <table class="tabdata">
+                <thead>
+                  <tr>
+                    <th *ngFor="let key of tableHeaders">{{ key }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of tableData">
+                    <td *ngFor="let key of tableHeaders">{{ row[key] }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
