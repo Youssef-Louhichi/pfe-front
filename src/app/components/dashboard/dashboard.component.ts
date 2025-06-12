@@ -369,7 +369,8 @@ export class DashboardComponent implements OnInit {
         null,
         ["#000"],
         null,
-        null
+        null,
+        "12px"
       )
       this.rapportGraphs.push(t)
       this.selectedGraph = t
@@ -405,6 +406,8 @@ export class DashboardComponent implements OnInit {
     this.saveState()
     if (color)
       this.selectedGraph.colors = [color.toString()]
+    if(police)
+      this.selectedGraph.fontSize = police + "px"
   }
 
   changeToolBar(ch: string) {

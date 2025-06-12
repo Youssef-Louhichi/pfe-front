@@ -7,6 +7,6 @@ export class Graph {
         public leftpos: number,public toppos: number,
         public columnX: string,public columnY: string,
         public colors: string[],public chartType: keyof ChartTypeRegistry,
-        public rapport: Rapport
+        public rapport: Rapport, public fontSize?:string
     ) {}
 }

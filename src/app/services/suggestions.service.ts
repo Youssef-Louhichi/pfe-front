@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class SuggestionsService {
 
- private baseUrl = "http://127.0.0.1:5000/api/suggestions"
+ private baseUrl = "http://localhost:8087/api/requete/suggestions"
   constructor(private httpclient : HttpClient) { }
 
 

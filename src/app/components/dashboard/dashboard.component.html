@@ -97,7 +97,7 @@
         <div class="tool-options-content" *ngIf="tools=='text' && selectedGraph && selectedGraph.format == 'text'">
           <div class="text-tool-bar">
             Police:
-            <input type="number" (change)="updateText(police.value,null)" class="text-input-police" #police>
+            <input type="number" (change)="updateText(police.value,null)" class="text-input-police" [value]="selectedGraph.fontSize?.replace('px','')" #police>
             Color:
             <input type="color" (change)="updateText(null,color.value)" [(ngModel)]="selectedGraph.colors[0]" class="color-element" #color>
           </div>
@@ -137,7 +137,7 @@
               [width]="graph.width" [height]="graph.height"></canvas>
             
             <textarea *ngIf="graph.format === 'text'" class="text" (blur)="changingText(graph,text.value)" 
-              [style.color]="graph.colors[0]" [attr.data-id]="graph.id" #text>{{graph.data[0].text}}</textarea>
+              [style.color]="graph.colors[0]" [attr.data-id]="graph.id" [style.font-size]="graph.fontSize" #text>{{graph.data[0].text}}</textarea>
           </div>
         </div>
       </div>
