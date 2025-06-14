@@ -1,5 +1,5 @@
 <div class="cont" *ngIf="selectedDb">
-  <!-- Database selector -->
+  
   <div class="db-selector">
     <label for="db-select">Database:</label>
     <select id="db-select" class="db-select" [(ngModel)]="selectedDb" (change)="getDbAnalysts()">
@@ -7,15 +7,15 @@
     </select>
   </div>
   
-  <!-- Two-column layout -->
+  
   <div class="content-wrapper">
-    <!-- Navigation links -->
+    
     <div class="nav-links">
       <a href="#" (click)="showList = true; $event.preventDefault()" >Analysts list</a> |
       <a href="#" (click)="showList = false; $event.preventDefault()" [hidden]="user.type == 'Analyst'" >Add new analyst</a>
     </div>
     
-    <!-- Conditional rendering based on showList flag -->
+    
     <app-list-user *ngIf="showList" [user]="user" [selectedDb]="selectedDb" [analysts]="analysts" class="full-width"></app-list-user>
     <app-add-user *ngIf="!showList" [user]="user" [analysts]="analysts" [selectedDb]="selectedDb" class="full-width"></app-add-user>
   </div>

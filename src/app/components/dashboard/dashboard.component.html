@@ -50,7 +50,7 @@
   </div>
 
   <div class="main-content">
-    <!-- Query Builder -->
+    
     <div class="query-builder-container" *ngIf="showingQueryBuilder" [@fadeInOut]>
       <app-query-builder 
         (newItemEvent)="onDataAdded($event)" 
@@ -58,9 +58,9 @@
       </app-query-builder>
     </div>
 
-    <!-- Main   -->
+    
     <div class="dashboard-container" *ngIf="!showingQueryBuilder" [@fadeInOut]>
-      <!-- Tool options panel -->
+      
       <div class="tool-options" *ngIf="selectedGraph">
         <div class="tool-options-content" *ngIf="tools=='data' && selectedGraph && selectedGraph.format == 'chart'">
           <div class="chart-axes">

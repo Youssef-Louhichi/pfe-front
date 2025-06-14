@@ -21,14 +21,14 @@
         </div>
     </div>
 
-    <!-- Form container -->
+    
     <div class="form-container" [hidden]="user.type == 'Analyst'">
         <button class="toggle-btn" (click)="toggleForm()">
             {{ isExistingUser ? 'Add New User' : 'Add Access to User' }}
         </button>
 
         <div class="form-wrapper">
-            <!-- Existing User Form -->
+            
             <form *ngIf="isExistingUser" class="fade-in">
                 <h2>Add Access to User</h2>
                 <div class="form-group">
@@ -46,7 +46,7 @@
                 <div *ngIf="formError" class="error-message form-error">{{formError}}</div>
             </form>
 
-            <!-- New User Form -->
+            
             <form *ngIf="!isExistingUser" class="fade-in" [formGroup]="newUserform" (ngSubmit)="addNewUser()">
                 <h2>Add New User</h2>
                 <div class="form-group">

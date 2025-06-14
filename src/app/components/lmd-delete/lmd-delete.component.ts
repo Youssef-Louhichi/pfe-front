@@ -144,6 +144,7 @@ export class LmdDeleteComponent implements OnChanges {
       }
       this.formSubmit.emit(payload);
     }
+    
   }
 
   resetForm(): void {

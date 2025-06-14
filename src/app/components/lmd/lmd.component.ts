@@ -148,7 +148,8 @@ export class LMDComponent implements OnInit {
         },
         error => {
           console.error('Error deleting data:', error);
-          alert('Error deleting data.');
+        const errorMessage = error.error?.error || 'Unexpected error occurred.';
+        alert('Delete failed:\n' + errorMessage);
         }
       );
     }

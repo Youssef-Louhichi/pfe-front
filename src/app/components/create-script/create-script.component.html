@@ -6,7 +6,7 @@
     </div>
 
     <form [formGroup]="scriptForm" (ngSubmit)="onSubmit()">
-      <!-- Step 1: Script Name -->
+      
       <div *ngIf="currentStep === 1" class="form-group">
         <label for="name">Script Name</label>
         <input
@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <!-- Step 2: Select Queries with Checkboxes -->
+      
       <div *ngIf="currentStep === 2" class="form-group">
         <label>Select Queries</label>
         <div class="query-list">

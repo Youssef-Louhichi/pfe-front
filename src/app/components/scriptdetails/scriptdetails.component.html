@@ -7,7 +7,7 @@
   <h3>Requêtes</h3>
   <ul>
     <li *ngFor="let req of script.reqs">
-      {{ req.id }} created on : {{req.sentAt | date:'medium'}} <!-- or another field -->
+      {{ req.id }} created on : {{req.sentAt | date:'medium'}} 
       <button 
         (click)="removeRequete(req.id)"
         [disabled]="isRemoved(req.id)">

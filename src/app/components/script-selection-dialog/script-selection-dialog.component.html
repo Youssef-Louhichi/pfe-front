@@ -7,7 +7,7 @@
       <li *ngFor="let script of scripts" class="script-item">
         <div class="script-name">{{ script.name }}</div>
       
-        <!-- If originally selected -->
+        
         <button *ngIf="originalSelectedScripts.includes(script.id)"
                 class="btn remove-btn"
                 [disabled]="secondtable.includes(script.id)"
@@ -15,7 +15,7 @@
           {{ secondtable.includes(script.id) ? 'Removed' : 'Remove' }}
         </button>
       
-        <!-- If not originally selected -->
+        
         <button *ngIf="!originalSelectedScripts.includes(script.id)"
                 class="btn add-btn"
                 [disabled]="selectedScripts.includes(script.id)"

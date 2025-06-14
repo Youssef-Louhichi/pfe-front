@@ -408,7 +408,7 @@
 
         <div class="results-section">
 
-          <div *ngIf="resultSource === 'script' && allResults && allResults.length > 0">
+          <div>
             <div *ngFor="let table of allResults; let i = index">
               <h3>Query {{ i + 1 }} Results</h3>
               <div class="result-table" *ngIf="table.rows.length">
@@ -433,11 +433,11 @@
             {{ errorMessage }}
           </div>
 
-          <div *ngIf="resultSource === 'query' && tableData && tableData.length">
+          <div *ngIf="resultSource === 'query' || tableData && tableData.length">
             <h3>Query Results</h3>
 
 
-            <!-- Success Results Display -->
+            
             <div class="sql-actions" *ngIf="showSqlButton">
               <button class="show-sql-btn" (click)="showSql()">
                 <i class="fas fa-code"></i> View SQL

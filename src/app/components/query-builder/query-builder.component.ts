@@ -1025,7 +1025,7 @@ export class QueryBuilderComponent implements OnInit {
                 },
                 error => {
                   console.log('Error fetching data:', error);
-                  this.errorMessage = 'A server error occurred. Please check your query or try again later.';
+                  this.errorMessage = 'Please check your query .';
                   this.tableData = [];
                   this.tableHeaders = [];
                 }

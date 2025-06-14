@@ -1,7 +1,7 @@
 <div class="insert-form-container" *ngIf="user" [class.disabled]="user.type == 'Analyst'">
-  <!-- Sidebar with Database and Table Selection -->
+  
   <section class="side">
-    <!-- Database dropdown selector -->
+    
     <div class="db-selector">
       <label for="dbSelect">Select Database:</label>
       <select id="dbSelect" class="db-select" 
@@ -13,7 +13,7 @@
       </select>
     </div>
 
-    <!-- Tables list for selected database -->
+    
     <div class="tables-container" *ngIf="selectedDbIndex != null">
       <h3 class="section-title">Tables</h3>
       <ul class="tables-list">
@@ -30,7 +30,7 @@
             <span class="table-name">{{ table.name }}</span>
           </div>
 
-          <!-- Table actions -->
+          
           <div class="table-actions" *ngIf="showColumns[table.name]">
             <button type="button" class="btn-select-table" (click)="selectTable(table, 'insert')">
               <i class="fa-solid fa-pen"></i> Insert
@@ -47,7 +47,7 @@
     </div>
   </section>
 
-  <!-- Form Area for Child Components -->
+  
   <div class="form-area">
     <app-lmd-insert 
       *ngIf="formMode === 'insert' && selectedTable" 
