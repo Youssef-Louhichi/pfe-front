@@ -16,7 +16,8 @@ import { ConnexionsService } from 'src/app/services/connexions.service';
 })
 export class HomeComponent implements OnInit{
 
-  constructor(private userService:UsersService,private analystservice:AnalystService,private dialog: MatDialog,private router:Router,private cnxservice : ConnexionsService){}
+  constructor(private userService:UsersService,private analystservice:AnalystService,private dialog: MatDialog,private router:Router,private cnxservice : ConnexionsService
+  ){}
 
   connexions:Connexion[]
   user:User
@@ -79,6 +80,18 @@ deleteRapport(id: number) {
     }
   });
 }
+
+
+ logout(){
+          this.userService.logout().subscribe( () =>{
+
+    localStorage.removeItem("userId")
+      localStorage.removeItem("state")
+    localStorage.removeItem("token")
+        this.router.navigate(["/login"])
+    })
+
+  }
 
 
 }

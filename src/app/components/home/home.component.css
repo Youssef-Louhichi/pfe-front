@@ -280,5 +280,14 @@ button i {
   flex: none; 
 }
 
+.user-logout{
+    margin-left: 25px;
+    cursor: pointer;
+}
+
+.user-logout i{
+    font-size: 17px;
+}
+
 
   

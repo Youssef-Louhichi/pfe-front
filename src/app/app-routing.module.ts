@@ -12,10 +12,11 @@ import { MyTasksComponent } from './components/my-tasks/my-tasks.component';
 import { TestComponent } from './components/test/test.component';
 import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statistics.component';
 import { QueryBuilderComponent } from './components/query-builder/query-builder.component';
+import { userGuard } from './guards/user.guard';
 
 const routes: Routes = [
   {path:"login",title:"EasySql",component:LoginPageComponent},
-  {path:"main",title:"EasySql",component:MainComponent,children:[
+  {path:"main",title:"EasySql",component:MainComponent,canActivate:[userGuard], children:[
     {path:"dashboard",component:RapportsComponent},
     {path:"dashboard/edit",component:DashboardComponent},
     {path:"dashboard/statistics",component:DbsStatisticsComponent},
@@ -30,7 +31,7 @@ const routes: Routes = [
 
     {path:"",redirectTo:"dashboard",pathMatch:'full'}
   ]},
-  {path:"home",title:"EasySql",component:HomeComponent},
+  {path:"home",title:"EasySql",component:HomeComponent,canActivate:[userGuard]},
   {path:"",redirectTo:"login",pathMatch:'full'}
 ];
 

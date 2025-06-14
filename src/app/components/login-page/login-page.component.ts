@@ -48,13 +48,12 @@ export class LoginPageComponent {
 
 
     signIn(){
-      console.log(this.logForm.value)
       
     this.userservice.login(this.logForm.get("login")?.value,this.logForm.get("pwd")?.value).subscribe(res =>{
       if (res){
-        console.log(res)
         localStorage.setItem("userId",res.user.identif.toString())
-        localStorage.setItem("state","connectedUser")
+        localStorage.setItem("state","UserConnected")
+        localStorage.setItem('token', res.token)
         this.route.navigate(["/home"])
       }
     

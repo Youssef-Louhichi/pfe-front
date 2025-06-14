@@ -68,4 +68,10 @@ export class UsersService {
   login(l:string,p:string):Observable<any>{
     return this.httpclient.post<User>(this.baseUrl+`/login`,{mail:l,password:p})
   }
+
+  
+  logout() {
+    return this.httpclient.post(this.baseUrl +"/logout", {}, { responseType: 'text' });
+  }
+
 }

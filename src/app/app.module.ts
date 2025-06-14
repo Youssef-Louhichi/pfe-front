@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {HttpClientModule} from '@angular/common/http'
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -40,6 +40,7 @@ import { DbsStatisticsComponent } from './components/dbs-statistics/dbs-statisti
 import { RelationsDatabaseComponent } from './components/relations-database/relations-database.component';
 import { QueryExplainComponent } from './components/query-explain/query-explain.component';
 import { MarkdownToHtmlPipe } from './pipes/markdown-to-html.pipe';
+import { AuthUserInterceptor } from './interceptors/auth-user.interceptor';
 
 @NgModule({
   declarations: [
@@ -90,7 +91,13 @@ import { MarkdownToHtmlPipe } from './pipes/markdown-to-html.pipe';
     MatButtonModule,
     MatCheckboxModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthUserInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

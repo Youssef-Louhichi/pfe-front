@@ -4,7 +4,7 @@
       <a class="navbar-brand" href="#">
         <i class="fas fa-database"></i> EasySql
       </a>
-      
+
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
@@ -26,6 +26,10 @@
         <div class="user-info">
           <span class="user-type">{{ user.type }}</span>
           <i class="fas fa-user-circle"></i>
+        </div>
+
+        <div class="user-logout" (click)="logout()">
+          <i class="fas fa-sign-out-alt nav-icon"></i>
         </div>
       </div>
     </div>
@@ -54,24 +58,24 @@
           </div>
         </div>
 
-     <div class="project" *ngFor="let c of connexions">
-  <div class="project_text">
-    <i class="fa-solid fa-network-wired"></i> {{c.host}}:{{c.port}}
-  </div>
-  <div class="project_inside">
-    <i class="fas fa-user"></i>
-    <div class="username">{{c.username}}</div>
+        <div class="project" *ngFor="let c of connexions">
+          <div class="project_text">
+            <i class="fa-solid fa-network-wired"></i> {{c.host}}:{{c.port}}
+          </div>
+          <div class="project_inside">
+            <i class="fas fa-user"></i>
+            <div class="username">{{c.username}}</div>
 
-    <div class="button-group">
-      <button (click)="openConnection(c.id)">
-        <i class="fas fa-external-link-alt"></i> Open
-      </button>
-      <button class="btn-delete" (click)="deleteRapport(c.id)">
-        <i class="fa fa-trash"></i>Delete
-      </button>
-    </div>
-  </div>
-</div>
+            <div class="button-group">
+              <button (click)="openConnection(c.id)">
+                <i class="fas fa-external-link-alt"></i> Open
+              </button>
+              <button class="btn-delete" (click)="deleteRapport(c.id)">
+                <i class="fa fa-trash"></i>Delete
+              </button>
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
