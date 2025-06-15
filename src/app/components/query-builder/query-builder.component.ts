@@ -25,6 +25,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DatabaseService } from 'src/app/services/database.service';
 import { QueryExplainComponent } from '../query-explain/query-explain.component';
 import { RelationsDatabaseComponent } from '../relations-database/relations-database.component';
+import { QueryHistoryDialogComponent } from '../query-history-dialog/query-history-dialog.component';
 const apiKey = environment.openRouterApiKey;
 
 interface HavingCondition {
@@ -1691,5 +1692,53 @@ export class QueryBuilderComponent implements OnInit {
 
     // Add to filter clauses
     this.filterClauses.push(filterCondition);
+  }
+
+  showHistory(): void {
+    this.dialog.open(QueryHistoryDialogComponent, {
+      width: '800px',
+      maxHeight: '80vh'
+    });
+  }
+
+  exportToCsv(): void {
+    if (!this.tableData || this.tableData.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    // Get headers from the first row
+    const headers = this.tableHeaders;
+    
+    // Convert data to CSV format
+    const csvContent = [
+      headers.join('|'), // Header row
+      ...this.tableData.map(row => 
+        headers.map(header => {
+          const value = row[header];
+          // Handle values that might contain commas or quotes
+          if (value === null || value === undefined) return '';
+          const stringValue = String(value);
+          return stringValue.includes(',') || stringValue.includes('"') 
+            ? `"${stringValue.replace(/"/g, '""')}"` 
+            : stringValue;
+        }).join('|')
+      )
+    ].join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    // Set filename with current date
+    const date = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `query_results_${date}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }

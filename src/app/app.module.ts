@@ -41,6 +41,7 @@ import { RelationsDatabaseComponent } from './components/relations-database/rela
 import { QueryExplainComponent } from './components/query-explain/query-explain.component';
 import { MarkdownToHtmlPipe } from './pipes/markdown-to-html.pipe';
 import { AuthUserInterceptor } from './interceptors/auth-user.interceptor';
+import { QueryHistoryDialogComponent } from './components/query-history-dialog/query-history-dialog.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { AuthUserInterceptor } from './interceptors/auth-user.interceptor';
     
     QueryExplainComponent,
     MarkdownToHtmlPipe,
+    QueryHistoryDialogComponent
   ],
   imports: [
     BrowserModule,

@@ -10,8 +10,9 @@ import { UsersService } from 'src/app/services/users.service';
 import { ScriptdetailsComponent } from '../scriptdetails/scriptdetails.component';
 import { User } from 'src/app/models/user';
 import { RapportService } from 'src/app/services/rapport.service';
+import { DatabaseService } from 'src/app/services/database.service';
 
-// Interface for slide data
+
 interface Slide {
   title: string;
   description: string;
@@ -28,48 +29,39 @@ interface Slide {
   styleUrls: ['./rapports.component.css']
 })
 export class RapportsComponent implements OnInit, OnDestroy {
+
   showCreateScriptPopup: boolean = false;
-  
-  // Slideshow properties
   slides: Slide[] = [
     {
-      title: 'Recent Activity',
-      description: 'Stay up to date with your latest database operations and system health.',
+      title: 'Database Overview',
+      description: 'Get a quick overview of your database usage and activity',
       stats: {
-        queries: 12,
-        reports: 2,
-        scripts: 1
+        queries: 0,
+        reports: 0,
+        scripts: 0
       }
     },
     {
-      title: 'Database Performance',
-      description: 'Monitor your database performance metrics in real time.',
+      title: 'Storage Statistics',
+      description: 'Monitor your database storage and resource utilization',
       stats: {
-        queries: 8,
-        reports: 3,
-        scripts: 2
-      }
-    },
-    {
-      title: 'System Health',
-      description: 'Check system status and ongoing operations.',
-      stats: {
-        queries: 15,
-        reports: 4,
-        scripts: 3
+        queries: 0,
+        reports: 0,
+        scripts: 0
       }
     }
   ];
   currentSlide: number = 0;
   slideInterval: any;
-
-  constructor(private userService:UsersService, private router:Router,
-    private el: ElementRef, private scriptservice: ScriptServiceService, private dialog: MatDialog, private rapportservice : RapportService
-  ) { }
-
+dashboardData: any[] = [];
   rapports:Rapport[]
   scripts: any[];
   user:User
+
+
+  constructor(private userService:UsersService, private router:Router,
+    private el: ElementRef, private scriptservice: ScriptServiceService, private dialog: MatDialog, private rapportservice : RapportService,
+  private databaseService: DatabaseService) { }
 
   ngOnInit(): void {
     this.userService.getUserById(Number(localStorage.getItem("userId"))).subscribe(data => {
@@ -85,11 +77,27 @@ export class RapportsComponent implements OnInit, OnDestroy {
             setTimeout(() => this.createChart(table), 0);
         });
       });
+      
+      // Update slides with real data
+      this.updateSlidesData();
     });
     
     this.getScripts();
-    
-    // Start slideshow auto-rotation
+        
+     const creatorId = Number(localStorage.getItem('userId'));  
+    const cnxId = Number(localStorage.getItem('idConnection'));
+
+    this.databaseService.getDashboardForUser(creatorId, cnxId).subscribe({
+      next: (data) => {
+        this.dashboardData = data;
+        // Update slides with real data
+        this.updateSlidesData();
+      },
+      error: (err) => {
+        console.error('Error fetching dashboard:', err);
+      }
+    });
+
     this.startSlideshow();
   }
   
@@ -262,5 +270,38 @@ deleteRapport(id: number) {
 
   goToStats(){
     this.router.navigate(["/main/dashboard/statistics"])
+  }
+
+
+
+
+  getTotalQueryCount(): number {
+    return this.dashboardData.reduce((sum, db) => sum + db.queryCount, 0);
+  }
+
+  getTotalTables(): number {
+    return this.dashboardData.reduce((sum, db) => sum + db.tableCount, 0);
+  }
+
+  getTotalSize(): number {
+    return this.dashboardData.reduce((sum, db) => sum + (db.usedSizeBytes || 0), 0);
+  }
+
+  private updateSlidesData(): void {
+    if (this.slides && this.slides.length >= 2) {
+      // First slide - Database Overview
+      this.slides[0].stats = {
+        queries: this.getTotalQueryCount(),
+        reports: this.rapports?.length || 0,
+        scripts: this.scripts?.length || 0
+      };
+
+      // Second slide - Storage Statistics
+      this.slides[1].stats = {
+        queries: this.getTotalTables(),
+        reports: Math.round(this.getTotalSize() / (1024 * 1024)), // Convert to MB
+        scripts: this.dashboardData?.length || 0
+      };
+    }
   }
 }
