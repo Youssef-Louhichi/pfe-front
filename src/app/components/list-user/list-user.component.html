@@ -1,5 +1,5 @@
 <div class="cont">
-    <div class="database-arch" [class.disabled]="selectedAnalystId === null || user.type == 'Analyst'">
+    <div class="database-arch" [class.disabled]="selectedAnalystId === null || user.type == 'Analyst'" *ngIf=" user.type != 'Analyst'">
         <input type="checkbox" (change)="onDatabaseCheckboxChange($event, selectedDb)" [checked]="selectedDbId !== null">
         {{selectedDb.name}}
         <ul>
@@ -22,12 +22,12 @@
       <thead>
         <tr class="user-search">
           <td>
-            <input type="text" placeholder="Search users..." />
+            <input type="text" placeholder="Search users..." (input)="searchUser(input.value)" #input/>
           </td>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let analyst of analysts; let i = index">
+        <tr *ngFor="let analyst of filteredAnalysts; let i = index">
           <td class="user-row">
             <div class="user-element">
               <input 

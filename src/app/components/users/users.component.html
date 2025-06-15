@@ -10,9 +10,9 @@
   
   <div class="content-wrapper">
     
-    <div class="nav-links">
+    <div class="nav-links" [hidden]="user.type == 'Analyst'">
       <a href="#" (click)="showList = true; $event.preventDefault()" >Analysts list</a> |
-      <a href="#" (click)="showList = false; $event.preventDefault()" [hidden]="user.type == 'Analyst'" >Add new analyst</a>
+      <a href="#" (click)="showList = false; $event.preventDefault()"  >Add new analyst</a>
     </div>
     
     

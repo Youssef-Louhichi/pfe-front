@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { Analyst } from 'src/app/models/analyst';
 import { User } from 'src/app/models/user';
 import { UserDetailsPopupComponent } from '../user-details-popup/user-details-popup.component';
@@ -13,7 +13,7 @@ import { TaskService } from 'src/app/services/task.service';
   templateUrl: './list-user.component.html',
   styleUrls: ['./list-user.component.css']
 })
-export class ListUserComponent {
+export class ListUserComponent implements OnChanges{
 
 
 constructor(
@@ -30,12 +30,14 @@ selectedColumnIds: number[] = [];
 
 
   @Input() analysts : Analyst[]
+  filteredAnalysts : Analyst[] 
     @Input() selectedDb: Database
     @Input() user: User;
 
 
-
-
+    ngOnChanges(){
+this.filteredAnalysts = [...this.analysts];
+    }
 
     isTableDisabled(): boolean {
       return this.selectedDbId !== null;
@@ -208,5 +210,18 @@ openTaskDialog(receiverId: number) {
   });
 }
 
+searchUser(input:string){
+
+  
+
+  this.filteredAnalysts = this.analysts
+
+  if(input != "")
+    this.filteredAnalysts = this.filteredAnalysts.filter(a => a.mail.includes(input) )
+  
+}
+
 
 }
+
+
