@@ -50,13 +50,11 @@ export class LmdDeleteComponent implements OnChanges {
 
   updateAvailableColumns(): void {
     this.availableColumns = [
-      // Primary table columns
       ...this.tableColumns.map(col => ({
         tableName: this.selectedTable?.name || '',
         name: col.name,
         type: col.type
       })),
-      // Second table columns from joins
       ...this.joins.controls.flatMap((join, index) => {
         const secondTableId = join.get('secondTableId')?.value;
         const table = this.availableTables.find(t => t.id === Number(secondTableId));

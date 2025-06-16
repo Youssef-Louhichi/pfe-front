@@ -66,8 +66,6 @@ export class DashboardComponent implements OnInit {
     this.toggleService.collapsed$.subscribe(c => {
       this.isCollapsed = c
     })
-
-    // Initialize rapport if needed
     if (!this.rapport) {
       this.rapport = new Rapport(null, "", [], null, null, null, null)
     }
@@ -98,7 +96,6 @@ export class DashboardComponent implements OnInit {
 
   hideQueryBuilder() {
     this.showingQueryBuilder = false
-    // Re-render charts if needed
     this.rapportGraphs.forEach(graph => {
       if (graph.format == "chart") {
         setTimeout(() => this.createChart(graph), 0)

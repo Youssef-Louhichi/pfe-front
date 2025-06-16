@@ -41,11 +41,11 @@ export class DbsStatisticsComponent  implements OnInit {
 
   getRecentMonths(stats: any): string[] {
     if (!stats) return [];
-    return Object.keys(stats).slice(0, 6); // Show last 6 months
+    return Object.keys(stats).slice(0, 6); 
   }
 
   getBarHeight(queryCount: number): string {
-    const maxHeight = 100; // pixels
+    const maxHeight = 100; 
     const maxQueries = Math.max(...Object.values(this.dashboardData
       .flatMap(db => Object.values(db.monthlyQueryStats || {})) as number[]), 1);
     return `${(queryCount / maxQueries) * maxHeight}px`;

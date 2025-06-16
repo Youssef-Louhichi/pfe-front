@@ -22,8 +22,6 @@ export class AddUserComponent implements OnInit {
   newUserform: FormGroup
   @Input() analysts: Analyst[]
    filteredUsers: User[] = [];
-  
-  // Error handling variables
   showSelectionError: boolean = false;
   emailError: string = '';
   formError: string = '';
@@ -145,21 +143,15 @@ export class AddUserComponent implements OnInit {
   addUser() {
     this.formError = '';
     this.emailError = '';
-    
-    // Validate selection
     if (!this.validateSelection()) {
       this.formError = 'Please select at least one database, table, or column';
       return;
     }
-
-    // Validate email
     const emailInput = document.getElementById('email') as HTMLInputElement;
     if (!emailInput || !this.isEmailComplete(emailInput.value)) {
       this.emailError = 'Please enter a valid email';
       return;
     }
-
-    // Check if user is selected
     if (!this.selectedUser && this.filteredUsers.length === 0) {
       this.emailError = 'Please select a user from the list';
       return;
@@ -207,14 +199,10 @@ export class AddUserComponent implements OnInit {
 
   addNewUser() {
     this.formError = '';
-    
-    // Validate selection
     if (!this.validateSelection()) {
       this.formError = 'Please select at least one database, table, or column';
       return;
     }
-
-    // Validate form
     if (this.newUserform.invalid) {
       this.newUserform.markAllAsTouched();
       this.formError = 'Please fill all required fields correctly';

@@ -14,6 +14,5 @@ export class Script {
         this.name = name;
         this.createdAt = createdAt;
         this.user = user;
-        //this.reqs = reqs
     }
 }

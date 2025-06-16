@@ -77,8 +77,6 @@ dashboardData: any[] = [];
             setTimeout(() => this.createChart(table), 0);
         });
       });
-      
-      // Update slides with real data
       this.updateSlidesData();
     });
     
@@ -90,7 +88,6 @@ dashboardData: any[] = [];
     this.databaseService.getDashboardForUser(creatorId, cnxId).subscribe({
       next: (data) => {
         this.dashboardData = data;
-        // Update slides with real data
         this.updateSlidesData();
       },
       error: (err) => {
@@ -102,15 +99,13 @@ dashboardData: any[] = [];
   }
   
   ngOnDestroy(): void {
-    // Clear the interval when component is destroyed
+    
     this.stopSlideshow();
   }
-  
-  // Slideshow methods
   startSlideshow(): void {
     this.slideInterval = setInterval(() => {
       this.nextSlide();
-    }, 3000); // Rotate every 3 seconds
+    }, 3000); 
   }
   
   stopSlideshow(): void {
@@ -143,7 +138,6 @@ deleteRapport(id: number) {
     }
   });
 }
-  // Existing methods
   charts: { [key: string]: Chart } = {};
 
   createChart(table: Graph): void {
@@ -186,10 +180,10 @@ deleteRapport(id: number) {
           maintainAspectRatio: false,
           scales: {
             x: {
-              display: false // Hide the x-axis if needed
+              display: false 
             },
             y: {
-              display: false // Hide the y-axis if needed
+              display: false 
             }
           },
           plugins: {
@@ -292,17 +286,14 @@ deleteRapport(id: number) {
 
   private updateSlidesData(): void {
     if (this.slides && this.slides.length >= 2) {
-      // First slide - Database Overview
       this.slides[0].stats = {
         queries: this.getTotalQueryCount(),
         reports: this.rapports?.length || 0,
         scripts: this.scripts?.length || 0
       };
-
-      // Second slide - Storage Statistics
       this.slides[1].stats = {
         queries: this.getTotalTables(),
-        reports: Math.round(this.getTotalSize() / (1024 * 1024)), // Convert to MB
+        reports: Math.round(this.getTotalSize() / (1024 * 1024)), 
         scripts: this.dashboardData?.length || 0
       };
     }
