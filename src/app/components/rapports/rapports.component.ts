@@ -218,7 +218,7 @@ deleteRapport(id: number) {
 
   getScripts() {
     this.scriptservice.getByUser(Number(localStorage.getItem("userId"))).subscribe(data => {
-      this.scripts = data 
+      this.scripts = data
       console.log(this.scripts.length)
     })
   }

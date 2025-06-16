@@ -370,7 +370,7 @@ export class DashboardComponent implements OnInit {
         ["#000"],
         null,
         null,
-        "12px"
+        "20px"
       )
       this.rapportGraphs.push(t)
       this.selectedGraph = t

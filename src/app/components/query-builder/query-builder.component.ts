@@ -673,14 +673,14 @@ export class QueryBuilderComponent implements OnInit {
       const toColOk = to.columns.some(c => c.name === rel.toColumn);
       if (!fromColOk || !toColOk) return;
 
-      joinConditions.push({
+      joinConditions.unshift({
         firstTableId: from.id,
         firstColumnName: rel.fromColumn,
         secondTableId: to.id,
         secondColumnName: rel.toColumn,
         joinType: 'INNER',
       });
-      joinConditions.push({
+      joinConditions.unshift({
         firstTableId: to.id,
         firstColumnName: rel.toColumn,
         secondTableId: from.id,
@@ -762,6 +762,7 @@ export class QueryBuilderComponent implements OnInit {
       }
     }
 
+        console.log('Generated join conditions:', this.selectedTables);
     console.log('Generated join conditions:', joinConditions);
     return joinConditions;
   }
