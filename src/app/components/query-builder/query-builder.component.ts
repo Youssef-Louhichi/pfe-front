@@ -154,6 +154,7 @@ export class QueryBuilderComponent implements OnInit {
   columnAggregations: Map<number, string> = new Map();
 
   errorMessage: string = '';
+  variableres:boolean = false ;
 
   ngOnInit(): void {
     this.queryForm = this.fb.group({
@@ -1246,6 +1247,7 @@ export class QueryBuilderComponent implements OnInit {
             this.tableData = data;
             if (this.tableData.length > 0) {
               this.tableHeaders = Object.keys(this.tableData[0]);
+               this.variableres = true ;
             }
 
           })
@@ -1731,7 +1733,7 @@ export class QueryBuilderComponent implements OnInit {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     
-    // Set filename with current date
+    
     const date = new Date().toISOString().split('T')[0];
     link.setAttribute('href', url);
     link.setAttribute('download', `query_results_${date}.csv`);

@@ -234,10 +234,12 @@
                           <option value="like">LIKE</option>
                           <option value=">">></option>
                           <option value="<">
-                            << /option>
+                            <
+                          </option>
                           <option value=">=">>=</option>
                           <option value="<=">
-                            <=< /option>
+                            <=
+                            </option>
                           <option value="in">IN</option>
                           <option value="not in">NOT IN</option>
                         </select>
@@ -397,7 +399,7 @@
 
           <div class="form-actions">
             <button type="button" class="btn-primary" (click)="send(text.value)">Execute</button>
-            <button type="button" class="btn-primary" (click)="addTableToWorkspace()">Add Results</button>
+            <button type="button" class="btn-primary" (click)="addTableToWorkspace()" [disabled]="!variableres">Add Results</button>
           </div>
 
           <div class="suggestions-area">

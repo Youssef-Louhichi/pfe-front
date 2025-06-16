@@ -42,6 +42,7 @@ export class MyTasksComponent implements OnInit {
         this.receivedTasks = this.receivedTasks.map(task =>
           task.id === taskId ? { ...task, isDone: true } : task
         );
+        this.loadTasks();
       },
       error: (err) => console.error('Failed to mark task as done', err)
     });

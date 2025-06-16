@@ -68,11 +68,12 @@ export class HomeComponent implements OnInit{
     this.router.navigate(["/main"])
   }
 
-deleteRapport(id: number) {
+deletecnx(id: number) {
   console.log(id);
   this.cnxservice.deleteconnexion(id).subscribe({
     next: () => {
       console.log('Deleted successfully');
+      this.connexions = this.connexions.filter(connexion => connexion.id !== id);
       
     },
     error: (err) => {
