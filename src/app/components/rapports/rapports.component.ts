@@ -136,7 +136,7 @@ deleteRapport(id: number) {
   this.rapportservice.deleteRapport(id).subscribe({
     next: () => {
       console.log('Deleted successfully');
-      // optionally refresh data or show message
+      this.rapports = this.rapports.filter(rapport => rapport.id !== id);
     },
     error: (err) => {
       console.error('Delete failed:', err);
@@ -229,7 +229,10 @@ deleteRapport(id: number) {
 
   deleteScript(id : number) : void {
     this.scriptservice.deleteScript(id).subscribe({
-      next: () => console.log('Script deleted'),
+      next: () => {
+        console.log('Script deleted');
+      this.scripts = this.scripts.filter(script => script.id !== id);
+      }
     });
   }
 
