@@ -20,15 +20,15 @@
                     <div class="slide-stats">
                         <div class="stat-box">
                             <div class="stat-value">{{slide.stats.queries}}</div>
-                            <div class="stat-label">QUERIES TODAY</div>
+                            <div class="stat-label">{{currentSlide === 0 ? 'QUERIES TODAY' : 'TABLES'}}</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-value">{{slide.stats.reports}}</div>
-                            <div class="stat-label">NEW REPORTS</div>
+                            <div class="stat-label">{{currentSlide === 0 ? 'NEW REPORTS' : 'SIZE (MB)'}}</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-value">{{slide.stats.scripts}}</div>
-                            <div class="stat-label">ACTIVE SCRIPTS</div>
+                            <div class="stat-label">{{currentSlide === 0 ? 'ACTIVE SCRIPTS' : 'DATABASES'}}</div>
                         </div>
                     </div>
                 </div>

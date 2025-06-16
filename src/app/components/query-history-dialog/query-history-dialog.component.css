@@ -1,0 +1,112 @@
+.history-dialog {
+  padding: 20px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.history-table th,
+.history-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.history-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.history-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.add-script-btn {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: #495057;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.add-script-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.delete-btn:hover {
+  color: #c82333;
+}
+
+.no-history {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.no-history i {
+  font-size: 2rem;
+  color: #adb5bd;
+} 

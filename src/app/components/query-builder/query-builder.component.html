@@ -72,6 +72,13 @@
           </li>
         </ul>
       </div>
+
+      <div class="history-section">
+        <button class="history-btn" (click)="showHistory()">
+          <i class="fas fa-history"></i>
+          See History
+        </button>
+      </div>
     </section>
 
     <div class="query-area">
@@ -442,6 +449,9 @@
               <button class="show-sql-btn" (click)="showSql()">
                 <i class="fas fa-code"></i> View SQL
               </button>
+              <button class="export-csv-btn" (click)="exportToCsv()">
+                <i class="fas fa-file-csv"></i> Export to CSV
+              </button>
             </div>
             <div class="result-table">
               <table class="tabdata">
@@ -454,6 +464,9 @@
                   <tr *ngFor="let row of tableData">
                     <td *ngFor="let key of tableHeaders">{{ row[key] }}</td>
                   </tr>
+                    
+                    <td *ngFor="let key of tableHeaders"><div *ngIf="tableData.length == 0">no results</div></td>
+                  
                 </tbody>
               </table>
             </div>

@@ -9,7 +9,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 })
 export class DbsStatisticsComponent  implements OnInit {
   dashboardData: any[] = [];
-  Object = Object; // For template usage
+  Object = Object; 
 
   constructor(private databaseService: DatabaseService,private router: Router) {}
 
