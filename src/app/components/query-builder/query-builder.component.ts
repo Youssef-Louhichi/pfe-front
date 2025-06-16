@@ -917,7 +917,7 @@ export class QueryBuilderComponent implements OnInit {
                 functionagg: agg.functionagg
               }));
 
-              // Get group by column IDs
+
               this.refreshGroupByColumns()
               const groupByColumnIds = this.groupByColumns.map(column => column.id);
               const joins = this.generateJoinConditions();
