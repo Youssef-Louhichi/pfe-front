@@ -946,6 +946,7 @@ export class QueryBuilderComponent implements OnInit {
               }));
 
               // Get group by column IDs
+              this.refreshGroupByColumns()
               const groupByColumnIds = this.groupByColumns.map(column => column.id);
 
               //get joins
@@ -999,7 +1000,7 @@ export class QueryBuilderComponent implements OnInit {
                   },
                   content: "Fetching data"
                 },
-                tableId: this.selectedTables.map(t => t.id).concat(this.interTables.map(t => t.id)),
+                tableId: this.getOrderedTableIds(this.selectedTables, this.interTables, joins),
                 columnId: this.selectedColumns
                   .filter(col => !this.isColumnAggregated(col.id))
                   .map(c => c.id),
@@ -1023,6 +1024,7 @@ export class QueryBuilderComponent implements OnInit {
                   if (this.tableData.length > 0) {
                     this.tableHeaders = Object.keys(this.tableData[0]);
                     this.getReq();
+                    this.loadSavedRequests();
                     this.showSqlButton = true;
                   }
                 },
@@ -1049,7 +1051,38 @@ export class QueryBuilderComponent implements OnInit {
     }
   }
 
+ getOrderedTableIds(
+    selectedTables: DbTable[],
+    interTables: DbTable[],
+    joinConditions: JoinCondition[]
+): number[] {
+    const allTableIds = selectedTables.map(t => t.id).concat(interTables.map(t => t.id));
+    
+    if (joinConditions.length === 0 || allTableIds.length === 0) {
+        return allTableIds;
+    }
 
+    const firstTableId = allTableIds[0];
+    const firstJoin = joinConditions[0];
+
+    if (firstJoin.firstTableId === firstTableId || firstJoin.secondTableId === firstTableId) {
+        return allTableIds; 
+    }
+
+    const validFirstIds = [firstJoin.firstTableId, firstJoin.secondTableId].filter(id => 
+        allTableIds.includes(id)
+    );
+
+    if (validFirstIds.length === 0) {
+        return allTableIds; 
+    }
+
+    const reorderedIds = [
+        validFirstIds[0], ...allTableIds.filter(id => id !== validFirstIds[0]) 
+    ];
+
+    return reorderedIds;
+}
 
 
   loadSavedRequests(): void {
