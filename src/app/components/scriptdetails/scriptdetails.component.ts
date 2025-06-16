@@ -39,11 +39,11 @@ export class ScriptdetailsComponent implements OnInit {
 
   confirm(): void {
     this.dialogRef.close(this.removedRequetes);
-    console.log(this.removedRequetes) // pass removed IDs back
+    console.log(this.removedRequetes) 
   }
 
   cancel(): void {
-    this.dialogRef.close(); // close without saving
+    this.dialogRef.close(); 
   }
 
 }

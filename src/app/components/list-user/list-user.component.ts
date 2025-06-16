@@ -22,7 +22,7 @@ constructor(
   private taskService: TaskService
   ) { }
 isDatabaseSelected: boolean = false;
-selectedTables: Set<string> = new Set(); // Track selected table names
+selectedTables: Set<string> = new Set(); 
 
 selectedDbId: number | null = null;
 selectedTableIds: number[] = [];
@@ -61,9 +61,8 @@ this.filteredAnalysts = [...this.analysts];
       const isChecked = event.target.checked;
       
       if (isChecked) {
-        this.selectedDbId = null; // Unselect database if selecting table
+        this.selectedDbId = null; 
         this.selectedTableIds = [...this.selectedTableIds, table.id];
-        // Remove any columns from this table
         this.selectedColumnIds = this.selectedColumnIds.filter(colId => 
           !table.columns.some((col: any) => col.id === colId)
         );
@@ -77,9 +76,8 @@ this.filteredAnalysts = [...this.analysts];
       
       if (isChecked) {
         this.selectedColumnIds = [...this.selectedColumnIds, column.id];
-        // Make sure parent table isn't selected
         this.selectedTableIds = this.selectedTableIds.filter(id => id !== column.tableId);
-        this.selectedDbId = null; // Unselect database if selecting column
+        this.selectedDbId = null; 
       } else {
         this.selectedColumnIds = this.selectedColumnIds.filter(id => id !== column.id);
       }
@@ -103,7 +101,7 @@ this.filteredAnalysts = [...this.analysts];
 
 
 selectedAnalystId: Analyst  = null; 
-selectedAnalystRelations: any[] = []; // Array of relations for the selected analyst
+selectedAnalystRelations: any[] = []; 
 
 toggleCheck(analystId: Analyst) {
   if (this.selectedAnalystId === analystId) {

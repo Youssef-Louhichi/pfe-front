@@ -14,17 +14,17 @@ export class TitlePopupComponent {
     private dialogRef: MatDialogRef<TitlePopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { currentTitle: string }
   ) {
-    this.newTitle = data.currentTitle || ''; // Initialize with existing title
+    this.newTitle = data.currentTitle || ''; 
   }
 
   saveTitle() {
     if (this.newTitle.trim() !== '') {
-      this.dialogRef.close(this.newTitle); // Pass back the title
+      this.dialogRef.close(this.newTitle); 
     }
   }
 
   closeDialog() {
-    this.dialogRef.close(); // Just close without saving
+    this.dialogRef.close(); 
   }
 
 }

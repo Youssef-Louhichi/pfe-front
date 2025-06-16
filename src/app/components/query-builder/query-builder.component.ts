@@ -13,7 +13,6 @@ import { Requete } from 'src/app/models/requete';
 import { Script } from 'src/app/models/script';
 import { AnalystService } from 'src/app/services/analyst.service';
 import { ConnexionsService } from 'src/app/services/connexions.service';
-//import { WhereClause } from 'src/app/models/where-clause';
 import { RequeteService } from 'src/app/services/requete.service';
 import { ScriptServiceService } from 'src/app/services/script-service.service';
 import { SuggestionsService } from 'src/app/services/suggestions.service';
@@ -43,8 +42,8 @@ interface WhereClause {
   operator: string;
   value: string;
   tableName: string;
-  test: boolean; // To determine if the value is a subquery or not
-  subqueryComparator?: string; // Optional field for subquery comparison (IN, NOT IN)
+  test: boolean;  
+  subqueryComparator?: string; 
 }
 interface AggregationWithColumn {
   columnId: number;
@@ -54,8 +53,7 @@ interface AggregationWithColumn {
 }
 interface Aggregation {
   columnId: number;
-  functionagg: string[]; // List of functions
-}
+  functionagg: string[];}
 interface JoinCondition {
   firstTableId: number;
   firstColumnName: string;
@@ -146,11 +144,7 @@ export class QueryBuilderComponent implements OnInit {
   isDbMode: boolean = true;
   selectedScriptIndex: number = 0;
   showNotification = false;
-
-  // Track which columns have open menus
   columnMenus: Map<number, boolean> = new Map();
-
-  // Track column aggregations
   columnAggregations: Map<number, string> = new Map();
 
   errorMessage: string = '';
@@ -649,8 +643,6 @@ export class QueryBuilderComponent implements OnInit {
 
     const selectedNames = this.selectedTables.map(t => t.name);
     const selectedSet = new Set(selectedNames);
-
-    // Graph: table name -> related relations (bidirectional)
     const graph = new Map<string, TableRelation[]>();
     for (const rel of this.relations) {
       if (!graph.has(rel.fromTable)) graph.set(rel.fromTable, []);
@@ -663,8 +655,6 @@ export class QueryBuilderComponent implements OnInit {
         toColumn: rel.fromColumn,
       });
     }
-
-    // Helper to validate and push a join (both directions)
     const addBidirectionalJoins = (rel: TableRelation) => {
       const from = this.selectedTables.find(t => t.name === rel.fromTable) || this.getTableByName(rel.fromTable);
       const to = this.selectedTables.find(t => t.name === rel.toTable) || this.getTableByName(rel.toTable);
@@ -689,8 +679,6 @@ export class QueryBuilderComponent implements OnInit {
         joinType: 'INNER',
       });
     };
-
-    // Step 1: Get all direct relations between selected tables
     const usedDirectRelations = new Set<string>();
     for (const rel of this.relations) {
       const { fromTable, toTable } = rel;
@@ -702,8 +690,6 @@ export class QueryBuilderComponent implements OnInit {
         }
       }
     }
-
-    // Step 2: Only find paths if direct join count < n - 1
     const n = this.selectedTables.length;
     const uniquePairs = new Set<string>();
     for (let i = 0; i < n; i++) {
@@ -725,8 +711,6 @@ export class QueryBuilderComponent implements OnInit {
       console.log('Direct joins are sufficient. Skipping intermediate table logic.');
       return joinConditions;
     }
-
-    // Step 3: Try to connect remaining disconnected pairs using BFS
     const findPath = (start: string, end: string): TableRelation[] | null => {
       const queue: { current: string; path: TableRelation[] }[] = [{ current: start, path: [] }];
       const visited = new Set<string>();
@@ -795,38 +779,27 @@ export class QueryBuilderComponent implements OnInit {
   }
 
   removeColumn(column: ColumnWithTable, type: 'columns' | 'conditions') {
-    // Remove any aggregation for this column
     if (type === 'columns' && this.isColumnAggregated(column.id)) {
       this.removeAggregationFromColumn(column);
     }
 
     const targetArray = type === 'columns' ? this.selectedColumns : this.whereConditionColumns;
-
-    // Remove column from target array
     const index = targetArray.findIndex(c => c.id === column.id);
     if (index !== -1) {
       targetArray.splice(index, 1);
     }
-
-    // Also remove from group by if present
     const groupByIndex = this.groupByColumns.findIndex(c => c.id === column.id);
     if (groupByIndex !== -1) {
       this.groupByColumns.splice(groupByIndex, 1);
     }
-
-    // Check if table should be removed
     const tableColumns = [
       ...this.selectedColumns.filter(c => c.table.id === column.table.id),
       ...this.whereConditionColumns.filter(c => c.table.id === column.table.id)
     ];
-
-    // If no columns for this table remain, remove the table
     if (tableColumns.length === 0) {
       const tableId = column.table.id;
       this.selectedTables = this.selectedTables.filter(t => t.id !== tableId);
     }
-
-    // Update form
     this.updateFormColumns();
   }
 
@@ -938,36 +911,24 @@ export class QueryBuilderComponent implements OnInit {
 
           this.processFilterConditions().subscribe({
             next: ({ whereConditions, havingConditions }) => {
-              // Get aggregations
               const aggregations: Aggregation[] = this.aggregationControls.value.map((agg: any) => ({
                 columnId: agg.columnId,
                 functionagg: agg.functionagg
               }));
-
-              // Get group by column IDs
               const groupByColumnIds = this.groupByColumns.map(column => column.id);
-
-              //get joins
               const joins = this.generateJoinConditions();
 
               const orderByConditions: orderBy = this.orderByControls.value.map((order: any) => ({
                 colId: order.colId,
                 orderType: order.orderType
               }));
-
-              // Validate SQL rules
               let isValid = true;
               let errorMessage = "";
-
-              // Rule 1: If using aggregations, all non-aggregated columns must be in GROUP BY
               if (aggregations.length > 0 || havingConditions.length > 0) {
-                // Get all selected column IDs that are not part of aggregations
                 const aggregatedColumnIds = new Set(aggregations.map(agg => agg.columnId));
                 const nonAggregatedColumnIds = this.selectedColumns
                   .filter(col => !aggregatedColumnIds.has(col.id))
                   .map(col => col.id);
-
-                // Check if all non-aggregated columns are in GROUP BY
                 const missingGroupByColumns = nonAggregatedColumnIds
                   .filter(colId => !groupByColumnIds.includes(colId));
 
@@ -986,8 +947,6 @@ export class QueryBuilderComponent implements OnInit {
                 alert(errorMessage);
                 return;
               }
-
-              // Construct request payload
               const requestPayload = {
                 req: {
                   sentAt: new Date().toISOString(),
@@ -1079,14 +1038,9 @@ export class QueryBuilderComponent implements OnInit {
 
   }
 
-  /**
-   * Analyze and explain the SQL query using AI
-   * @param content SQL query to explain
-   * @returns Promise with the explanation
-   */
+
   explainSql(content: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      // Create a prompt for the AI to explain the SQL query
       const prompt =
         "Below is an SQL query. Please analyze and explain it in detail:\n\n" +
         content + "\n\n" +
@@ -1097,14 +1051,10 @@ export class QueryBuilderComponent implements OnInit {
         "4. What aggregations or calculations are happening\n" +
         "5. What the query is trying to accomplish overall\n\n" +
         "Format your response in markdown with sections for each part of the query.";
-
-      // Estimate token count (same as in send method)
       const tokenCount = Math.ceil(prompt.length / 4.5);
       const tokenLimit = 2078;
       const responseMaxTokens = tokenLimit - tokenCount;
       const maxTokens = Math.min(responseMaxTokens, 1000);
-
-      // Call the OpenRouter API
       fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -1135,12 +1085,9 @@ export class QueryBuilderComponent implements OnInit {
     });
   }
 
-  /**
-   * Show the SQL query in a dialog with option to explain it
-   */
+
   showSql(): void {
     if (this.lastreq && this.lastreq.content) {
-      // Open the QueryExplain dialog with the SQL content
       const dialogRef = this.dialog.open(QueryExplainComponent, {
         width: '80%',
         maxWidth: '800px',
@@ -1149,8 +1096,6 @@ export class QueryBuilderComponent implements OnInit {
           explanation: null
         }
       });
-
-      // Handle the explain button click from the dialog
       dialogRef.componentInstance.explainRequest.subscribe(() => {
         dialogRef.componentInstance.loading = true;
 
@@ -1302,27 +1247,22 @@ export class QueryBuilderComponent implements OnInit {
     this.hideQueryBuilder.emit();
   }
 
-  /**
-   * Check if there are results available to add to workspace
-   */
+
   hasResults(): boolean {
-    // Check if we have results from either query builder or script execution
     return (this.resultSource === 'query' && this.tableData && this.tableData.length > 0) ||
       (this.resultSource === 'script' && this.allResults && this.allResults.length > 0);
   }
 
-  /**
-   * Show notification when results are added to workspace
-   */
+
   showAddedNotification(): void {
     if (!this.hasResults()) {
-      return; // Don't show notification if no results
+      return; 
     }
 
     this.showNotification = true;
     setTimeout(() => {
       this.showNotification = false;
-    }, 3000); // Hide after 3 seconds
+    }, 3000);
   }
 
   showRelations() {
@@ -1354,7 +1294,6 @@ export class QueryBuilderComponent implements OnInit {
   getRequestById(reqId: number): Observable<any> {
     return this.reqservice.getReqById(reqId).pipe(
       map(req => {
-        // Return the request data that will be used as a subquery
         return req;
       })
     );
@@ -1362,7 +1301,7 @@ export class QueryBuilderComponent implements OnInit {
 
   fetchResults(scriptId: number): void {
     this.resultSource = 'script';
-    this.tableData = []; // Clear query results
+    this.tableData = []; 
     this.tableHeaders = [];
     this.showSqlButton = false;
     this.scriptService.executeScript(scriptId).subscribe(
@@ -1401,8 +1340,6 @@ export class QueryBuilderComponent implements OnInit {
 
   onColumnDropForOrderBy(event: CdkDragDrop<Column[]>) {
     const draggedColumn = event.previousContainer.data[event.previousIndex];
-
-    // Check if column already exists in order by
     const columnExists = this.orderByControls.controls.some(
       control => control.get('colId').value === draggedColumn.id
     );
@@ -1431,7 +1368,6 @@ export class QueryBuilderComponent implements OnInit {
 
 
   addTableToWorkspace() {
-    // Emit script results if present
     if (this.allResults.length > 0) {
       this.allResults.forEach((table, index) => {
         if (table.rows.length) {
@@ -1455,7 +1391,6 @@ export class QueryBuilderComponent implements OnInit {
         }
       });
     }
-    // Emit query builder/AI results if present
     else if (this.tableData.length) {
       this.newItemEvent.emit(
         new Graph(
@@ -1480,49 +1415,30 @@ export class QueryBuilderComponent implements OnInit {
   switch() {
     this.toggle = !this.toggle;
   }
-
-  // Check if a column has aggregation function applied
   isColumnAggregated(columnId: number): boolean {
     return this.columnAggregations.has(columnId);
   }
-
-  // Get the aggregation function for a column
   getColumnAggregation(columnId: number): string {
     return this.columnAggregations.get(columnId) || '';
   }
-
-  // Toggle column menu visibility
   toggleColumnMenu(columnId: number): void {
-    // Close all other menus first
     this.columnMenus.forEach((value, key) => {
       if (key !== columnId) {
         this.columnMenus.set(key, false);
       }
     });
-
-    // Toggle this menu
     const isOpen = this.columnMenus.get(columnId) || false;
     this.columnMenus.set(columnId, !isOpen);
   }
-
-  // Check if a column's menu is open
   isColumnMenuOpen(columnId: number): boolean {
     return this.columnMenus.get(columnId) || false;
   }
-
-  // Apply an aggregation function to a column
   applyAggregationToColumn(column: ColumnWithTable, functionName: string): void {
-    // Save the aggregation for this column
     this.columnAggregations.set(column.id, functionName);
-
-    // Close the menu
     this.columnMenus.set(column.id, false);
-
-    // Add to aggregations form array
     const existingAggIndex = this.findAggregationIndexForColumn(column.id);
 
     if (existingAggIndex === -1) {
-      // Add new aggregation
       const aggregation = this.fb.group({
         columnId: [column.id, Validators.required],
         columnName: [column.name, Validators.required],
@@ -1532,37 +1448,23 @@ export class QueryBuilderComponent implements OnInit {
 
       this.aggregationControls.push(aggregation);
     } else {
-      // Update existing aggregation
       const aggregation = this.aggregationControls.at(existingAggIndex);
       const functionsArray = aggregation.get('functionagg') as FormArray;
       functionsArray.clear();
       functionsArray.push(this.fb.control(functionName));
     }
-
-    // Update groupBy columns if needed
     this.updateGroupByColumnsAfterAggregation();
   }
-
-  // Remove aggregation from a column
   removeAggregationFromColumn(column: ColumnWithTable): void {
-    // Remove the saved aggregation
     this.columnAggregations.delete(column.id);
-
-    // Close the menu
     this.columnMenus.set(column.id, false);
-
-    // Remove from aggregations form array
     const existingAggIndex = this.findAggregationIndexForColumn(column.id);
 
     if (existingAggIndex !== -1) {
       this.aggregationControls.removeAt(existingAggIndex);
     }
-
-    // Update groupBy columns
     this.updateGroupByColumnsAfterAggregation();
   }
-
-  // Helper to find an aggregation by column ID
   private findAggregationIndexForColumn(columnId: number): number {
     for (let i = 0; i < this.aggregationControls.length; i++) {
       const control = this.aggregationControls.at(i);
@@ -1572,21 +1474,12 @@ export class QueryBuilderComponent implements OnInit {
     }
     return -1;
   }
-
-  // Method to refresh group by columns based on selected columns
   refreshGroupByColumns(): void {
-    // Get all aggregated column IDs
     const aggregatedColumnIds = new Set(Array.from(this.columnAggregations.keys()));
-
-    // Get all selected column IDs that are not aggregated
     const nonAggregatedColumns = this.selectedColumns.filter(c => !aggregatedColumnIds.has(c.id));
-
-    // Find columns in group by that aren't in selected columns
     const invalidGroupByColumns = this.groupByColumns.filter(
       groupByCol => !this.selectedColumns.some(selectCol => selectCol.id === groupByCol.id)
     );
-
-    // Remove invalid columns
     if (invalidGroupByColumns.length > 0) {
       for (const col of invalidGroupByColumns) {
         const index = this.groupByColumns.findIndex(c => c.id === col.id);
@@ -1595,21 +1488,14 @@ export class QueryBuilderComponent implements OnInit {
         }
       }
     }
-
-    // Add non-aggregated columns that aren't already in group by
     for (const col of nonAggregatedColumns) {
       if (!this.groupByColumns.some(c => c.id === col.id)) {
         this.groupByColumns.push(col);
       }
     }
   }
-
-  // Method to add a column to order by
   addColumnToOrderBy(column: ColumnWithTable): void {
-    // Close the menu
     this.columnMenus.set(column.id, false);
-
-    // Check if column already exists in order by
     const columnExists = this.orderByControls.controls.some(
       control => control.get('colId').value === column.id
     );
@@ -1626,73 +1512,45 @@ export class QueryBuilderComponent implements OnInit {
     }
   }
 
-  /**
-   * Reset all form fields and selections
-   */
-  resetForm(): void {
-    // Clear all form arrays
+    resetForm(): void {
     this.filterClauses.clear();
     this.aggregationControls.clear();
     this.orderByControls.clear();
-
-    // Reset form basic values
     this.queryForm.patchValue({
       table: '',
       column: '',
       limit: ''
     });
-
-    // Clear selected columns and tables
     this.selectedColumns = [];
     this.selectedTables = [];
     this.whereConditionColumns = [];
     this.groupByColumns = [];
     this.interTables = [];
-
-    // Clear aggregations and menus
     this.columnAggregations.clear();
     this.columnMenus.clear();
-
-    // Clear results
     this.tableData = [];
     this.tableHeaders = [];
     this.allResults = [];
     this.showSqlButton = false;
-
-    // Reset dropdown visibility
     this.showColumns = {};
-
-    // Reset for next query
     this.resultSource = null;
   }
 
-  /**
-   * Send column to filter section
-   * If column has aggregation, create a HAVING filter
-   * Otherwise create a WHERE filter
-   */
-  sendColumnToFilter(column: ColumnWithTable): void {
-    // Close the menu
+    sendColumnToFilter(column: ColumnWithTable): void {
     this.columnMenus.set(column.id, false);
-
-    // Check if column has aggregation
     const hasAggregation = this.isColumnAggregated(column.id);
     const aggregationType = hasAggregation ? this.getColumnAggregation(column.id) : '';
-
-    // Create filter condition
     const filterCondition = this.fb.group({
       columnName: [column.name, Validators.required],
       columnId: [column.id, Validators.required],
       tableName: [column.table.name, Validators.required],
       operator: ['=', Validators.required],
       value: ['', Validators.required],
-      functionType: [aggregationType], // Empty for WHERE, populated for HAVING
+      functionType: [aggregationType], 
       showFunctionMenu: [false],
-      test: [false], // Not a subquery by default
-      subqueryComparator: ['in'] // Default for subqueries
+      test: [false], 
+      subqueryComparator: ['in'] 
     });
-
-    // Add to filter clauses
     this.filterClauses.push(filterCondition);
   }
 
@@ -1708,17 +1566,11 @@ export class QueryBuilderComponent implements OnInit {
       alert('No data to export');
       return;
     }
-
-    // Get headers from the first row
     const headers = this.tableHeaders;
-    
-    // Convert data to CSV format
     const csvContent = [
-      headers.join('|'), // Header row
       ...this.tableData.map(row => 
         headers.map(header => {
           const value = row[header];
-          // Handle values that might contain commas or quotes
           if (value === null || value === undefined) return '';
           const stringValue = String(value);
           return stringValue.includes(',') || stringValue.includes('"') 
@@ -1727,8 +1579,6 @@ export class QueryBuilderComponent implements OnInit {
         }).join('|')
       )
     ].join('\n');
-
-    // Create blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);

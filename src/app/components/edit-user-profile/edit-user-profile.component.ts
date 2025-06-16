@@ -45,10 +45,7 @@ lastreq : Requete;
   }
 
   private loadUserData(): void {
-    // In a real app, you might get this from a service or state management
     const userId = Number(localStorage.getItem("userId"));
-    
-    // This would be replaced with actual user fetching logic
 this.usersService.getUserById(userId).subscribe(data =>{
 
 

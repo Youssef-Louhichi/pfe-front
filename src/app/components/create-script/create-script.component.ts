@@ -32,7 +32,7 @@ export class CreateScriptComponent implements OnInit {
   ) {
     this.scriptForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      queries: [[], [Validators.required]] // Array for selected query IDs
+      queries: [[], [Validators.required]] 
 
       
     });

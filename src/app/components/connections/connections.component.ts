@@ -58,7 +58,6 @@ export class ConnectionsComponent implements OnInit {
   }
 
   insertConnection() {
-    // Mark all fields as touched to show validation messages
     this.form.markAllAsTouched();
 
     if (this.form.invalid) {

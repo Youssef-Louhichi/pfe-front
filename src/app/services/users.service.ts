@@ -20,9 +20,6 @@ export class UsersService {
     return this.httpclient.get<User[]>(this.baseUrl);
     
   }
-
-
-   // Get user by ID
    getUserById(id: number): Observable<User> {
     return this.httpclient.get<User>(`${this.baseUrl}/${id}`);
   }
@@ -49,8 +46,6 @@ export class UsersService {
       map(response => response.isValid)
     );
   }
-
-  // Delete a user by ID
   deleteUser(id: number): Observable<void> {
     return this.httpclient.delete<void>(`${this.baseUrl}/${id}`);
   }

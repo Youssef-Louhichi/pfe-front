@@ -25,7 +25,6 @@ export class HomeComponent implements OnInit{
   ngOnInit(): void {
     let id = localStorage.getItem("userId")
     this.userService.getUserById(Number(id)).subscribe(data =>{
-      //console.log(data)
       this.user = data
       if(data.type == "Creator"){
         let creator = data as Creator

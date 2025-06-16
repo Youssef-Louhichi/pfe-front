@@ -26,12 +26,9 @@ export class ScriptSelectionDialogComponent implements OnInit {
   ) {}
   
   ngOnInit(): void {
-    // Fetch scripts for user
     const userId = Number(localStorage.getItem("userId"));
     this.scriptService.getByUser(userId).subscribe(scripts => {
       this.scripts = scripts;
-      
-      // Fetch requete to get its current scripts
       this.requeteService.getReqById(this.data.requeteId).subscribe(requete => {
         this.selectedScripts = requete.scripts?.map(script => script.id) || [];
         this.originalSelectedScripts = [...this.selectedScripts];

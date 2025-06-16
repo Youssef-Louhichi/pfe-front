@@ -15,8 +15,6 @@ export class QueryExplainComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
   activeTab: 'sql' | 'explanation' = 'sql';
-
-  // Event emitter for when the explain button is clicked
   @Output() explainRequest = new EventEmitter<void>();
 
   constructor(
@@ -26,19 +24,13 @@ export class QueryExplainComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
-  // Request an explanation of the SQL
   requestExplanation(): void {
     this.activeTab = 'explanation';
     this.explainRequest.emit();
   }
-
-  // Switch between SQL and explanation tabs
   switchTab(tab: 'sql' | 'explanation'): void {
     this.activeTab = tab;
   }
-
-  // Close the dialog
   close(): void {
     this.dialogRef.close();
   }

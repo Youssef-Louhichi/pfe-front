@@ -10,8 +10,6 @@ export class CreatorService {
 
   private baseUrl = "http://localhost:8087/api/creators"
   constructor(private httpclient : HttpClient) { }
-
-   // Create a new creator
    createCreator(creator: Creator): Observable<Creator> {
     return this.httpclient.post<Creator>(this.baseUrl, creator);
   }
