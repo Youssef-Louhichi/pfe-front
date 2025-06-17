@@ -402,7 +402,7 @@
             <button type="button" class="btn-primary" (click)="addTableToWorkspace()" [disabled]="!variableres">Add Results</button>
           </div>
 
-          <div class="suggestions-area">
+          <div class="suggestions-area" *ngIf="cnx_type && cnx_type == 'MySQL'">
             <h4>Suggested Queries</h4>
             <div class="suggestion-list">
               <div *ngFor="let s of sug_queries" class="suggestion-item">

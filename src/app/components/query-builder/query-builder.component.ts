@@ -97,7 +97,7 @@ export class QueryBuilderComponent implements OnInit {
 
   constructor(private userservice: UsersService, private fb: FormBuilder, private reqservice: RequeteService,
     private analystservice: AnalystService, private connexionservice: ConnexionsService, private scriptService: ScriptServiceService, private route: ActivatedRoute
-    , private suggestionsservice: SuggestionsService, private dialog: MatDialog, private databaseService: DatabaseService
+    , private suggestionsservice: SuggestionsService, private dialog: MatDialog, private databaseService: DatabaseService,private cnxservice:ConnexionsService
   ) { }
 
   @Output() newItemEvent = new EventEmitter<Graph>();
@@ -149,6 +149,7 @@ export class QueryBuilderComponent implements OnInit {
 
   errorMessage: string = '';
   variableres:boolean = false ;
+  cnx_type:string
 
   ngOnInit(): void {
     this.queryForm = this.fb.group({
@@ -178,6 +179,8 @@ export class QueryBuilderComponent implements OnInit {
     if (scriptId) {
       this.fetchResults(Number(scriptId));
     }
+
+    this.cnxservice.getConnexionById( Number(localStorage.getItem("idConnection"))).subscribe(data => this.cnx_type = data.dbtype)
   }
 
 
